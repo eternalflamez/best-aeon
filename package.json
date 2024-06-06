@@ -1,0 +1,13 @@
+{
+    "name": "best-aeon",
+    "version": "1.0.0",
+    "description": "",
+    "main": "bot.js",
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "discord.js": "^14.13.0"
+    }
+  }
+  
