@@ -31,6 +31,11 @@ client.on('messageCreate', (message) => {
     if (maxCounter > 200) {
       message.channel.send('MAXimum length reached, resetting!')
     }
+
+    if (maxCounter > 205) {
+      message.channel.send('MAAAAX...')
+      maxCounter = 0
+    }
   }
 
   if (message.channel.id === process.env.RESETCHANNEL && message.content.toLowerCase().includes('reset')) {
