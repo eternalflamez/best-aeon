@@ -19,28 +19,42 @@ client.once('ready', () => {
 client.on('messageCreate', (message) => {  
   if (message.author.bot) return 
 
-  if (message.stickers.hasAny('1199452550198460416')) {
-    message.channel.send(`Best ${userMention(process.env.AEON)}!`)
-    console.log('best aeon', Date())
-  }
-
-  if (/ma+x/i.test(message.content.toLowerCase())) {
-    message.channel.send(`M${'A'.repeat(maxCounter)}X ${userMention(process.env.MAX)}!`)
-    maxCounter++
-
-    if (maxCounter > 200) {
-      message.channel.send('MAXimum length reached, resetting!')
+  try {
+    if (message.stickers.hasAny('1199452550198460416')) {
+      message.channel.send(`Best ${userMention(process.env.AEON)}!`)
+      console.log('best aeon', Date())
     }
 
-    if (maxCounter > 205) {
-      message.channel.send('MAAAAX...')
-      maxCounter = 0
-    }
-  }
+    const messageText = message.content.toLowerCase()
 
-  if (message.channel.id === process.env.RESETCHANNEL && message.content.toLowerCase().includes('reset')) {
-    message.channel.send('max?')
-    maxCounter = 1
+    if (/ma+x/i.test(messageText)) {
+      message.channel.send(`M${'A'.repeat(maxCounter)}X ${userMention(process.env.MAX)}!`)
+      maxCounter++
+
+      console.log('max counter is', maxCounter)
+
+      if (maxCounter > 200) {
+        message.channel.send('MAXimum length reached, resetting!')
+      }
+
+      if (maxCounter > 205) {
+        message.channel.send('MAAAAX...')
+        maxCounter = 0
+      }
+    }
+
+    if (message.channel.id === process.env.RESETCHANNEL) {
+      if (messageText.includes('reset')) {
+        message.channel.send('max?')
+        maxCounter = 1
+      }
+
+      if (messageText.includes('maxcounter=')) {
+        maxCounter = parseInt(messageText.replace('maxcounter='))
+      }
+    }
+  } catch(e) {
+    console.error(e)
   }
 })
 
