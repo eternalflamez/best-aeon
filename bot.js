@@ -50,7 +50,7 @@ client.on('messageCreate', (message) => {
       }
 
       if (messageText.includes('maxcounter=')) {
-        maxCounter = parseInt(messageText.replace('maxcounter='))
+        maxCounter = parseInt(messageText.replace('maxcounter=', ''))
       }
     }
   } catch(e) {
