@@ -27,7 +27,7 @@ client.on('messageCreate', async (message) => {
 
     const messageText = message.content.toLowerCase()
 
-    if (/ma+x/i.test(messageText)) {
+    if (/ma+x/i.test(messageText) || message.stickers.hasAny('1110247288166678649')) {
       await message.channel.send(`M${'A'.repeat(maxCounter)}X ${userMention(process.env.MAX)}!`)
       maxCounter++
 
