@@ -16,36 +16,36 @@ client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}`)
 })
 
-client.on('messageCreate', (message) => {  
+client.on('messageCreate', async (message) => {  
   if (message.author.bot) return 
 
   try {
     if (message.stickers.hasAny('1199452550198460416')) {
-      message.channel.send(`Best ${userMention(process.env.AEON)}!`)
+      await message.channel.send(`Best ${userMention(process.env.AEON)}!`)
       console.log('best aeon', Date())
     }
 
     const messageText = message.content.toLowerCase()
 
     if (/ma+x/i.test(messageText)) {
-      message.channel.send(`M${'A'.repeat(maxCounter)}X ${userMention(process.env.MAX)}!`)
+      await message.channel.send(`M${'A'.repeat(maxCounter)}X ${userMention(process.env.MAX)}!`)
       maxCounter++
 
       console.log('max counter is', maxCounter)
 
       if (maxCounter > 200) {
-        message.channel.send('MAXimum length reached, resetting!')
+        await message.channel.send('MAXimum length reached, resetting!')
       }
 
       if (maxCounter > 205) {
-        message.channel.send('MAAAAX...')
+        await message.channel.send('MAAAAX...')
         maxCounter = 0
       }
     }
 
     if (message.channel.id === process.env.RESETCHANNEL) {
       if (messageText.includes('reset')) {
-        message.channel.send('max?')
+        await message.channel.send('max?')
         maxCounter = 1
       }
 
