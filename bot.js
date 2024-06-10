@@ -1,13 +1,18 @@
-const { Client, GatewayIntentBits, userMention } = require('discord.js')
+const { Client, GatewayIntentBits, Partials, userMention } = require('discord.js')
 
 const TOKEN = process.env.TOKEN
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds, 
+    GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.DirectMessages,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessageReactions,
   ],
+  partials: [
+    Partials.Message, Partials.Channel, Partials.Reaction,
+  ]
 })
 
 let maxCounter = 1
@@ -17,7 +22,7 @@ client.once('ready', () => {
 })
 
 client.on('messageCreate', async (message) => {  
-  if (message.author.bot) return 
+  if (message.author.bot || message.system) return 
 
   try {
     if (message.stickers.hasAny('1199452550198460416')) {
@@ -58,13 +63,65 @@ client.on('messageCreate', async (message) => {
   }
 })
 
+const allowedChannels = {
+  '1249829604974268418': true, // instant-sales
+  '821737329215275039': true, // instant-sells
+  '803274143311069204': true, // scheduled-raids
+  '982039087663951892': true, // scheduled-strikes
+  '982039130047397988': true, // scheduled-fractals
+  '842866010481885194': true, // scheduled-cms
+}
+
+client.on('messageReactionAdd', async (reaction, user) => {
+  if (reaction.partial) {
+		try {
+			await reaction.fetch()
+		} catch (error) {
+			console.error('Something went wrong when fetching the message:', error)
+			return
+		}
+	}
+
+  if (!allowedChannels[reaction.message.channelId]) {
+    return
+  }
+
+  if (user.partial) {
+    try {
+      await user.fetch()
+    } catch (error) {
+      console.error('Something went wrong when fetching the user:', error)
+			return
+    }
+  }
+  
+  if (!reaction.message.hasThread) {
+    return
+  }
+
+  const thread = reaction.message.thread
+
+  try {
+    await thread.members.fetch()
+    const isMember = thread.members.cache.has(user.id)
+
+    if (!isMember) {
+      thread.members.add(user)
+      console.log('added', user.displayName, 'to a thread')
+      // await thread.send(`${userMention(user.id)} Welcome to the thread!`)
+    }
+  } catch (error) {
+    console.error('Error checking thread membership:', error)
+  }
+})
+
 client.login(TOKEN)
 
 // Totally inconspicuous hello world website
 
 const express = require('express')
 const app = express()
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4000
 
 app.get('/', (req, res) => {
   res.send('Hello World!')
