@@ -106,9 +106,8 @@ client.on('messageReactionAdd', async (reaction, user) => {
     const isMember = thread.members.cache.has(user.id)
 
     if (!isMember) {
-      thread.members.add(user)
+      await thread.members.add(user)
       console.log('added', user.displayName, 'to a thread')
-      // await thread.send(`${userMention(user.id)} Welcome to the thread!`)
     }
   } catch (error) {
     console.error('Error checking thread membership:', error)
