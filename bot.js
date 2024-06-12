@@ -32,7 +32,7 @@ client.on('messageCreate', async (message) => {
 
     const messageText = message.content.toLowerCase()
 
-    if (/ma+x/i.test(messageText) || message.stickers.hasAny('1110247288166678649')) {
+    if (/ma+x/i.test(messageText)) {
       await message.channel.send(`M${'A'.repeat(maxCounter)}X ${userMention(process.env.MAX)}!`)
       maxCounter++
 
@@ -46,6 +46,10 @@ client.on('messageCreate', async (message) => {
         await message.channel.send('MAAAAX...')
         maxCounter = 0
       }
+    }
+
+    if (/\bdn\b/i.test(messageText)) {
+      await message.channel.send(`${userMention(message.author.id)} What\s dn?`)
     }
 
     if (message.channel.id === process.env.RESETCHANNEL) {
