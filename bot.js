@@ -40,6 +40,21 @@ client.on('messageCreate', async (message) => {
       return
     }
 
+    if (message.channel.id === process.env.RESETCHANNEL) {
+      if (messageText.includes('reset')) {
+        await message.channel.send('max?')
+        maxCounter = 1
+
+        return
+      }
+
+      if (messageText.includes('maxcounter=')) {
+        maxCounter = parseInt(messageText.replace('maxcounter=', ''))
+
+        return
+      }
+    }
+
     const messageText = message.content.toLowerCase()
 
     if (/ma+x/i.test(messageText)) {
@@ -81,17 +96,6 @@ client.on('messageCreate', async (message) => {
     if (iAm && Math.random() > 0.1) {
       await message.channel.send(iAm)
       return
-    }
-
-    if (message.channel.id === process.env.RESETCHANNEL) {
-      if (messageText.includes('reset')) {
-        await message.channel.send('max?')
-        maxCounter = 1
-      }
-
-      if (messageText.includes('maxcounter=')) {
-        maxCounter = parseInt(messageText.replace('maxcounter=', ''))
-      }
     }
   } catch(e) {
     console.error(e)
