@@ -95,7 +95,7 @@ client.on('messageCreate', async (message) => {
 
     const iAm = helloIAm(messageText.replace(/<@!?(\d+)>/g, userMention(message.author.id)), userMention(client.user.id))
 
-    if (iAm && Math.random() > 0.1) {
+    if (iAm && Math.random() < 0.1) {
       await message.channel.send(iAm)
       return
     }
