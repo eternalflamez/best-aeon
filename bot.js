@@ -1,4 +1,5 @@
 const { Client, GatewayIntentBits, Partials, userMention } = require('discord.js')
+const helloIAm = require('./helloIAm.js')
 
 const TOKEN = process.env.TOKEN
 const client = new Client({
@@ -72,6 +73,13 @@ client.on('messageCreate', async (message) => {
 
     if (/\bdn\b/i.test(messageText) && Math.random() < 0.5) {
       await message.channel.send(`${userMention(message.author.id)} What\s dn?`)
+      return
+    }
+
+    const iAm = helloIAm(messageText.replace(/<@!?(\d+)>/g, userMention(message.author.id)), userMention(client.user.id))
+
+    if (iAm && Math.random() > 0.1) {
+      await message.channel.send(iAm)
       return
     }
 
