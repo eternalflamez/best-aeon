@@ -15,6 +15,15 @@ const client = new Client({
   ]
 })
 
+const allowedChannels = {
+  '1249829604974268418': true, // instant-sales
+  '821737329215275039': true, // instant-sells
+  '803274143311069204': true, // scheduled-raids
+  '982039087663951892': true, // scheduled-strikes
+  '982039130047397988': true, // scheduled-fractals
+  '842866010481885194': true, // scheduled-cms
+}
+
 let maxCounter = 1
 
 client.once('ready', () => {
@@ -35,11 +44,9 @@ client.on('messageCreate', async (message) => {
     if (/ma+x/i.test(messageText)) {
       maxCounter++
 
-      if (maxCounter > 206 && Math.random() > 0.3) {
+      if (maxCounter > 206 && Math.random() < 0.7) {
         return
       }
-
-      await message.channel.send(`M${'A'.repeat(maxCounter)}X ${userMention(process.env.MAX)}!`)
 
       console.log('max counter is', maxCounter)
 
@@ -52,14 +59,18 @@ client.on('messageCreate', async (message) => {
         await message.channel.send('MAAAAX...')
         return
       }
+
+      await message.channel.send(`M${'A'.repeat(maxCounter)}X!`)
+
+      return
     }
 
-    if (/\bnow\b/i.test(messageText)) {
+    if (/\bnow\b/i.test(messageText) && Math.random() < 0.9) {
       await message.channel.send('WAAAOUUH IÄM NAOOUUU?')
       return
     }
 
-    if (/\bdn\b/i.test(messageText)) {
+    if (/\bdn\b/i.test(messageText) && Math.random() < 0.5) {
       await message.channel.send(`${userMention(message.author.id)} What\s dn?`)
       return
     }
@@ -78,15 +89,6 @@ client.on('messageCreate', async (message) => {
     console.error(e)
   }
 })
-
-const allowedChannels = {
-  '1249829604974268418': true, // instant-sales
-  '821737329215275039': true, // instant-sells
-  '803274143311069204': true, // scheduled-raids
-  '982039087663951892': true, // scheduled-strikes
-  '982039130047397988': true, // scheduled-fractals
-  '842866010481885194': true, // scheduled-cms
-}
 
 client.on('messageReactionAdd', async (reaction, user) => {
   if (reaction.partial) {
