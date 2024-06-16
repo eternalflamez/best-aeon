@@ -48,6 +48,10 @@ client.on('messageCreate', async (message) => {
       }
     }
 
+    if (/\bnow\b/i.test(messageText)) {
+      await message.channel.send(`${userMention(process.env.NAO)} WAAAOUUH IÄM NAOOUUU?`)
+    }
+
     if (/\bdn\b/i.test(messageText)) {
       await message.channel.send(`${userMention(message.author.id)} What\s dn?`)
     }
