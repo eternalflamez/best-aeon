@@ -26,34 +26,42 @@ client.on('messageCreate', async (message) => {
 
   try {
     if (message.stickers.hasAny('1199452550198460416')) {
-      await message.channel.send(`Best ${userMention(process.env.AEON)}!`)
-      console.log('best aeon', Date())
+      await message.channel.send(`Best AEON!`)
+      return
     }
 
     const messageText = message.content.toLowerCase()
 
     if (/ma+x/i.test(messageText)) {
-      await message.channel.send(`M${'A'.repeat(maxCounter)}X ${userMention(process.env.MAX)}!`)
       maxCounter++
+
+      if (maxCounter > 206 && Math.random() > 0.3) {
+        return
+      }
+
+      await message.channel.send(`M${'A'.repeat(maxCounter)}X ${userMention(process.env.MAX)}!`)
 
       console.log('max counter is', maxCounter)
 
       if (maxCounter > 200) {
         await message.channel.send('MAXimum length reached, resetting!')
+        return
       }
 
-      if (maxCounter > 205) {
+      if (maxCounter === 206) {
         await message.channel.send('MAAAAX...')
-        maxCounter = 0
+        return
       }
     }
 
     if (/\bnow\b/i.test(messageText)) {
-      await message.channel.send(`${userMention(process.env.NAO)} WAAAOUUH IÄM NAOOUUU?`)
+      await message.channel.send('WAAAOUUH IÄM NAOOUUU?')
+      return
     }
 
     if (/\bdn\b/i.test(messageText)) {
       await message.channel.send(`${userMention(message.author.id)} What\s dn?`)
+      return
     }
 
     if (message.channel.id === process.env.RESETCHANNEL) {
