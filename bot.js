@@ -40,6 +40,8 @@ client.on('messageCreate', async (message) => {
       return
     }
 
+    const messageText = message.content.toLowerCase()
+
     if (message.channel.id === process.env.RESETCHANNEL) {
       if (messageText.includes('reset')) {
         await message.channel.send('max?')
@@ -54,8 +56,6 @@ client.on('messageCreate', async (message) => {
         return
       }
     }
-
-    const messageText = message.content.toLowerCase()
 
     if (/ma+x/i.test(messageText)) {
       maxCounter++
