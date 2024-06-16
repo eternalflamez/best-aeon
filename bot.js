@@ -53,6 +53,8 @@ client.on('messageCreate', async (message) => {
       if (messageText.includes('maxcounter=')) {
         maxCounter = parseInt(messageText.replace('maxcounter=', ''))
 
+        await message.channel.send(`set max counter to ${maxCounter}`)
+
         return
       }
     }
