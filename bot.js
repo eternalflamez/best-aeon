@@ -39,7 +39,7 @@ client.on('messageCreate', async (message) => {
       await message.channel.send(`Best AEON!`)
       return
     }
-
+    
     const messageText = message.content.toLowerCase()
 
     if (message.channel.id === process.env.RESETCHANNEL) {
@@ -59,7 +59,7 @@ client.on('messageCreate', async (message) => {
       }
     }
 
-    if (/ma+x/i.test(messageText)) {
+    if (/ma+x/i.test(messageText) || message.stickers.hasAny('1110247288166678649')) {
       maxCounter++
 
       if (maxCounter > 206 && Math.random() < 0.7) {
