@@ -83,7 +83,7 @@ client.on('messageCreate', async (message) => {
 
       console.log('max counter is', maxCounter)
 
-      if (maxCounter > 200) {
+      if (maxCounter === 200) {
         await message.channel.send('MAXimum length reached, resetting!')
         return
       }
@@ -93,7 +93,7 @@ client.on('messageCreate', async (message) => {
         return
       }
 
-      await message.channel.send(`M${'A'.repeat(maxCounter)}X!`)
+      await message.channel.send(`M${'A'.repeat(maxCounter % 206)}X!`)
 
       return
     }
