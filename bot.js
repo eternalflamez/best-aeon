@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, Partials, userMention } = require('discord.js')
+const { Client, GatewayIntentBits, Partials, userMention, ThreadAutoArchiveDuration } = require('discord.js')
 const helloIAm = require('./helloIAm.js')
 
 const TOKEN = process.env.TOKEN
@@ -18,6 +18,7 @@ const client = new Client({
 
 const allowedChannels = {
   '1249829604974268418': true, // instant-sales
+  '1252723483759218812': true, // hidden
   '821737329215275039': true, // instant-sells
   '803274143311069204': true, // scheduled-raids
   '982039087663951892': true, // scheduled-strikes
@@ -35,14 +36,9 @@ client.on('messageCreate', async (message) => {
   if (message.author.bot || message.system) return 
 
   try {
-    if (message.stickers.hasAny('1199452550198460416')) {
-      await message.channel.send(`Best AEON!`)
-      return
-    }
-    
     const messageText = message.content.toLowerCase()
 
-    if (message.channel.id === process.env.RESETCHANNEL) {
+    if (message.channelId === process.env.RESETCHANNEL) {
       if (messageText.includes('reset')) {
         await message.channel.send('max?')
         maxCounter = 1
@@ -58,7 +54,26 @@ client.on('messageCreate', async (message) => {
         return
       }
     }
+    
+    if (allowedChannels[message.channelId]) {
+      if (messageText.includes('<t:')) {
+        const timestampPattern = /<t:\d+:[a-zA-Z]>/g;
+        const name = message.content.split('\n')[0].replace(timestampPattern, '').replace('@everyone', '').trim()
 
+        await message.startThread({
+          name,
+          autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
+        })
+      }
+
+      return
+    }
+
+    if (message.stickers.hasAny('1199452550198460416')) {
+      await message.channel.send(`Best AEON!`)
+      return
+    }
+    
     if (/ma+x/i.test(messageText) || message.stickers.hasAny('1110247288166678649')) {
       maxCounter++
 
@@ -93,7 +108,7 @@ client.on('messageCreate', async (message) => {
       return
     }
 
-    const iAm = helloIAm(messageText.replace(/<@!?(\d+)>/g, userMention(message.author.id)), userMention(client.user.id))
+    const iAm = helloIAm(message.content.replace(/<@!?(\d+)>/g, userMention(message.author.id)), userMention(client.user.id))
 
     if (iAm && Math.random() < 0.1) {
       await message.channel.send(iAm)
