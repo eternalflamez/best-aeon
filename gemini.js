@@ -39,7 +39,7 @@ const chat = model.startChat({
   },
 })
 
-module.exports = async function replyTo(username, message) {
+module.exports = async function replyTo(message) {
   return await sendMessage(chat, message)
 }
 
