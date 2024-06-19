@@ -122,7 +122,7 @@ client.on('messageCreate', async (message) => {
       return
     }
 
-    if (/\bnow\b/i.test(messageText) && Math.random() < 0.9) {
+    if (/\bnow\b/i.test(messageText) && Math.random() < 0.3) {
       await message.channel.send('WAAAOUUH IÄM NAOOUUU?')
       return
     }
