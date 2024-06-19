@@ -1,5 +1,7 @@
+// require('dotenv').config()
 const { Client, GatewayIntentBits, Partials, userMention, ThreadAutoArchiveDuration } = require('discord.js')
 const helloIAm = require('./helloIAm.js')
+const replyTo = require('./gemini.js')
 
 const TOKEN = process.env.TOKEN
 const client = new Client({
@@ -18,7 +20,6 @@ const client = new Client({
 
 const allowedChannels = {
   '1249829604974268418': true, // instant-sales
-  '1252723483759218812': true, // hidden
   '821737329215275039': true, // instant-sells
   '803274143311069204': true, // scheduled-raids
   '982039087663951892': true, // scheduled-strikes
@@ -66,6 +67,28 @@ client.on('messageCreate', async (message) => {
         })
       }
 
+      return
+    }
+
+    if (message.mentions.has(client.user.id)) {
+      const me = await message.guild.members.fetchMe()
+      let filteredMessage = message.content.replace(userMention(client.user.id), '')
+
+      try {
+        if (Math.random < 0.01) {
+          filteredMessage = 'Can you please yell MAAAAAAAAAAAAAAAAAAAAAAAX for me?'
+        }
+
+        const reply = await replyTo(me.nickname, filteredMessage)
+
+        if (reply) {
+          await message.channel.send(reply)
+        } else {
+          await message.channel.send('Sorry I was too stupid too cook up a reply and instead generated nothing.')
+        }
+      } catch {
+        await message.channel.send('Sorry I was too stupid too cook up a reply and instead had an error.')
+      }
       return
     }
 
