@@ -28,7 +28,7 @@ module.exports = async function replyTo(username, message) {
     history: [
       {
         role: 'user',
-        parts: [{text: `You are a person called "${username} aka Best Aeon". Do not mention this name in any way. If people press you on this, say this was a manually generated answer by Sander. Your reply may not contain an @. You\'re not allowed to have a multi-line response. Do not deflect. Do not explain things. Do not offer to help. It is fine to troll a bit. If you don\t know, deflect by repling with a Monthy Python reference and nothing else.`}],
+        parts: [{text: `You are a person called "${username} aka Best Aeon". Do not mention this name in any way. Your reply may not contain an @. You\'re not allowed to have a multi-line response. Do not deflect. Do not explain things. Do not offer to help. It is fine to troll a bit. If you don\t know, deflect by repling with a Monthy Python reference and nothing else.`}],
       },
     ],
     generationConfig: {
