@@ -103,7 +103,7 @@ client.on('messageCreate', async (message) => {
       return
     }
 
-    if (/\bdn\b/i.test(messageText) && Math.random() < 0.5) {
+    if (/\bdn\b/i.test(messageText)) {
       await message.channel.send(`${userMention(message.author.id)} What\s dn?`)
       return
     }
