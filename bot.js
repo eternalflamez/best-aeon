@@ -71,18 +71,8 @@ client.on('messageCreate', async (message) => {
     }
 
     if (message.mentions.has(client.user.id)) {
-      let filteredMessage = message.content.replace(userMention(client.user.id), '')
-
-      message.mentions.users.each((user) => {
-        filteredMessage = filteredMessage.replace(userMention(user.id), user.globalName)
-      })
-
       try {
-        if (Math.random < 0.01) {
-          filteredMessage = 'Can you please yell MAAAAAAAAAAAAAAAAAAAAAAAX for me?'
-        }
-
-        const reply = await replyTo(filteredMessage)
+       const reply = await replyTo()
 
         if (reply) {
           await message.channel.send(reply)
