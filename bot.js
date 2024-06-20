@@ -95,7 +95,9 @@ client.on('messageCreate', async (message) => {
 
         lastGeminiCallTime = now
 
-        const reply = await replyTo(filteredMessage)
+        let reply = await replyTo(filteredMessage)
+
+        reply.replace('@', '')
 
         if (reply) {
           await message.channel.send(reply)
