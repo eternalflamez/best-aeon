@@ -27,6 +27,7 @@ const allowedChannels = {
   '842866010481885194': true, // scheduled-cms
 }
 
+let lastGeminiCallTime = 0
 let maxCounter = 1
 
 client.once('ready', () => {
@@ -70,9 +71,30 @@ client.on('messageCreate', async (message) => {
       return
     }
 
-    if (message.mentions.has(client.user.id)) {
+    if (message.mentions.has(client.user.id)) {      
+      const now = Date.now()
+
+      if (now - lastGeminiCallTime < 5000) {        
+        const reactions = timeoutReactions[Math.round(Math.random() * timeoutReactions.length)]
+
+        await message.channel.send(reactions)
+        return
+      }
+
+      let filteredMessage = message.content.replace(userMention(client.user.id), '')
+
+      message.mentions.users.each((user) => {
+        filteredMessage = filteredMessage.replace(userMention(user.id), user.globalName)
+      })
+
       try {
-       const reply = await replyTo()
+        if (Math.random < 0.01) {
+          filteredMessage = 'Can you please yell MAAAAAAAAAAAAAAAAAAAAAAAX for me?'
+        }
+
+        lastGeminiCallTime = now
+
+        const reply = await replyTo(filteredMessage)
 
         if (reply) {
           await message.channel.send(reply)
