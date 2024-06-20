@@ -47,7 +47,7 @@ module.exports = async function replyTo(message) {
       },
     ],
     generationConfig: {
-      maxOutputTokens: 35,
+      maxOutputTokens: 75,
     },
   })
 
