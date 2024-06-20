@@ -2,6 +2,7 @@
 const { Client, GatewayIntentBits, Partials, userMention, ThreadAutoArchiveDuration } = require('discord.js')
 const helloIAm = require('./helloIAm.js')
 const replyTo = require('./gemini.js')
+const timeoutReactions = require('./timeoutReactions.js')
 
 const TOKEN = process.env.TOKEN
 const client = new Client({
