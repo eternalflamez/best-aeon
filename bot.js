@@ -97,7 +97,7 @@ client.on('messageCreate', async (message) => {
 
         let reply = await replyTo(filteredMessage)
 
-        reply.replace('@', '')
+        reply = reply.replace('@', '')
 
         if (reply) {
           await message.channel.send(reply)
