@@ -90,7 +90,7 @@ client.on('messageCreate', async (message) => {
 
       try {
         if (Math.random < 0.01) {
-          filteredMessage = 'Yell MAAAAAAAAAAAAAAAAAAAAAAAX for me with an amount of A\s between 20 and 30. Reply with nothing other than the yell.'
+          filteredMessage = 'Yell MAAAAAAAAAAAAAAAAAAAAAAAX for me with an amount of A\'s between 20 and 30. Reply with nothing other than the yell.'
         }
 
         lastGeminiCallTime = now
@@ -117,32 +117,29 @@ client.on('messageCreate', async (message) => {
     }
     
     if (/ma+x/i.test(messageText) || message.stickers.hasAny('1110247288166678649')) {
-      maxCounter++
-
-      if (maxCounter > 206 && Math.random() < 0.7) {
+      if (Math.random() < 0.7) {
         return
       }
+
+      maxCounter++
 
       console.log('max counter is', maxCounter)
 
-      if (maxCounter === 200) {
-        await message.channel.send('MAXimum length reached, resetting!')
-        return
-      }
-
-      if (maxCounter === 206) {
-        await message.channel.send('MAAAAX...')
-        return
-      }
-
-      await message.channel.send(`M${'A'.repeat(maxCounter % 206)}X!`)
+      await message.channel.send(`M${'A'.repeat(maxCounter % 55)}X!`)
 
       return
     }
 
-    if (/\bnow\b/i.test(messageText) && Math.random() < 0.3) {
-      await message.channel.send('WAAAOUUH IÄM NAOOUUU?')
-      return
+    if (/\bnow\b/i.test(messageText)) {
+      if (Math.random < 0.01) {
+        message.channel.send('Wat is now kauw\nWatskeburt in de schuur')
+        return
+      }
+
+      if (Math.random < 0.3) {
+        await message.channel.send('WAAAOUUH IÄM NAOOUUU?')
+        return
+      }
     }
 
     if (/\bdn\b/i.test(messageText)) {
