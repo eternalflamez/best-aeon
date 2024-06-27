@@ -30,6 +30,7 @@ const moods = [
   'quirky',
   'sleepy',
   'unhappy due to a global crisis',
+  'alpha male',
 ]
 
 module.exports = async function replyTo(message) {  
