@@ -108,6 +108,10 @@ client.on('messageCreate', async (message) => {
           await message.channel.send('Sorry I was too stupid too cook up a reply and instead generated nothing.')
         }
       } catch(e) {
+        if (e.message === 'Missing Permissions') {
+          return
+        }
+
         console.log(e)
         await message.channel.send('Sorry I was too stupid too cook up a reply and instead had an error.')
       }
@@ -157,6 +161,10 @@ client.on('messageCreate', async (message) => {
       return
     }
   } catch(e) {
+    if (e.message === 'Missing Permissions') {
+      return
+    }
+
     console.error(e)
   }
 })
