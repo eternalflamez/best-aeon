@@ -102,6 +102,24 @@ export default function setup(client: Client) {
     createMessage(historyMessage, history)
   })
 
+  client.on('messageDeleteBulk', async (messages) => {
+    if (!historyMessage) {
+      return
+    }
+
+    messages.each((message) => {
+      const index = history.findIndex((value) => value.id === message.id)
+
+      if (index < 0) {
+        return
+      }
+
+      history.splice(index, 1)
+    })
+
+    createMessage(historyMessage, history)
+  })
+
   client.on('messageUpdate', async (_, newMessage) => {
     if (!historyMessage) {
       return
