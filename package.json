@@ -15,6 +15,7 @@
   },
   "devDependencies": {
     "prettier": "3.3.3",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "tsx": "^4.16.2"
   }
 }
