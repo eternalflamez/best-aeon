@@ -2,7 +2,7 @@ import { Client, Message, TextChannel, time } from 'discord.js'
 // @ts-ignore
 import sellChannels from '../constants/sellChannels.js'
 
-const historyChannel = '1263079031645933618'
+const historyChannel = '1263126224247717928'
 
 export default function setup(client: Client) {
   let historyMessage: void | Message<true> | undefined
