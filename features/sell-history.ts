@@ -1,12 +1,12 @@
-import { TextChannel } from 'discord.js'
+import { Client, Message, TextChannel, time } from 'discord.js'
 // @ts-ignore
 import sellChannels from '../constants/sellChannels.js'
 
 const historyChannel = '1263079031645933618'
 
-export default function setup(client) {
-  let historyMessage
-  const history = []
+export default function setup(client: Client) {
+  let historyMessage: void | Message<true> | undefined
+  const history: HistoryMessage[] = []
 
   client.once('ready', async () => {
     const channel = await client.channels.fetch(historyChannel)
@@ -71,7 +71,7 @@ export default function setup(client) {
           createMessage(historyMessage, history)
         }
       }
-    } catch (e) {
+    } catch (e: any) {
       if (e.message === 'Missing Permissions') {
         return
       }
@@ -116,7 +116,7 @@ export default function setup(client) {
   })
 }
 
-function createMessage(historyMessage, history) {
+function createMessage(historyMessage: Message<true>, history: HistoryMessage[]) {
   history.sort((a, b) => a.date - b.date)
 
   let result = history
@@ -134,7 +134,7 @@ function createMessage(historyMessage, history) {
   historyMessage.edit(result)
 }
 
-function extractTimestamp(messageText) {
+function extractTimestamp(messageText: String) {
   // Regex to match the timestamp pattern <t:number:format>
   const pattern = /<t:(\d+):[a-zA-Z]>/
   const match = messageText.match(pattern)
@@ -146,4 +146,11 @@ function extractTimestamp(messageText) {
   } else {
     return 0
   }
+}
+
+type HistoryMessage = {
+  id: string
+  date: number
+  text: string
+  region: string
 }
