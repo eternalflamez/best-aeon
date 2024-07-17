@@ -24,7 +24,7 @@ export default function setup(client: Client) {
         }
 
         for (const sellChannelId in sellChannels) {
-          const sellChannel = await client.channels.fetch(sellChannelId)
+          const sellChannel = await client.channels.fetch(sellChannelId).catch(() => {})
 
           if (sellChannel && sellChannel instanceof TextChannel) {
             let sellMessages = await sellChannel.messages
