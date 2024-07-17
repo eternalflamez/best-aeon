@@ -1,16 +1,18 @@
-import { config } from "dotenv"
-import { Client, GatewayIntentBits, Partials } from "discord.js"
+import { config } from 'dotenv'
+import { Client, GatewayIntentBits, Partials } from 'discord.js'
 
-import MaxDebug from "./onMessageCreateHooks/0.debug.js"
-import StartSellThread from "./onMessageCreateHooks/1.startSellThread.js"
-import ReplyAsGemini from "./onMessageCreateHooks/2.replyAsGemini.js"
-import BestAeon from "./onMessageCreateHooks/3.bestAeon.js"
-import BestMax from "./onMessageCreateHooks/4.bestMax.js"
-import AustrianNow from "./onMessageCreateHooks/5.austrianNow.js"
-import WhatsDn from "./onMessageCreateHooks/6.whatsDn.js"
-import HelloIAm from "./onMessageCreateHooks/7.helloIAm.js"
+import * as SetupSellHistory from './features/sell-history.ts'
 
-import AddToThread from "./onMessageReactionAddHooks/0.addToThread.js"
+import MaxDebug from './onMessageCreateHooks/0.debug.js'
+import StartSellThread from './onMessageCreateHooks/1.startSellThread.js'
+import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.js'
+import BestAeon from './onMessageCreateHooks/3.bestAeon.js'
+import BestMax from './onMessageCreateHooks/4.bestMax.js'
+import AustrianNow from './onMessageCreateHooks/5.austrianNow.js'
+import WhatsDn from './onMessageCreateHooks/6.whatsDn.js'
+import HelloIAm from './onMessageCreateHooks/7.helloIAm.js'
+
+import AddToThread from './onMessageReactionAddHooks/0.addToThread.js'
 
 config()
 
@@ -31,11 +33,13 @@ let maxCounter = {
   value: 1,
 }
 
-client.once("ready", () => {
-  console.log(`Logged in as ${client.user.tag}`)
+client.once('ready', () => {
+  console.log(`Logged in as ${client.user?.tag}`)
 })
 
-client.on("messageCreate", async (message) => {
+SetupSellHistory.default(client)
+
+client.on('messageCreate', async (message) => {
   if (message.author.bot || message.system) return
 
   try {
@@ -73,7 +77,7 @@ client.on("messageCreate", async (message) => {
       return
     }
   } catch (e) {
-    if (e.message === "Missing Permissions") {
+    if (e.message === 'Missing Permissions') {
       return
     }
 
@@ -81,7 +85,7 @@ client.on("messageCreate", async (message) => {
   }
 })
 
-client.on("messageReactionAdd", async (reaction, user) => {
+client.on('messageReactionAdd', async (reaction, user) => {
   await AddToThread(reaction, user)
 })
 

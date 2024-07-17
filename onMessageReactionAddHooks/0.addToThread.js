@@ -1,16 +1,16 @@
-import allowedChannels from "../constants/allowedChannels"
+import sellChannels from '../constants/sellChannels.js'
 
 export default async function (reaction, user) {
   if (reaction.partial) {
     try {
       await reaction.fetch()
     } catch (error) {
-      console.error("Something went wrong when fetching the message:", error)
+      console.error('Something went wrong when fetching the message:', error)
       return
     }
   }
 
-  if (!allowedChannels[reaction.message.channelId]) {
+  if (!sellChannels[reaction.message.channelId]) {
     return
   }
 
@@ -18,7 +18,7 @@ export default async function (reaction, user) {
     try {
       await user.fetch()
     } catch (error) {
-      console.error("Something went wrong when fetching the user:", error)
+      console.error('Something went wrong when fetching the user:', error)
       return
     }
   }
@@ -35,10 +35,10 @@ export default async function (reaction, user) {
 
     if (!isMember) {
       await thread.members.add(user)
-      console.log("added", user.displayName, "to a thread")
+      console.log('added', user.displayName, 'to a thread')
     }
   } catch (error) {
-    console.error("Error checking thread membership:", error)
+    console.error('Error checking thread membership:', error)
     console.warn(e.message)
   }
 }
