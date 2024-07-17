@@ -1,6 +1,6 @@
 import { config } from "dotenv"
 import { Client, GatewayIntentBits, Partials } from "discord.js"
-import allowedChannels from "./constants/allowedChannels.js"
+
 import MaxDebug from "./onMessageCreateHooks/0.debug.js"
 import StartSellThread from "./onMessageCreateHooks/1.startSellThread.js"
 import ReplyAsGemini from "./onMessageCreateHooks/2.replyAsGemini.js"
@@ -9,6 +9,8 @@ import BestMax from "./onMessageCreateHooks/4.bestMax.js"
 import AustrianNow from "./onMessageCreateHooks/5.austrianNow.js"
 import WhatsDn from "./onMessageCreateHooks/6.whatsDn.js"
 import HelloIAm from "./onMessageCreateHooks/7.helloIAm.js"
+
+import AddToThread from "./onMessageReactionAddHooks/0.addToThread.js"
 
 config()
 
@@ -80,46 +82,7 @@ client.on("messageCreate", async (message) => {
 })
 
 client.on("messageReactionAdd", async (reaction, user) => {
-  if (reaction.partial) {
-    try {
-      await reaction.fetch()
-    } catch (error) {
-      console.error("Something went wrong when fetching the message:", error)
-      return
-    }
-  }
-
-  if (!allowedChannels[reaction.message.channelId]) {
-    return
-  }
-
-  if (user.partial) {
-    try {
-      await user.fetch()
-    } catch (error) {
-      console.error("Something went wrong when fetching the user:", error)
-      return
-    }
-  }
-
-  if (!reaction.message.hasThread) {
-    return
-  }
-
-  const thread = reaction.message.thread
-
-  try {
-    await thread.members.fetch()
-    const isMember = thread.members.cache.has(user.id)
-
-    if (!isMember) {
-      await thread.members.add(user)
-      console.log("added", user.displayName, "to a thread")
-    }
-  } catch (error) {
-    console.error("Error checking thread membership:", error)
-    console.warn(e.message)
-  }
+  await AddToThread(reaction, user)
 })
 
 client.login(TOKEN)
