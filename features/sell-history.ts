@@ -9,45 +9,51 @@ export default function setup(client: Client) {
   const history: HistoryMessage[] = []
 
   client.once('ready', async () => {
-    const channel = await client.channels.fetch(historyChannel)
+    try {
+      const channel = await client.channels.fetch(historyChannel)
 
-    if (channel && channel instanceof TextChannel) {
-      historyMessage = await channel.messages
-        .fetch()
-        .then((messages) => messages.filter((message) => message.author.id === client.user?.id))
-        .then((messages) => messages.at(0))
-        .catch(console.error)
+      if (channel && channel instanceof TextChannel) {
+        historyMessage = await channel.messages
+          .fetch()
+          .then((messages) => messages.filter((message) => message.author.id === client.user?.id))
+          .then((messages) => messages.at(0))
 
-      if (!historyMessage) {
-        // Create new message
-        historyMessage = await channel.send('Loading History...')
-      }
+        if (!historyMessage) {
+          // Create new message
+          historyMessage = await channel.send('Loading History...')
+        }
 
-      for (const sellChannelId in sellChannels) {
-        const sellChannel = await client.channels.fetch(sellChannelId).catch(() => {})
+        for (const sellChannelId in sellChannels) {
+          const sellChannel = await client.channels.fetch(sellChannelId)
 
-        if (sellChannel && sellChannel instanceof TextChannel) {
-          let sellMessages = await sellChannel.messages
-            .fetch()
-            .then((messages) => messages.filter((message) => message.content.includes('<t:')))
-            .catch(console.error)
+          if (sellChannel && sellChannel instanceof TextChannel) {
+            let sellMessages = await sellChannel.messages
+              .fetch()
+              .then((messages) => messages.filter((message) => message.content.includes('<t:')))
 
-          if (sellMessages) {
-            for (const sellMessage of sellMessages.values()) {
-              history.push({
-                id: sellMessage.id,
-                date: extractTimestamp(sellMessage.content),
-                text: sellMessage.content,
-                region: sellChannels[sellChannelId].region,
-              })
+            if (sellMessages) {
+              for (const sellMessage of sellMessages.values()) {
+                history.push({
+                  id: sellMessage.id,
+                  date: extractTimestamp(sellMessage.content),
+                  text: sellMessage.content,
+                  region: sellChannels[sellChannelId].region,
+                })
+              }
             }
           }
         }
+
+        console.log(history.length)
+
+        createMessage(historyMessage, history)
+      }
+    } catch (e: any) {
+      if (e.rawError?.message === 'Missing Permissions' || e.rawError?.message === 'Missing Access') {
+        return
       }
 
-      console.log(history.length)
-
-      createMessage(historyMessage, history)
+      console.error(e)
     }
   })
 
@@ -72,7 +78,7 @@ export default function setup(client: Client) {
         }
       }
     } catch (e: any) {
-      if (e.message === 'Missing Permissions') {
+      if (e.rawError?.message === 'Missing Permissions') {
         return
       }
 

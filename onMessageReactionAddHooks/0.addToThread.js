@@ -39,6 +39,5 @@ export default async function (reaction, user) {
     }
   } catch (error) {
     console.error('Error checking thread membership:', error)
-    console.warn(e.message)
   }
 }

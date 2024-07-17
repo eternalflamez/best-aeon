@@ -1,6 +1,6 @@
-import { userMention } from "discord.js"
-import replyTo from "./utility/gemini.js"
-import timeoutReactions from "../constants/timeoutReactions.js"
+import { userMention } from 'discord.js'
+import replyTo from './utility/gemini.js'
+import timeoutReactions from '../constants/timeoutReactions.js'
 
 const timeoutReactionsLength = timeoutReactions.length
 
@@ -17,7 +17,7 @@ export default async function (client, message) {
       return true
     }
 
-    let filteredMessage = message.content.replace(userMention(client.user.id), "")
+    let filteredMessage = message.content.replace(userMention(client.user.id), '')
 
     message.mentions.users.each((user) => {
       filteredMessage = filteredMessage.replace(userMention(user.id), user.globalName)
@@ -33,20 +33,20 @@ export default async function (client, message) {
 
       let reply = await replyTo(filteredMessage)
 
-      reply = reply.replace("@", "")
+      reply = reply.replace('@', '')
 
       if (reply) {
         await message.channel.send(reply)
       } else {
-        await message.channel.send("Sorry I was too stupid too cook up a reply and instead generated nothing.")
+        await message.channel.send('Sorry I was too stupid too cook up a reply and instead generated nothing.')
       }
     } catch (e) {
-      if (e.message === "Missing Permissions") {
+      if (e.rawError?.message === 'Missing Permissions') {
         return true
       }
 
       console.error(e)
-      await message.channel.send("Sorry I was too stupid too cook up a reply and instead had an error.")
+      await message.channel.send('Sorry I was too stupid too cook up a reply and instead had an error.')
     }
 
     return true

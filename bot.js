@@ -75,7 +75,7 @@ client.on('messageCreate', async (message) => {
       return
     }
   } catch (e) {
-    if (e.message === 'Missing Permissions') {
+    if (e.rawError?.message === 'Missing Permissions') {
       return
     }
 
