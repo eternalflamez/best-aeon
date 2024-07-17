@@ -127,7 +127,7 @@ function createMessage(historyMessage: Message<true>, history: HistoryMessage[])
 
   let result = history
     .map((message) => {
-      const text = message.text.replaceAll('@everyone', '').replaceAll('@', '')
+      const text = message.text.replaceAll('@everyone', '').replaceAll('@', '').replaceAll('  ', ' ').trim()
 
       return `${message.region} -- ${text}`
     })
