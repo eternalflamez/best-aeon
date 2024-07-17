@@ -14,7 +14,7 @@ import HelloIAm from './onMessageCreateHooks/7.helloIAm.js'
 
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.js'
 
-const TOKEN = process.env.TESTTOKEN
+const TOKEN = process.env.TOKEN
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
