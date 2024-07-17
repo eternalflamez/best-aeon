@@ -1,4 +1,4 @@
-// import { config } from 'dotenv'
+// require('dotenv').config()
 import { Client, GatewayIntentBits, Partials } from 'discord.js'
 
 import * as SetupSellHistory from './features/sell-history.ts'
@@ -13,8 +13,6 @@ import WhatsDn from './onMessageCreateHooks/6.whatsDn.js'
 import HelloIAm from './onMessageCreateHooks/7.helloIAm.js'
 
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.js'
-
-// config()
 
 const TOKEN = process.env.TESTTOKEN
 const client = new Client({
