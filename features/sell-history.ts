@@ -23,10 +23,10 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
         for (const sellChannelId in sellChannels) {
           if (sellChannels[sellChannelId].region !== region) {
-            return
+            break
           }
 
-          const sellChannel = await client.channels.fetch(sellChannelId).catch(() => {})
+          const sellChannel = await client.channels.fetch(sellChannelId)
 
           if (sellChannel && sellChannel instanceof TextChannel) {
             let sellMessages = await sellChannel.messages
@@ -50,7 +50,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
         await createMessage(historyMessage, history)
       }
     } catch (e: any) {
-      console.error('--- AN ERROR WAS THROWN ----')
+      console.error('---- AN ERROR WAS THROWN ----')
       console.error('message', e.rawError?.message)
       console.error('content', e.requestBody?.json?.content)
       console.error('---- END ERROR ----')
@@ -182,6 +182,7 @@ type HistoryMessage = {
 }
 
 const NO_SELLS_COMMENTS = [
+  'Loading History...',
   'No sells going, time to sign up as a hustler by PM-ing Dubious Detective!',
   'Nothing to see here, move along.',
   'Khajit has no wares because buyers have no coin.',
