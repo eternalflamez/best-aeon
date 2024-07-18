@@ -47,7 +47,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
         console.log(history.length)
 
-        createMessage(historyMessage, history)
+        await createMessage(historyMessage, history)
       }
     } catch (e: any) {
       if (e.rawError?.message === 'Missing Permissions' || e.rawError?.message === 'Missing Access') {
@@ -74,7 +74,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
             text: message.content,
           })
 
-          createMessage(historyMessage, history)
+          await createMessage(historyMessage, history)
         }
       }
     } catch (e: any) {
@@ -99,7 +99,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
     history.splice(index, 1)
 
-    createMessage(historyMessage, history)
+    await createMessage(historyMessage, history)
   })
 
   client.on('messageDeleteBulk', async (messages) => {
@@ -117,7 +117,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
       history.splice(index, 1)
     })
 
-    createMessage(historyMessage, history)
+    await createMessage(historyMessage, history)
   })
 
   client.on('messageUpdate', async (_, newMessage) => {
@@ -135,7 +135,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
       history[messageIndex].date = extractTimestamp(newMessage.content)
       history[messageIndex].text = newMessage.content
 
-      createMessage(historyMessage, history)
+      await createMessage(historyMessage, history)
     }
   })
 }
@@ -153,7 +153,7 @@ function createMessage(historyMessage: Message<true>, history: HistoryMessage[])
     result = NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)]
   }
 
-  historyMessage.edit(result)
+  return historyMessage.edit(result)
 }
 
 function extractTimestamp(messageText: String) {
