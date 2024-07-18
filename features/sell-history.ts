@@ -50,8 +50,10 @@ export default function setup(client: Client, historyChannelId: string, region: 
         await createMessage(historyMessage, history)
       }
     } catch (e: any) {
+      console.error('--- AN ERROR WAS THROWN ----')
       console.error('message', e.rawError?.message)
       console.error('content', e.requestBody?.json?.content)
+      console.error('---- END ERROR ----')
 
       if (e.rawError?.message === 'Missing Permissions' || e.rawError?.message === 'Missing Access') {
         return
