@@ -37,6 +37,7 @@ client.once('ready', () => {
 
 SetupSellHistory.default(client, '1263126224247717928', 'EU')
 SetupSellHistory.default(client, '1263276208028778619', 'NA')
+SetupBuyerManagement.default(client)
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot || message.system) return
