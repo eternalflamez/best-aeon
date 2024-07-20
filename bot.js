@@ -2,6 +2,7 @@
 import { Client, GatewayIntentBits, Partials } from 'discord.js'
 
 import * as SetupSellHistory from './features/sell-history.ts'
+import * as SetupBuyerManagement from './features/buyer-management.ts'
 
 import MaxDebug from './onMessageCreateHooks/0.debug.js'
 import StartSellThread from './onMessageCreateHooks/1.startSellThread.js'
@@ -13,6 +14,8 @@ import WhatsDn from './onMessageCreateHooks/6.whatsDn.js'
 import HelloIAm from './onMessageCreateHooks/7.helloIAm.js'
 
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.js'
+
+import * as SellBot from './features/sell-bot.ts'
 
 const TOKEN = process.env.TOKEN
 const client = new Client({
@@ -37,6 +40,8 @@ client.once('ready', () => {
 
 SetupSellHistory.default(client, '1263126224247717928', 'EU')
 SetupSellHistory.default(client, '1263276208028778619', 'NA')
+SetupBuyerManagement.default(client)
+SellBot.default(client)
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot || message.system) return
