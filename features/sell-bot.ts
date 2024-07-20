@@ -28,20 +28,21 @@ export default function setup(client: Client, guildId = '1248337933413650614') {
       if (interaction.commandName === 'raids') {
         const embeds = await readRaidEmbed(client, '1263940136081686614')
 
-        await interaction.deferReply()
-
         if (!embeds) {
-          interaction.editReply('Something went wrong, oops :(')
+          interaction.reply('Something went wrong, oops :(')
           return
         }
 
-        interaction.editReply({ embeds })
+        interaction.reply({ embeds })
       }
     } else if (interaction.isButton()) {
       const id = interaction.customId
 
       if (id === 'english' || id === 'french' || id === 'german' || id === 'spanish') {
-        interaction.reply(`You clicked ${interaction.customId}, poof language change`)
+        interaction.reply({
+          content: `You clicked ${interaction.customId}, poof language change`,
+          ephemeral: true,
+        })
         return
       }
 
@@ -58,6 +59,7 @@ export default function setup(client: Client, guildId = '1248337933413650614') {
           content: 'Please make a selection',
           // @ts-ignore
           components: [sellRow],
+          ephemeral: true,
         })
         return
       }
@@ -70,15 +72,17 @@ export default function setup(client: Client, guildId = '1248337933413650614') {
         embeds = await readRaidEmbed(client, '1263956507842576465')
       }
 
-      await interaction.deferReply()
-
       if (!embeds) {
-        interaction.editReply('Something went wrong, oops :(')
+        interaction.reply({
+          content: 'Something went wrong, oops :(',
+          ephemeral: true,
+        })
         return
       }
 
-      interaction.editReply({
+      interaction.reply({
         embeds,
+        ephemeral: true,
       })
 
       // TODO: Restart chain
