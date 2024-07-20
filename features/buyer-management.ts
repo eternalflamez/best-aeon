@@ -1,53 +1,116 @@
-import { Client, TextChannel, ThreadAutoArchiveDuration } from 'discord.js'
+import {
+  Client,
+  CategoryChannel,
+  ChannelType,
+  userMention,
+  roleMention,
+  Role,
+  GuildMember,
+  ButtonBuilder,
+  ButtonStyle,
+  ActionRowBuilder,
+} from 'discord.js'
 
-export default function setup(client: Client) {
+export default function setup(client: Client, guildId = '1248337933413650614') {
+  const categoryChannelId = '1263790639070445568'
+
   client.on('guildMemberAdd', async (member) => {
     try {
-      console.log('user added')
-      console.log(member)
-
-      const guildId = member.guild.id
-
-      // BTB
-      if (guildId !== '1248337933413650614') {
+      if (guildId !== member.guild.id) {
         return
       }
 
-      const channel = await client.channels.fetch('1263780410089799726')
+      const categoryChannel = await client.channels.fetch(categoryChannelId)
 
-      if (!channel || !(channel instanceof TextChannel)) {
+      if (!categoryChannel || !(categoryChannel instanceof CategoryChannel)) {
         return
       }
 
-      const messages = await channel.messages.fetch()
-      let threadParent = messages.get('1263780446995615815')
+      const adminRole = member.guild.roles.cache.find((role) => role.name === 'Gamer')
 
-      if (!threadParent) {
-        threadParent = await channel.send('Could not find thread parent, so made a new one')
+      if (!adminRole) {
+        return
       }
 
-      const thread = await threadParent.startThread({
-        name: `Welcome, ${member.displayName}`,
-        autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
+      let channel
+
+      try {
+        channel = await createChannel(`welcome-${member.displayName}`, categoryChannel, member, adminRole, guildId)
+      } catch (e: any) {
+        channel = await createChannel('welcome', categoryChannel, member, adminRole, guildId)
+      }
+
+      if (!channel) {
+        console.error(`--- Failed to create channel for user! ${member.displayName} ---`)
+        return
+      }
+
+      await channel.send(
+        `Hey ${userMention(member.id)}. \n\nThis is gonna be such a cool message, showing you our sell list, ${roleMention(adminRole.id)}`,
+      )
+
+      const english = new ButtonBuilder().setCustomId('english').setLabel('English').setStyle(ButtonStyle.Primary)
+      const french = new ButtonBuilder().setCustomId('french').setLabel('French').setStyle(ButtonStyle.Primary)
+      const german = new ButtonBuilder().setCustomId('german').setLabel('German').setStyle(ButtonStyle.Primary)
+      const spanish = new ButtonBuilder().setCustomId('spanish').setLabel('Spanish').setStyle(ButtonStyle.Primary)
+
+      const languageRow = new ActionRowBuilder().addComponents(english, french, german, spanish)
+
+      channel.send({
+        content: 'Choose a language',
+        // @ts-ignore
+        components: [languageRow],
       })
 
-      thread.send('This is gonna be such a cool message, showing you our sell list')
+      const raids = new ButtonBuilder().setCustomId('raids').setLabel('Raids').setStyle(ButtonStyle.Primary)
+      const strikes = new ButtonBuilder()
+        .setCustomId('strikes')
+        .setLabel('Strikes')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(true)
+      const fractals = new ButtonBuilder()
+        .setCustomId('fractals')
+        .setLabel('Fractals')
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(true)
 
-      const members = await member.guild.members.fetch()
+      const sellRow = new ActionRowBuilder().addComponents(raids, strikes, fractals)
 
-      const admin = members.get('109707866629246976')
-
-      if (admin) {
-        await thread.members.add(admin)
-      }
-
-      console.log('adding member')
-
-      await thread.members.add(member)
-
-      console.log(thread.members)
+      await channel.send({
+        content: 'choose your content',
+        // @ts-ignore
+        components: [sellRow],
+      })
     } catch (e) {
       console.error(e)
     }
+  })
+}
+
+function createChannel(
+  name: string,
+  categoryChannel: CategoryChannel,
+  member: GuildMember,
+  adminRole: Role,
+  guildId: string,
+) {
+  return categoryChannel.children.create({
+    name,
+    type: ChannelType.GuildText,
+    topic: member.id,
+    permissionOverwrites: [
+      {
+        id: guildId,
+        deny: ['ViewChannel'],
+      },
+      {
+        id: member.id,
+        allow: ['ViewChannel'],
+      },
+      {
+        id: adminRole.id,
+        allow: ['ViewChannel'],
+      },
+    ],
   })
 }
