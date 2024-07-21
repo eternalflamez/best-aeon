@@ -266,7 +266,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       .setLabel(getTranslation('return', interaction))
       .setStyle(ButtonStyle.Primary)
 
-    const sellRow = new ActionRowBuilder<ButtonBuilder>().addComponents(goBack, buy, ask)
+    const sellRow = new ActionRowBuilder<ButtonBuilder>().addComponents(buy, ask, goBack)
 
     return interaction.message.channel.send({
       content: getTranslation('call_to_action', interaction),
