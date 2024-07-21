@@ -20,12 +20,18 @@ interface LanguageByChannel {
   [key: string]: string
 }
 
+interface PingByUser {
+  [key: string]: number
+}
+
 export default function setup() {
   const categoryChannelId = '1264584201823322253'
   const buyerManagementChannelId = '1264584361034911856'
   const guildId = '1054032215446663278'
   const roleName = '[Rise] Seller'
+
   const languageByChannel: LanguageByChannel = {}
+  const lastCtaPings: PingByUser = {}
 
   const client = new Client({
     intents: [
@@ -160,9 +166,13 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           ephemeral: true,
         })
 
-        buyerManagementChannel.send(
-          `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}. Their preferred language is ${getLanguage(interaction)}`,
-        )
+        if (!lastCtaPings[interaction.channelId] || Date.now() - lastCtaPings[interaction.channelId] > 60000) {
+          lastCtaPings[interaction.channelId] = Date.now()
+
+          buyerManagementChannel.send(
+            `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}. Their preferred language is ${getLanguage(interaction)}`,
+          )
+        }
         return
       }
     } catch (e: any) {
