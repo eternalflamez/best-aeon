@@ -253,10 +253,6 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
   }
 
   function postCTA(interaction: ButtonInteraction) {
-    const goBack = new ButtonBuilder()
-      .setCustomId('go-back')
-      .setLabel(getTranslation('return', interaction))
-      .setStyle(ButtonStyle.Primary)
     const buy = new ButtonBuilder()
       .setCustomId(`go-buy-${interaction.customId}`)
       .setLabel(getTranslation('buy', interaction))
@@ -264,6 +260,10 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     const ask = new ButtonBuilder()
       .setCustomId(`go-ask-${interaction.customId}`)
       .setLabel(getTranslation('ask', interaction))
+      .setStyle(ButtonStyle.Primary)
+    const goBack = new ButtonBuilder()
+      .setCustomId('go-back')
+      .setLabel(getTranslation('return', interaction))
       .setStyle(ButtonStyle.Primary)
 
     const sellRow = new ActionRowBuilder<ButtonBuilder>().addComponents(goBack, buy, ask)
