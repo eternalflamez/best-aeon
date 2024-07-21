@@ -88,7 +88,7 @@ export default function setup() {
   
 I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. Let's get started!
 
-STEP 1: Choose a Language, Elige un idioma, Wähle eine Sprache, Choisir une langue 🌐`,
+**__STEP 1: Choose a Language, Elige un idioma, Wähle eine Sprache, Choisir une langue 🌐__**`,
         components: [languageRow],
       })
     } catch (e) {
