@@ -163,10 +163,14 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     } catch (e) {
       console.error(e)
 
-      return interaction.reply({
-        content: getTranslation('generic_error', interaction),
-        ephemeral: true,
-      })
+      try {
+        return interaction.reply({
+          content: getTranslation('generic_error', interaction),
+          ephemeral: true,
+        })
+      } catch (e) {
+        console.error('--- ERROR: Was not allowed to reply to interaction ---')
+      }
     }
   })
 
