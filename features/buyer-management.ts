@@ -47,17 +47,13 @@ export default function setup() {
 
   client.on('guildMemberAdd', async (member) => {
     try {
-      console.log(guildId, member.guild.id)
-
       if (guildId !== member.guild.id) {
-        console.log('wrong guild id')
         return
       }
 
       const categoryChannel = await client.channels.fetch(categoryChannelId)
 
       if (!categoryChannel || !(categoryChannel instanceof CategoryChannel)) {
-        console.log('no category channel')
         return
       }
 
