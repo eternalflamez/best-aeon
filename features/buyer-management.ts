@@ -109,11 +109,13 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           setLanguage(interaction)
         }
 
-        return postSellTypes(interaction)
+        postSellTypes(interaction)
+        return
       }
 
       if (id === 'raids') {
-        return postRaidList(interaction)
+        postRaidList(interaction)
+        return
       }
 
       if (id.startsWith('raid-') || id === 'strikes' || id === 'fractals') {
@@ -130,10 +132,11 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         }
 
         if (!embeds) {
-          return interaction.reply({
+          interaction.reply({
             content: getTranslation('generic_error', interaction),
             ephemeral: true,
           })
+          return
         }
 
         await interaction.reply({
@@ -141,14 +144,15 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           ephemeral: true,
         })
 
-        return postCTA(interaction)
+        postCTA(interaction)
+        return
       }
 
       if (id.startsWith('go-')) {
         const buyerManagementChannel = client.channels.cache.get(buyerManagementChannelId)
 
         if (!buyerManagementChannel || !(buyerManagementChannel instanceof TextChannel)) {
-          return null
+          return
         }
 
         interaction.reply({
@@ -156,18 +160,20 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           ephemeral: true,
         })
 
-        return buyerManagementChannel.send(
+        buyerManagementChannel.send(
           `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}. Their preferred language is ${getLanguage(interaction)}`,
         )
+        return
       }
     } catch (e: any) {
       console.error(e.rawError?.message || 'Something went wrong?')
 
       try {
-        return interaction.reply({
+        interaction.reply({
           content: getTranslation('generic_error', interaction),
           ephemeral: true,
         })
+        return
       } catch (e) {
         console.error('--- ERROR: Was not allowed to reply to interaction ---')
       }
