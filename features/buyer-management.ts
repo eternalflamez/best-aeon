@@ -184,7 +184,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           ephemeral: true,
         })
         return
-      } catch (e) {
+      } catch {
         console.error('--- ERROR: Was not allowed to reply to interaction ---')
       }
     }
