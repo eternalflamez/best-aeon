@@ -124,11 +124,13 @@ STEP 1: Choose a Language, Elige un idioma, Wähle eine Sprache, Choisir une lan
         let embeds
 
         if (id === 'raid-boss') {
-          embeds = await readPriceEmbed(client, '1263940136081686614')
+          embeds = await readPriceEmbed(client, '1264596066444115969')
         } else if (id === 'raid-achievements') {
-          embeds = await readPriceEmbed(client, '1263956507842576465')
+          embeds = await readPriceEmbed(client, '1264596103995723829')
         } else if (id === 'strikes') {
-          embeds = await readPriceEmbed(client, '1264568005493391403')
+          embeds = await readPriceEmbed(client, '1264596122710573130')
+        } else if (id === 'fractals') {
+          embeds = await readPriceEmbed(client, '1264596136778268772')
         }
 
         if (!embeds) {
@@ -209,11 +211,7 @@ STEP 1: Choose a Language, Elige un idioma, Wähle eine Sprache, Choisir une lan
   function postSellTypes(interaction: ButtonInteraction) {
     const raids = new ButtonBuilder().setCustomId('raids').setLabel('Raids').setStyle(ButtonStyle.Primary)
     const strikes = new ButtonBuilder().setCustomId('strikes').setLabel('Strikes').setStyle(ButtonStyle.Primary)
-    const fractals = new ButtonBuilder()
-      .setCustomId('fractals')
-      .setLabel('Fractals')
-      .setStyle(ButtonStyle.Primary)
-      .setDisabled(true)
+    const fractals = new ButtonBuilder().setCustomId('fractals').setLabel('Fractals').setStyle(ButtonStyle.Primary)
 
     const sellRow = new ActionRowBuilder<ButtonBuilder>().addComponents(raids, strikes, fractals)
 
@@ -290,7 +288,7 @@ function createChannel(
 }
 
 async function readPriceEmbed(client: Client, messageId: string) {
-  const channel = client.channels.cache.get('1263915263682809989')
+  const channel = client.channels.cache.get('1264595533515980820')
 
   if (!channel || !(channel instanceof TextChannel)) {
     return null
