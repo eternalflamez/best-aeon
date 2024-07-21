@@ -116,7 +116,7 @@ STEP 1: Choose a Language, Elige un idioma, Wähle eine Sprache, Choisir une lan
         return postRaidList(interaction)
       }
 
-      if (id.startsWith('raid-') || id === 'strikes') {
+      if (id.startsWith('raid-') || id === 'strikes' || id === 'fractals') {
         let embeds
 
         if (id === 'raid-boss') {
