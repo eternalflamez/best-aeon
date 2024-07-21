@@ -160,8 +160,8 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}. Their preferred language is ${getLanguage(interaction)}`,
         )
       }
-    } catch (e) {
-      console.error(e)
+    } catch (e: any) {
+      console.error(e.rawError?.message || 'Something went wrong?')
 
       try {
         return interaction.reply({
