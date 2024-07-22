@@ -181,7 +181,7 @@ function extractTimeText(match: RegExpMatchArray | null) {
     // Extract the whole timestamp
     return match[0]
   } else {
-    return "0"
+    return '0'
   }
 }
 
@@ -189,6 +189,7 @@ function extractTimestamp(match: RegExpMatchArray | null) {
   if (match) {
     // Extract the numeric part of the timestamp
     const timestamp = parseInt(match[1], 10)
+
     return timestamp
   } else {
     return 0
@@ -197,12 +198,13 @@ function extractTimestamp(match: RegExpMatchArray | null) {
 
 function getSortedMessage(message: string, timeText: string) {
   // Sort the content message to have the time at the beginning
-  if (timeText === "0") {
+  if (timeText === '0') {
     // some weird input, do not manipulate text
     return message
   }
+
   const messageWithoutTime = message.replace(timeText, '')
-  return timeText.trim() + " " + messageWithoutTime.trim()
+  return timeText.trim() + ' ' + messageWithoutTime.trim()
 }
 
 type HistoryMessage = {
