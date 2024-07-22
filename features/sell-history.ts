@@ -35,10 +35,13 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
             if (sellMessages) {
               for (const sellMessage of sellMessages.values()) {
+                const match = getTimestampMatch(sellMessage.content)
+                const timeText = extractTimeText(match)
+                const timestamp = extractTimestamp(match)
                 history.push({
                   id: sellMessage.id,
-                  date: extractTimestamp(sellMessage.content),
-                  text: sellMessage.content,
+                  date: timestamp,
+                  text: getSortedMessage(sellMessage.content, timeText),
                 })
               }
             }
@@ -73,10 +76,13 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
       if (sellChannels[message.channelId] && sellChannels[message.channelId].region === region) {
         if (message.content.includes('<t:')) {
+          const match = getTimestampMatch(message.content)
+          const timeText = extractTimeText(match)
+          const timestamp = extractTimestamp(match)
           history.push({
             id: message.id,
-            date: extractTimestamp(message.content),
-            text: message.content,
+            date: timestamp,
+            text: getSortedMessage(message.content, timeText),
           })
 
           await createMessage(historyMessage, history)
@@ -137,8 +143,11 @@ export default function setup(client: Client, historyChannelId: string, region: 
         newMessage = await newMessage.fetch()
       }
 
-      history[messageIndex].date = extractTimestamp(newMessage.content)
-      history[messageIndex].text = newMessage.content
+      const match = getTimestampMatch(newMessage.content)
+      const timeText = extractTimeText(match)
+      const timestamp = extractTimestamp(match)
+      history[messageIndex].date = timestamp
+      history[messageIndex].text = getSortedMessage(newMessage.content, timeText)
 
       await createMessage(historyMessage, history)
     }
@@ -161,18 +170,41 @@ function createMessage(historyMessage: Message<true>, history: HistoryMessage[])
   return historyMessage.edit(result)
 }
 
-function extractTimestamp(messageText: String) {
+function getTimestampMatch(messageText: string) {
   // Regex to match the timestamp pattern <t:number:format>
   const pattern = /<t:(\d+):[a-zA-Z]>/
-  const match = messageText.match(pattern)
+  return messageText.match(pattern)
+}
 
+function extractTimeText(match: RegExpMatchArray | null) {
+  if (match) {
+    // Extract the whole timestamp
+    return match[0]
+  } else {
+    return '0'
+  }
+}
+
+function extractTimestamp(match: RegExpMatchArray | null) {
   if (match) {
     // Extract the numeric part of the timestamp
     const timestamp = parseInt(match[1], 10)
+
     return timestamp
   } else {
     return 0
   }
+}
+
+function getSortedMessage(message: string, timeText: string) {
+  // Sort the content message to have the time at the beginning
+  if (timeText === '0') {
+    // some weird input, do not manipulate text
+    return message
+  }
+
+  const messageWithoutTime = message.replace(timeText, '')
+  return timeText.trim() + ' ' + messageWithoutTime.trim()
 }
 
 type HistoryMessage = {
