@@ -101,12 +101,6 @@ Deine Auswahl wurde registriert. Was würdest du gerne als nächstes tun?
 🔹 **Kaufen**: Vollführe deinen Einkauf.
 🔹 **Fragen**: Brauchst du Hilfe? unser [Rise] support team ist für dich da!`,
   },
-  return: {
-    english: 'Return',
-    french: 'Retour',
-    spanish: 'Regresar',
-    german: 'Zurück',
-  },
   buy: {
     english: 'Buy',
     french: 'Acheter',
@@ -118,6 +112,12 @@ Deine Auswahl wurde registriert. Was würdest du gerne als nächstes tun?
     french: 'Demandez',
     spanish: 'Pregunta',
     german: 'Fragen',
+  },
+  return: {
+    english: 'Return',
+    french: 'Retour',
+    spanish: 'Regresar',
+    german: 'Zurück',
   },
 }
 
