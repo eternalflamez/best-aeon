@@ -13,15 +13,14 @@ const translations: Translations = {
     french: "Il semble qu'il y ait un probleme, reessayer stp, ou contacte quelqu'un de [Rise] :(",
     spanish: 'Parece que hay un problema, por favor intentalo de nuevo, o contacta a alguien de [Rise] :(',
     german:
-      'Einer Fehler ist passiert. Bitte versuche es noch einmal oder kontaktiere einen unserer [Rise] Mitarbeiter.',
+      'Hier ist etwas schief gelaufen. Bitte versuche es erneut oder kontaktiere eines unserer [Rise] Mitglieder.',
   },
   staff_called: {
     english: "I've sent a message to our staff! We will get back to you as soon as the next person is available.",
     french: "J'ai envoye un message a notre team, nous tu répondras lorsque la prochaine personne sera disponible",
     spanish:
       'Mande un mensaje a nuestro personal, nos comunicaremos con tigo cuando la proxima persona este disponible!',
-    german:
-      'Ich habe eine Nachricht an unser Team geschickt! Bitte warte bis sich der nächste freie Mitarbeiter bei dir meldet.',
+    german: 'Es wurde eine Nachricht an das Team geschickt! Wir werden uns so schnell wie möglich bei dir melden.',
   },
   available_services: {
     english: `**__STEP 2: Available services__** 📜
@@ -47,9 +46,9 @@ Actualmente ofrecemos los siguientes servicios:
 Después de seleccionar un servicio, puedes elegir logros específicos en el siguiente paso.`,
     german: `**__SCHRITT 2: Angebotene Leistungen__** 📜
 Momentan bieten wir folgende Leistungen an:
-🔹 **Schlachtzüge**: Drücke den  "*Raids*" Knopf falls du dich über unsere Schlachtzugsangebote informieren möchstest.
-🔹 **Angriffsmissionen**: Drücke den  "*Strikes*" Knopf falls du dich über unsere Angriffsmissionenangebote informieren möchtest.
-🔹 **Fraktale**: Drücke den "*Fractals*" Knopf falls du dich über unsere Fraktalangebote informieren möchtest.
+🔹 **Schlachtzüge**: Drücke den "*Raids*" Knopf, falls du dich über unsere Schlachtzugs-Angebote informieren möchtest.
+🔹 **Angriffsmissionen**: Drücke den "*Strikes*" Knopf, falls du dich über unsere Angriffsmissionen-Angebote informieren möchtest.
+🔹 **Fraktale**: Drücke den "*Fractals*" Knopf falls, du dich über unsere Fraktal-Angebote informieren möchtest.
 
 Nach diesem Schritt kannst du die Auswahl noch weiter spezifizieren.`,
   },
@@ -58,7 +57,7 @@ Nach diesem Schritt kannst du die Auswahl noch weiter spezifizieren.`,
 Specify the content you're looking for within the chosen service category.
 
 🔹 **Boss Kills**: Tap the "*Boss Kills*" button if you are interested in *normal mode (NM)* or *challenge mode (CM)* boss kills.
-🔹 **Achievement**: Tap the "*Achievements*" button if you are interested in specific achievements. `,
+🔹 **Achievements**: Tap the "*Achievements*" button if you are interested in specific achievements.`,
     french: `**__Etape 3 : précise tes besoins__** 🔎
 Precise ce que tu cherches dans la catégorie de service choisie.
 
@@ -69,11 +68,11 @@ Especifica que es lo que estas buscando en esta categoria de servicio.
 
 🔹 **Boss Kills**: Toqua el botón '*Boss Kills*' si estas interesado en un boss de incursiones en *modo normal (NM)* o *modo desafio (CM)*.
 🔹 **Logros**: Toqua el botón '*Achievements*' si estas interesado en logros especificos.`,
-    german: `**__SCHRITT 3: Spezifiziere deinen Wunsch__** 🔎
-Spezifiziere bitte genau, nach was du in der ausgewählten Kategorie suchst.
+    german: `**__SCHRITT 3: Spezifiziere deine Interesse__** 🔎
+Spezifiziere, nach was du in der ausgewählten Kategorie suchst.
 
-🔹 **Boss Kills**: Drücke den "*Boss Kills*" Knopf falls du Bosse im normalen Modus *normal mode (NM)* oder im Herausforderungsmodus *challenge mode (CM)* besiegen musst.
-🔹 **Erfolg**: Drück den "*Achievements*" Knopf Falls du nach spezifischen Erfolgen suchst. `,
+🔹 **Boss Kills**: Drücke den "*Boss Kills*" Knopf, falls du an Boss Kills im normalen Modus *normal mode (NM)* oder im Herausforderungsmodus *challenge mode (CM)* interessiert bist.
+🔹 **Erfolge**: Drück den "*Achievements*" Knopf, falls du nach spezifischen Erfolgen suchst.`,
   },
   call_to_action: {
     english: `**__FINAL STEP:  Further actions__** 👣
@@ -97,9 +96,9 @@ Tus selecciones han sido registradas. Que te gustaria hacer ahora?
     german: `**__Letzter Schritt:  Checkout__** 👣
 Deine Auswahl wurde registriert. Was würdest du gerne als nächstes tun?
 
-🔹 **Zurück**: Geh zurück zur ersten Auswahl um weitere Angebote durchzustöbern.
-🔹 **Kaufen**: Vollführe deinen Einkauf.
-🔹 **Fragen**: Brauchst du Hilfe? unser [Rise] support team ist für dich da!`,
+🔹 **Zurück**: Gehe zurück zur ersten Auswahl, um weitere Angebote zu sehen.
+🔹 **Kaufen**: Fahre mit dem Vorgang fort.
+🔹 **Fragen**: Brauchst du Hilfe? Das [Rise]-Team kann dir sicher weiterhelfen!`,
   },
   buy: {
     english: 'Buy',
