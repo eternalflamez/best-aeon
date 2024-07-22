@@ -76,13 +76,13 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
       if (sellChannels[message.channelId] && sellChannels[message.channelId].region === region) {
         if (message.content.includes('<t:')) {
-          const match = getTimestampMatch(sellMessage.content)
+          const match = getTimestampMatch(message.content)
           const timeText = extractTimeText(match)
           const timestamp = extractTimestamp(match)
           history.push({
-            id: sellMessage.id,
+            id: message.id,
             date: timestamp,
-            text: getSortedMessage(sellMessage.content, timeText),
+            text: getSortedMessage(message.content, timeText),
           })
 
           await createMessage(historyMessage, history)
@@ -196,6 +196,7 @@ function extractTimestamp(match: RegExpMatchArray | null) {
 }
 
 function getSortedMessage(message: string, timeText: string) {
+  // Sort the content message to have the time at the beginning
   if (timeText === "0") {
     // some weird input, do not manipulate text
     return message
