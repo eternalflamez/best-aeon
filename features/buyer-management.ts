@@ -154,7 +154,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         return
       }
 
-      if (id.startsWith('go-')) {
+      if (id.startsWith('go-contact-us')) {
         const buyerManagementChannel = client.channels.cache.get(buyerManagementChannelId)
 
         if (!buyerManagementChannel || !(buyerManagementChannel instanceof TextChannel)) {
@@ -253,20 +253,16 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
   }
 
   function postCTA(interaction: ButtonInteraction) {
-    const buy = new ButtonBuilder()
-      .setCustomId(`go-buy-${interaction.customId}`)
-      .setLabel(getTranslation('buy', interaction))
-      .setStyle(ButtonStyle.Primary)
-    const ask = new ButtonBuilder()
-      .setCustomId(`go-ask-${interaction.customId}`)
-      .setLabel(getTranslation('ask', interaction))
-      .setStyle(ButtonStyle.Primary)
+    const contactUs = new ButtonBuilder()
+      .setCustomId(`go-contact-us-${interaction.customId}`)
+      .setLabel(getTranslation('contactUs', interaction))
+      .setStyle(ButtonStyle.Success)
     const goBack = new ButtonBuilder()
       .setCustomId('go-back')
       .setLabel(getTranslation('return', interaction))
-      .setStyle(ButtonStyle.Primary)
+      .setStyle(ButtonStyle.Secondary)
 
-    const sellRow = new ActionRowBuilder<ButtonBuilder>().addComponents(buy, ask, goBack)
+    const sellRow = new ActionRowBuilder<ButtonBuilder>().addComponents(contactUs, goBack)
 
     return interaction.message.channel.send({
       content: getTranslation('call_to_action', interaction),
