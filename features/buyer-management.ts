@@ -255,7 +255,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
   function postCTA(interaction: ButtonInteraction) {
     const contactUs = new ButtonBuilder()
       .setCustomId(`go-contact-us-${interaction.customId}`)
-      .setLabel(getTranslation('contactUs', interaction))
+      .setLabel(getTranslation('contact_us', interaction))
       .setStyle(ButtonStyle.Success)
     const goBack = new ButtonBuilder()
       .setCustomId('go-back')
