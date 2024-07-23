@@ -78,39 +78,29 @@ Spezifiziere, nach was du in der ausgewählten Kategorie suchst.
     english: `**__FINAL STEP:  Further actions__** 👣
 Your selections have been registered. What would you like to do next?
 
-🔹 **Return**: Go back to the start to explore more options.
-🔹 **Buy**: Proceed with your purchase.
-🔹 **Ask**: Need help? Our [Rise] support team is here for you!`,
+🔹 **Contact us**: Send us a notification if you have any questions or would like to buy something.
+🔹 **Return**: Go back to the start to explore more options`,
     french: `**__Etape 4 : Actions supplémentaires__** 👣 
 Tes selections ont ete enregistrées. Que veux-tu faire ensuite?
 
-🔹 **Retour**: Reviens au début pour explorer plus d'options.
-🔹 **Acheter** : Procede a votre achat.
-🔹 **Demandez** : Besoin d'aide ? Notre équipe d'assistance de [Rise] est là pour vous !`,
+🔹 **Contactez-nous** : Envoyez-nous une notification si vous avez des questions ou si vous souhaitez acheter quelque chose.
+🔹 **Retour**: Reviens au début pour explorer plus d'options.`,
     spanish: `**__Ultimo Paso: Proximas opciones__** 👣 
 Tus selecciones han sido registradas. Que te gustaria hacer ahora?
 
-🔹 **Regresar**: regresa al principio para explorar otras opciones.
-🔹 **Comprar**: continua con tu compra.
-🔹 **Pregunta**: Necesitas ayuda? Nuestro equipo de soporte de [Rise] esta aqui para ayudarte!`,
+🔹 **Contacte con nosotros**: Envíenos una notificación si tiene alguna pregunta o desea comprar algo.
+🔹 **Regresar**: regresa al principio para explorar otras opciones.`,
     german: `**__Letzter Schritt:  Checkout__** 👣
 Deine Auswahl wurde registriert. Was würdest du gerne als nächstes tun?
 
-🔹 **Zurück**: Gehe zurück zur ersten Auswahl, um weitere Angebote zu sehen.
-🔹 **Kaufen**: Fahre mit dem Vorgang fort.
-🔹 **Fragen**: Brauchst du Hilfe? Das [Rise]-Team kann dir sicher weiterhelfen!`,
+🔹 **Kontaktiere uns**: Schick uns eine Benachrichtigung, falls du Fragen hast oder etwas kaufen möchtest.
+🔹 **Zurück**: Gehe zurück zur ersten Auswahl, um weitere Angebote zu sehen.`,
   },
-  buy: {
-    english: 'Buy',
-    french: 'Acheter',
-    spanish: 'Comprar',
-    german: 'Kaufen',
-  },
-  ask: {
-    english: 'Ask',
-    french: 'Demandez',
-    spanish: 'Pregunta',
-    german: 'Fragen',
+  contact_us: {
+    english: 'Contact us',
+    french: 'Contactez-nous',
+    spanish: 'Contacte con nosotros',
+    german: 'Kontaktiere uns',
   },
   return: {
     english: 'Return',
