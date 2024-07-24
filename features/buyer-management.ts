@@ -307,34 +307,38 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       components: [sellRow],
     })
   }
-}
 
-function createChannel(
-  name: string,
-  categoryChannel: CategoryChannel,
-  member: GuildMember,
-  adminRole: Role,
-  guildId: string,
-) {
-  return categoryChannel.children.create({
-    name,
-    type: ChannelType.GuildText,
-    topic: `${member.id} english`,
-    permissionOverwrites: [
-      {
-        id: guildId,
-        deny: ['ViewChannel'],
-      },
-      {
-        id: member.id,
-        allow: ['ViewChannel', 'ReadMessageHistory', 'SendMessages'],
-      },
-      {
-        id: adminRole.id,
-        allow: ['ViewChannel', 'ReadMessageHistory', 'SendMessages'],
-      },
-    ],
-  })
+  function createChannel(
+    name: string,
+    categoryChannel: CategoryChannel,
+    member: GuildMember,
+    adminRole: Role,
+    guildId: string,
+  ) {
+    return categoryChannel.children.create({
+      name,
+      type: ChannelType.GuildText,
+      topic: `${member.id} english`,
+      permissionOverwrites: [
+        {
+          id: guildId,
+          deny: ['ViewChannel'],
+        },
+        {
+          id: member.id,
+          allow: ['ViewChannel', 'ReadMessageHistory', 'SendMessages'],
+        },
+        {
+          id: client.user!.id,
+          allow: ['ViewChannel', 'ReadMessageHistory', 'SendMessages'],
+        },
+        {
+          id: adminRole.id,
+          allow: ['ViewChannel', 'ReadMessageHistory', 'SendMessages'],
+        },
+      ],
+    })
+  }
 }
 
 async function readPriceEmbed(client: Client, messageId: string) {
