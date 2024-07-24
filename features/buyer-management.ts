@@ -15,6 +15,7 @@ import {
   Partials,
 } from 'discord.js'
 import translations from '../constants/translations.ts'
+import { Language } from '../constants/buyerManagementLanguages.ts'
 
 interface LanguageByChannel {
   [key: string]: string
@@ -82,10 +83,14 @@ export default function setup() {
         return
       }
 
-      const english = new ButtonBuilder().setCustomId('english').setLabel('English').setStyle(ButtonStyle.Primary)
-      const french = new ButtonBuilder().setCustomId('french').setLabel('Francais').setStyle(ButtonStyle.Primary)
-      const german = new ButtonBuilder().setCustomId('german').setLabel('Deutsch').setStyle(ButtonStyle.Primary)
-      const spanish = new ButtonBuilder().setCustomId('spanish').setLabel('Español').setStyle(ButtonStyle.Primary)
+      // prettier-ignore
+      const english = new ButtonBuilder().setCustomId(Language.ENGLISH).setLabel('English').setStyle(ButtonStyle.Primary)
+      // prettier-ignore
+      const french = new ButtonBuilder().setCustomId(Language.GERMAN).setLabel('Francais').setStyle(ButtonStyle.Primary)
+      // prettier-ignore
+      const german = new ButtonBuilder().setCustomId(Language.GERMAN).setLabel('Deutsch').setStyle(ButtonStyle.Primary)
+      // prettier-ignore
+      const spanish = new ButtonBuilder().setCustomId(Language.SPANISH).setLabel('Español').setStyle(ButtonStyle.Primary)
 
       const languageRow = new ActionRowBuilder<ButtonBuilder>().addComponents(english, french, german, spanish)
 
@@ -110,7 +115,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     try {
       const id = interaction.customId
 
-      if (id === 'english' || id === 'french' || id === 'german' || id === 'spanish' || id === 'go-back') {
+      if (id in Language || id === 'go-back') {
         if (id !== 'go-back') {
           setLanguage(interaction)
         }
@@ -170,7 +175,8 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           lastCtaPings[interaction.channelId] = Date.now()
 
           buyerManagementChannel.send(
-            `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}. Their preferred language is ${getLanguage(interaction)}`,
+            `The buyer at ${channelMention(interaction.channelId)} clicked on ${id}.
+Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
           )
         }
         return
@@ -208,17 +214,37 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     const channel = client.channels.cache.get(interaction.channelId)
 
     if (!channel || !(channel instanceof TextChannel)) {
-      return 'english'
+      return Language.ENGLISH
     }
 
     return languageByChannel[channel.id] || channel.topic?.split(' ')[1]!
   }
 
+  function getLanguagePrettyPrint(interaction: ButtonInteraction) {
+    const language = getLanguage(interaction)
+    switch (language) {
+      case Language.GERMAN:
+        return `:flag_de: ${Language.GERMAN.toUpperCase()}`
+      case Language.FRENCH:
+        return `:flag_fr: ${Language.FRENCH.toUpperCase()}`
+      case Language.SPANISH:
+        return `:flag_es: ${Language.SPANISH.toUpperCase()}`
+      case Language.ENGLISH:
+      default:
+        return `:flag_gb: ${Language.ENGLISH.toUpperCase()}`
+    }
+  }
+
   function getTranslation(id: string, interaction: ButtonInteraction) {
     const language = getLanguage(interaction)
 
-    if (language !== 'english' && language !== 'german' && language !== 'french' && language !== 'spanish') {
-      return translations[id]['english']
+    if (
+      language !== Language.ENGLISH &&
+      language !== Language.GERMAN &&
+      language !== Language.FRENCH &&
+      language !== Language.SPANISH
+    ) {
+      return translations[id][Language.ENGLISH]
     }
 
     return translations[id][language]
@@ -281,7 +307,7 @@ function createChannel(
   return categoryChannel.children.create({
     name,
     type: ChannelType.GuildText,
-    topic: `${member.id} english`,
+    topic: `${member.id} ${Language.ENGLISH}`,
     permissionOverwrites: [
       {
         id: guildId,
