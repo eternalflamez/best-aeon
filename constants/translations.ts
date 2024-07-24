@@ -96,7 +96,7 @@ Deine Auswahl wurde registriert. Was würdest du gerne als nächstes tun?
 🔹 **Kontaktiere uns**: Schick uns eine Benachrichtigung, falls du Fragen hast oder etwas kaufen möchtest.
 🔹 **Zurück**: Gehe zurück zur ersten Auswahl, um weitere Angebote zu sehen.`,
   },
-  contactUs: {
+  contact_us: {
     english: 'Contact us',
     french: 'Contactez-nous',
     spanish: 'Contacte con nosotros',
