@@ -13,9 +13,11 @@ import {
   ButtonInteraction,
   GatewayIntentBits,
   Partials,
+  Events,
 } from 'discord.js'
 import translations from '../constants/translations.ts'
 import { Language } from '../constants/buyerManagementLanguages.ts'
+import HandleContactUs from '../onMessageReactionAddHooks/1.handleContactUs.ts'
 
 interface LanguageByChannel {
   [key: string]: string
@@ -193,6 +195,23 @@ Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
       } catch {
         console.error('--- ERROR: Was not allowed to reply to interaction ---')
       }
+    }
+  })
+
+  client.on(Events.MessageReactionAdd, async (reaction, user) => {
+    if (reaction.message.partial) {
+      try {
+        await reaction.message.fetch()
+      } catch (error) {
+        console.error('Error loading message:', error)
+        return
+      }
+    }
+
+    const channel = reaction.message.channel
+
+    if (channel.isTextBased() && channel instanceof TextChannel && channel.name === 'buyer-management') {
+      await HandleContactUs(reaction, user, client.user?.id)
     }
   })
 
