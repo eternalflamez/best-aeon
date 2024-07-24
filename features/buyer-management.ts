@@ -102,6 +102,44 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     }
   })
 
+  client.on('guildMemberRemove', async (member) => {
+    try {
+      if (guildId !== member.guild.id) {
+        return
+      }
+
+      const categoryChannel = await client.channels.fetch(categoryChannelId)
+
+      if (!categoryChannel || !(categoryChannel instanceof CategoryChannel)) {
+        return
+      }
+
+      const userChannel = categoryChannel.children.cache.find((channel) => {
+        if (!(channel instanceof TextChannel)) {
+          return
+        }
+
+        return channel.topic?.includes(`${member.id} `) && channel.name.startsWith('welcome')
+      })
+
+      if (!userChannel) {
+        return
+      }
+
+      try {
+        userChannel.edit({
+          name: `🚩goodbye-${member.displayName}`,
+        })
+      } catch {
+        userChannel.edit({
+          name: `🚩goodbye`,
+        })
+      }
+    } catch (e) {
+      console.error(e)
+    }
+  })
+
   client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) {
       return
