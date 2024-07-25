@@ -366,6 +366,7 @@ Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
       name,
       type: ChannelType.GuildText,
       topic: `${member.id} ${Language.ENGLISH}`,
+      position: 0,
       permissionOverwrites: [
         {
           id: guildId,
