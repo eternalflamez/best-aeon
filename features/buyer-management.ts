@@ -138,10 +138,12 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       try {
         userChannel.edit({
           name: `🚩goodbye-${member.displayName}`,
+          position: categoryChannel.children.cache.size - 1,
         })
       } catch {
         userChannel.edit({
           name: `🚩goodbye`,
+          position: categoryChannel.children.cache.size - 1,
         })
       }
     } catch (e) {
