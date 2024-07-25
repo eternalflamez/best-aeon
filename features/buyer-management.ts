@@ -85,14 +85,16 @@ export default function setup() {
         return
       }
 
-      // prettier-ignore
-      const english = new ButtonBuilder().setCustomId(Language.ENGLISH).setLabel('English').setStyle(ButtonStyle.Primary)
-      // prettier-ignore
-      const french = new ButtonBuilder().setCustomId(Language.GERMAN).setLabel('Francais').setStyle(ButtonStyle.Primary)
-      // prettier-ignore
+      const english = new ButtonBuilder()
+        .setCustomId(Language.ENGLISH)
+        .setLabel('English')
+        .setStyle(ButtonStyle.Primary)
+      const french = new ButtonBuilder().setCustomId(Language.FRENCH).setLabel('Francais').setStyle(ButtonStyle.Primary)
       const german = new ButtonBuilder().setCustomId(Language.GERMAN).setLabel('Deutsch').setStyle(ButtonStyle.Primary)
-      // prettier-ignore
-      const spanish = new ButtonBuilder().setCustomId(Language.SPANISH).setLabel('Español').setStyle(ButtonStyle.Primary)
+      const spanish = new ButtonBuilder()
+        .setCustomId(Language.SPANISH)
+        .setLabel('Español')
+        .setStyle(ButtonStyle.Primary)
 
       const languageRow = new ActionRowBuilder<ButtonBuilder>().addComponents(english, french, german, spanish)
 

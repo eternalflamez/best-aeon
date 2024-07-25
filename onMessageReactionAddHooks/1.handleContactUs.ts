@@ -38,6 +38,6 @@ export default async function (
     reaction.message.content &&
     !reaction.message.content.includes('Contacted by')
   ) {
-    reaction.message.edit('~~' + reaction.message.content + '~~' + '\r\n' + `Contacted by ${userMention(user.id)}`)
+    reaction.message.edit(`~~${reaction.message.content}~~\r\nContacted by ${userMention(user.id)}`)
   }
 }
