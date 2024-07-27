@@ -23,7 +23,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
         for (const sellChannelId in sellChannels) {
           if (sellChannels[sellChannelId].region !== region) {
-            break
+            continue
           }
 
           const sellChannel = await client.channels.fetch(sellChannelId)
