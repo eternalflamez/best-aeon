@@ -159,7 +159,13 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     try {
       const id = interaction.customId
 
-      if (id in Language || id === 'go-back') {
+      if (
+        id === Language.ENGLISH ||
+        id === Language.GERMAN ||
+        id === Language.FRENCH ||
+        id === Language.SPANISH ||
+        id === 'go-back'
+      ) {
         if (id !== 'go-back') {
           setLanguage(interaction)
         }
@@ -219,7 +225,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           lastCtaPings[interaction.channelId] = Date.now()
 
           buyerManagementChannel.send(
-            `The buyer at ${channelMention(interaction.channelId)} clicked on ${id}.
+            `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}.
 Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
           )
         }
