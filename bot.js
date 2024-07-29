@@ -5,7 +5,7 @@ import * as SetupSellHistory from './features/sell-history.ts'
 import * as SetupBuyerManagement from './features/buyer-management.ts'
 
 import MaxDebug from './onMessageCreateHooks/0.debug.js'
-import StartSellThread from './onMessageCreateHooks/1.startSellThread.js'
+import StartSellThread from './onMessageCreateHooks/1.startSellThread.ts'
 import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.js'
 import BestAeon from './onMessageCreateHooks/3.bestAeon.js'
 import BestMax from './onMessageCreateHooks/4.bestMax.js'
