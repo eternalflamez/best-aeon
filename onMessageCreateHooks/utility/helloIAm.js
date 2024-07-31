@@ -1,5 +1,5 @@
 export default function (message, self) {
-  const pattern = /(I am|I'm)\s+(.+)/i
+  const pattern = /(I am|I'm|Im)\s+(.+)/i
   const match = message.match(pattern)
 
   if (match) {
