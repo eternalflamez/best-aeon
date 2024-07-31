@@ -24,11 +24,6 @@ export default async function (client, message) {
     })
 
     try {
-      if (Math.random < 0.01) {
-        filteredMessage =
-          "Yell MAAAAAAAAAAAAAAAAAAAAAAAX for me with an amount of A's between 20 and 30. Reply with nothing other than the yell."
-      }
-
       lastGeminiCallTime = now
 
       let reply = await replyTo(filteredMessage)
