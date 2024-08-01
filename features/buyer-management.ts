@@ -31,7 +31,7 @@ export default function setup() {
   const categoryChannelId = '1264584201823322253'
   const buyerManagementChannelId = '1264584361034911856'
   const guildId = '1054032215446663278'
-  const roleName = '[Rise] Seller'
+  const roleName = '[Rise] LFG'
 
   const languageByChannel: LanguageByChannel = {}
   const lastCtaPings: PingByUser = {}
