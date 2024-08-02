@@ -13,6 +13,8 @@ export default async function (messageText: string, message: Message<boolean>) {
         name = name.slice(0, 97) + '...'
       }
 
+      console.log('Created a thread:', name)
+
       if (name) {
         await message.startThread({
           name,
