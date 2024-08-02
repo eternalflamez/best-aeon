@@ -41,7 +41,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
                 history.push({
                   id: sellMessage.id,
                   date: timestamp,
-                  text: getSortedMessage(sellMessage.content, timeText),
+                  text: getSortedMessage(sellMessage, timeText),
                 })
               }
             }
@@ -82,7 +82,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
           history.push({
             id: message.id,
             date: timestamp,
-            text: getSortedMessage(message.content, timeText),
+            text: getSortedMessage(message, timeText),
           })
 
           await createMessage(historyMessage, history)
@@ -131,25 +131,46 @@ export default function setup(client: Client, historyChannelId: string, region: 
     await createMessage(historyMessage, history)
   })
 
-  client.on('messageUpdate', async (_, newMessage) => {
+  client.on('messageUpdate', async (_, updatedMessage) => {
     if (!historyMessage) {
       return
     }
 
-    const messageIndex = history.findIndex((message) => message.id === newMessage.id)
+    const messageIndex = history.findIndex((message) => message.id === updatedMessage.id)
 
     if (messageIndex !== -1) {
-      if (newMessage.partial) {
-        newMessage = await newMessage.fetch()
+      if (updatedMessage.partial) {
+        updatedMessage = await updatedMessage.fetch()
       }
 
-      const match = getTimestampMatch(newMessage.content)
+      const match = getTimestampMatch(updatedMessage.content)
       const timeText = extractTimeText(match)
       const timestamp = extractTimestamp(match)
       history[messageIndex].date = timestamp
-      history[messageIndex].text = getSortedMessage(newMessage.content, timeText)
+      history[messageIndex].text = getSortedMessage(updatedMessage, timeText)
 
       await createMessage(historyMessage, history)
+    } else {
+      // If something was updated and now matches, add it
+      if (sellChannels[updatedMessage.channelId] && sellChannels[updatedMessage.channelId].region === region) {
+        if (updatedMessage.partial) {
+          updatedMessage = await updatedMessage.fetch()
+        }
+
+        if (updatedMessage.content.includes('<t:')) {
+          const match = getTimestampMatch(updatedMessage.content)
+          const timeText = extractTimeText(match)
+          const timestamp = extractTimestamp(match)
+
+          history.push({
+            id: updatedMessage.id,
+            date: timestamp,
+            text: getSortedMessage(updatedMessage, timeText),
+          })
+
+          await createMessage(historyMessage, history)
+        }
+      }
     }
   })
 }
@@ -196,15 +217,15 @@ function extractTimestamp(match: RegExpMatchArray | null) {
   }
 }
 
-function getSortedMessage(message: string, timeText: string) {
+function getSortedMessage(message: Message<boolean>, timeText: string) {
   // Sort the content message to have the time at the beginning
   if (timeText === '0') {
     // some weird input, do not manipulate text
-    return message
+    return message.content
   }
 
-  const messageWithoutTime = message.replace(timeText, '')
-  return timeText.trim() + ' ' + messageWithoutTime.trim()
+  const messageWithoutTime = message.content.replace(timeText, '')
+  return timeText.trim() + ' ' + messageWithoutTime.trim() + ' ' + message.url
 }
 
 type HistoryMessage = {
