@@ -225,7 +225,7 @@ function getSortedMessage(message: Message<boolean>, timeText: string) {
   }
 
   const messageWithoutTime = message.content.replace(timeText, '')
-  return timeText.trim() + ' ' + messageWithoutTime.trim() + ' ' + message.url
+  return timeText.trim() + ' ' + messageWithoutTime.trim()
 }
 
 type HistoryMessage = {
