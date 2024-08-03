@@ -1,7 +1,7 @@
 // require('dotenv').config()
 import { Client, GatewayIntentBits, Partials } from 'discord.js'
 
-import * as SetupSellHistory from './features/sell-history.ts'
+import * as SetupSellHistory from './features/sell-schedule.ts'
 import * as SetupBuyerManagement from './features/buyer-management.ts'
 
 import MaxDebug from './onMessageCreateHooks/0.debug.js'

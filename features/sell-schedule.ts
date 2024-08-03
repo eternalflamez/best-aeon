@@ -176,19 +176,39 @@ export default function setup(client: Client, historyChannelId: string, region: 
 }
 
 function createMessage(historyMessage: Message<true>, history: HistoryMessage[]) {
-  history.sort((a, b) => a.date - b.date)
-
-  let result = history
-    .map((message) => {
-      return message.text.replaceAll('@everyone', '').replaceAll('@', '').replaceAll('  ', ' ').trim()
-    })
-    .join('\r\n\r\n')
-
-  if (result.length === 0) {
-    result = NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)]
+  if (history.length === 0) {
+    return historyMessage.edit(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
   }
 
-  return historyMessage.edit(result)
+  history.sort((a, b) => a.date - b.date)
+
+  type ReductionCounter = {
+    length: number
+    output: string[]
+  }
+
+  const input: ReductionCounter = {
+    length: 0,
+    output: [],
+  }
+
+  let result = history.reduce((cum, message) => {
+    const newText = message.text.replaceAll('@everyone', '').replaceAll('@', '').replaceAll('  ', ' ').trim()
+
+    // Message limit is 2000
+    if (cum.length + newText.length > 1900) {
+      return cum
+    }
+
+    cum.output.push(newText)
+
+    return {
+      length: cum.length + newText.length,
+      output: cum.output,
+    }
+  }, input)
+
+  return historyMessage.edit(result.output.join('\r\n\r\n'))
 }
 
 function getTimestampMatch(messageText: string) {
@@ -225,7 +245,7 @@ function getSortedMessage(message: Message<boolean>, timeText: string) {
   }
 
   const messageWithoutTime = message.content.replace(timeText, '')
-  return timeText.trim() + ' ' + messageWithoutTime.trim()
+  return timeText.trim() + ' ' + messageWithoutTime.trim() + ' ' + message.url
 }
 
 type HistoryMessage = {
