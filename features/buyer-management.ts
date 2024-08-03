@@ -76,7 +76,7 @@ export default function setup() {
 
       try {
         channel = await createChannel(`welcome-${member.displayName}`, categoryChannel, member, adminRole, guildId)
-      } catch (e: any) {
+      } catch {
         channel = await createChannel('welcome', categoryChannel, member, adminRole, guildId)
       }
 
@@ -107,6 +107,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         components: [languageRow],
       })
     } catch (e) {
+      console.error(`--- something failed when setting up for ${member.displayName} ---`)
       console.error(e)
     }
   })
