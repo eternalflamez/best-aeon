@@ -254,9 +254,8 @@ export default function setup(client: Client, historyChannelId: string, region: 
       console.error(e)
 
       try {
-        interaction.reply({
+        interaction.editReply({
           content: 'Oops, there was an error loading your schedule',
-          ephemeral: true,
         })
         return
       } catch {
