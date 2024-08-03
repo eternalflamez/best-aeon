@@ -13,11 +13,12 @@ import {
   ButtonInteraction,
   GatewayIntentBits,
   Partials,
-  Events,
+  Interaction,
+  CacheType,
+  OverwriteType,
 } from 'discord.js'
 import translations from '../constants/translations.ts'
 import { Language } from '../constants/buyerManagementLanguages.ts'
-import HandleContactUs from '../onMessageReactionAddHooks/1.handleContactUs.ts'
 
 interface LanguageByChannel {
   [key: string]: string
@@ -28,9 +29,12 @@ interface PingByUser {
 }
 
 export default function setup() {
-  const categoryChannelId = '1264584201823322253'
-  const buyerManagementChannelId = '1264584361034911856'
-  const guildId = '1054032215446663278'
+  const mainCategoryChannelId = process.env.MAIN_CATEGORY_CHANNEL_ID!
+  const contactedCategoryChannelId = process.env.CONTACTED_CATEGORY_CHANNEL_ID!
+  const sellScheduledCategoryChannelId = process.env.SELL_SCHEDULED_CATEGORY_CHANNEL_ID!
+  const lcmScheduledCategoryChannelId = process.env.LCM_SCHEDULED_CATEGORY_CHANNEL_ID!
+  const buyerManagementChannelId = process.env.BUYER_MANAGEMENT_CHANNEL_ID!
+  const guildId = process.env.GUILD_ID!
   const roleName = '[Rise] LFG'
 
   const languageByChannel: LanguageByChannel = {}
@@ -60,7 +64,7 @@ export default function setup() {
         return
       }
 
-      const categoryChannel = await client.channels.fetch(categoryChannelId)
+      const categoryChannel = await client.channels.fetch(mainCategoryChannelId)
 
       if (!categoryChannel || !(categoryChannel instanceof CategoryChannel)) {
         return
@@ -118,13 +122,15 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         return
       }
 
-      const categoryChannel = await client.channels.fetch(categoryChannelId)
+      const categoryChannel = await client.channels.fetch(mainCategoryChannelId)
 
       if (!categoryChannel || !(categoryChannel instanceof CategoryChannel)) {
         return
       }
 
-      const userChannel = categoryChannel.children.cache.find((channel) => {
+      const channels = await member.guild.channels.fetch()
+
+      const userChannel = channels.find((channel) => {
         if (!(channel instanceof TextChannel)) {
           return
         }
@@ -160,6 +166,11 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     try {
       const id = interaction.customId
 
+      if (id.startsWith('management-')) {
+        await onManagementInteract(interaction)
+        return
+      }
+
       if (
         id === Language.ENGLISH ||
         id === Language.GERMAN ||
@@ -184,13 +195,13 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         let embeds
 
         if (id === 'raid-boss') {
-          embeds = await readPriceEmbed(client, '1264596066444115969')
+          embeds = await readPriceEmbed('1264596066444115969')
         } else if (id === 'raid-achievements') {
-          embeds = await readPriceEmbed(client, '1264596103995723829')
+          embeds = await readPriceEmbed('1264596103995723829')
         } else if (id === 'strikes') {
-          embeds = await readPriceEmbed(client, '1264596122710573130')
+          embeds = await readPriceEmbed('1264596122710573130')
         } else if (id === 'fractals') {
-          embeds = await readPriceEmbed(client, '1264596136778268772')
+          embeds = await readPriceEmbed('1264596136778268772')
         }
 
         if (!embeds) {
@@ -225,15 +236,32 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         if (!lastCtaPings[interaction.channelId] || Date.now() - lastCtaPings[interaction.channelId] > 60000) {
           lastCtaPings[interaction.channelId] = Date.now()
 
-          buyerManagementChannel.send(
-            `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}.
-Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
-          )
+          const callDibs = new ButtonBuilder()
+            .setCustomId('management-dibs')
+            .setLabel('Dibs')
+            .setStyle(ButtonStyle.Primary)
+          const scheduleSell = new ButtonBuilder()
+            .setCustomId('management-sell')
+            .setLabel('Sell Scheduled')
+            .setStyle(ButtonStyle.Primary)
+          const scheduleLCM = new ButtonBuilder()
+            .setCustomId('management-sell-lcm')
+            .setLabel('LCM Scheduled')
+            .setStyle(ButtonStyle.Primary)
+
+          const row = new ActionRowBuilder<ButtonBuilder>().addComponents(callDibs, scheduleSell, scheduleLCM)
+
+          buyerManagementChannel.send({
+            content: `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}.
+  Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
+            components: [row],
+          })
         }
         return
       }
     } catch (e: any) {
       console.error(e.rawError?.message || 'Something went wrong?')
+      console.error(e)
 
       try {
         interaction.reply({
@@ -244,23 +272,6 @@ Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
       } catch {
         console.error('--- ERROR: Was not allowed to reply to interaction ---')
       }
-    }
-  })
-
-  client.on(Events.MessageReactionAdd, async (reaction, user) => {
-    if (reaction.message.partial) {
-      try {
-        await reaction.message.fetch()
-      } catch (error) {
-        console.error('Error loading message:', error)
-        return
-      }
-    }
-
-    const channel = reaction.message.channel
-
-    if (channel.isTextBased() && channel instanceof TextChannel && channel.name === 'buyer-management') {
-      await HandleContactUs(reaction, user, client.user?.id)
     }
   })
 
@@ -369,7 +380,7 @@ Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
     categoryChannel: CategoryChannel,
     member: GuildMember,
     adminRole: Role,
-    guildId: string,
+    everyoneRoleId: string,
   ) {
     return categoryChannel.children.create({
       name,
@@ -378,36 +389,84 @@ Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
       position: 0,
       permissionOverwrites: [
         {
-          id: guildId,
+          id: everyoneRoleId,
           deny: ['ViewChannel'],
         },
         {
           id: member.id,
-          allow: ['ViewChannel', 'ReadMessageHistory', 'SendMessages'],
+          allow: ['ViewChannel'],
         },
         {
-          id: client.user!.id,
-          allow: ['ViewChannel', 'ReadMessageHistory', 'SendMessages'],
+          // Bot Role
+          id: '1264588777121382527',
+          allow: ['ViewChannel'],
         },
         {
           id: adminRole.id,
-          allow: ['ViewChannel', 'ReadMessageHistory', 'SendMessages'],
+          allow: ['ViewChannel'],
         },
       ],
     })
   }
-}
 
-async function readPriceEmbed(client: Client, messageId: string) {
-  const channel = client.channels.cache.get('1264595533515980820')
+  async function onManagementInteract(interaction: Interaction<CacheType>) {
+    const buttonInteraction = interaction as ButtonInteraction
+    const message = buttonInteraction.message
+    const channelId = message.content.match(/<#(\d+)>/)![1]
+    const channel = client.channels.cache.get(channelId) as TextChannel
 
-  if (!channel || !(channel instanceof TextChannel)) {
-    return null
+    if (buttonInteraction.customId === 'management-dibs') {
+      if (!message.content.includes('Contacted by')) {
+        const categoryChannel = client.channels.cache.get(contactedCategoryChannelId) as CategoryChannel
+        await channel.setParent(categoryChannel)
+
+        message.edit(`~~${message.content}~~\r\nContacted by ${userMention(interaction.user.id)}`)
+
+        await buttonInteraction.reply({
+          content: 'You called dibs!',
+          ephemeral: true,
+        })
+      } else if (message.content.includes(interaction.user.id)) {
+        await buttonInteraction.reply({
+          content: '⚠️ You already called dibs! ⚠️',
+          ephemeral: true,
+        })
+      } else {
+        await buttonInteraction.reply({
+          content: 'Oops, too slow!',
+          ephemeral: true,
+        })
+      }
+    } else if (buttonInteraction.customId === 'management-sell') {
+      const categoryChannel = client.channels.cache.get(sellScheduledCategoryChannelId) as CategoryChannel
+      await channel.setParent(categoryChannel)
+
+      await buttonInteraction.reply({
+        content: `Moved the channel to ${categoryChannel.name}`,
+        ephemeral: true,
+      })
+    } else if (buttonInteraction.customId === 'management-sell-lcm') {
+      const categoryChannel = client.channels.cache.get(lcmScheduledCategoryChannelId) as CategoryChannel
+      await channel.setParent(categoryChannel)
+
+      await buttonInteraction.reply({
+        content: `Moved the channel to ${categoryChannel.name}`,
+        ephemeral: true,
+      })
+    }
   }
 
-  const messages = await channel.messages.fetch()
+  async function readPriceEmbed(messageId: string) {
+    const channel = client.channels.cache.get('1263915263682809989')
 
-  const message = messages.get(messageId)
+    if (!channel || !(channel instanceof TextChannel)) {
+      return null
+    }
 
-  return message?.embeds
+    const messages = await channel.messages.fetch()
+
+    const message = messages.get(messageId)
+
+    return message?.embeds
+  }
 }
