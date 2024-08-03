@@ -1,4 +1,14 @@
-import { Client, Message, TextChannel } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Client,
+  Collection,
+  Message,
+  Snowflake,
+  TextChannel,
+  User,
+} from 'discord.js'
 // @ts-ignore
 import sellChannels from '../constants/sellChannels.js'
 
@@ -40,6 +50,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
                 const timestamp = extractTimestamp(match)
                 history.push({
                   id: sellMessage.id,
+                  channelId: sellMessage.channelId,
                   date: timestamp,
                   text: getSortedMessage(sellMessage, timeText),
                 })
@@ -81,6 +92,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
           const timestamp = extractTimestamp(match)
           history.push({
             id: message.id,
+            channelId: message.channelId,
             date: timestamp,
             text: getSortedMessage(message, timeText),
           })
@@ -164,12 +176,91 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
           history.push({
             id: updatedMessage.id,
+            channelId: updatedMessage.channelId,
             date: timestamp,
             text: getSortedMessage(updatedMessage, timeText),
           })
 
           await createMessage(historyMessage, history)
         }
+      }
+    }
+  })
+
+  client.on('interactionCreate', async (interaction) => {
+    if (!interaction.isButton()) {
+      return
+    }
+
+    try {
+      const id = interaction.customId
+
+      if (id === 'my-schedule') {
+        const guild = client.guilds.cache.get('544892003545251841')!
+
+        const result = []
+
+        await interaction.deferReply({
+          ephemeral: true,
+        })
+
+        for (let i = 0; i < history.length; i++) {
+          const item = history[i]
+
+          const channel = (await guild.channels.fetch(item.channelId)) as TextChannel
+          const message = channel.messages.cache.get(item.id)
+
+          if (!message) {
+            continue
+          }
+
+          const userManager = message.reactions.cache.get('545057156274323486')?.users
+
+          if (!userManager) {
+            continue
+          }
+
+          let usersThatReacted: Collection<Snowflake, User> | undefined = undefined
+
+          if (!userManager.cache.size) {
+            usersThatReacted = await userManager.fetch()
+          } else {
+            usersThatReacted = userManager.cache
+          }
+
+          if (!usersThatReacted) {
+            continue
+          }
+
+          const reacted = usersThatReacted.get(interaction.user.id)
+
+          if (reacted) {
+            result.push(item)
+          }
+        }
+
+        if (!result.length) {
+          await interaction.editReply({
+            content: "You didn't sign up to anything!",
+          })
+        } else {
+          await interaction.editReply({
+            content: getPrunedOutput(result),
+          })
+        }
+      }
+    } catch (e: any) {
+      console.error(e.rawError?.message || 'Something went wrong?')
+      console.error(e)
+
+      try {
+        interaction.reply({
+          content: 'Oops, there was an error loading your schedule',
+          ephemeral: true,
+        })
+        return
+      } catch {
+        console.error('--- ERROR: Was not allowed to reply to interaction ---')
       }
     }
   })
@@ -180,35 +271,47 @@ function createMessage(historyMessage: Message<true>, history: HistoryMessage[])
     return historyMessage.edit(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
   }
 
+  const result = getPrunedOutput(history)
+
+  const mySchedule = new ButtonBuilder()
+    .setCustomId('my-schedule')
+    .setLabel('My Schedule')
+    .setStyle(ButtonStyle.Primary)
+
+  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(mySchedule)
+
+  return historyMessage.edit({
+    content: result,
+    components: [row],
+  })
+}
+
+function getPrunedOutput(history: HistoryMessage[]) {
   history.sort((a, b) => a.date - b.date)
 
-  type ReductionCounter = {
-    length: number
-    output: string[]
-  }
+  const result = history.reduce<{ length: number; output: string[] }>(
+    (cum, message) => {
+      const newText = message.text.replaceAll('@everyone', '').replaceAll('@', '').replaceAll('  ', ' ').trim()
 
-  const input: ReductionCounter = {
-    length: 0,
-    output: [],
-  }
+      // Message limit is 2000
+      if (cum.length + newText.length > 1900) {
+        return cum
+      }
 
-  let result = history.reduce((cum, message) => {
-    const newText = message.text.replaceAll('@everyone', '').replaceAll('@', '').replaceAll('  ', ' ').trim()
+      cum.output.push(newText)
 
-    // Message limit is 2000
-    if (cum.length + newText.length > 1900) {
-      return cum
-    }
+      return {
+        length: cum.length + newText.length,
+        output: cum.output,
+      }
+    },
+    {
+      length: 0,
+      output: [],
+    },
+  )
 
-    cum.output.push(newText)
-
-    return {
-      length: cum.length + newText.length,
-      output: cum.output,
-    }
-  }, input)
-
-  return historyMessage.edit(result.output.join('\r\n\r\n'))
+  return result.output.join('\r\n\r\n')
 }
 
 function getTimestampMatch(messageText: string) {
@@ -250,6 +353,7 @@ function getSortedMessage(message: Message<boolean>, timeText: string) {
 
 type HistoryMessage = {
   id: string
+  channelId: string
   date: number
   text: string
 }
