@@ -119,7 +119,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
       history.splice(index, 1)
     })
 
-    await createMessage(historyMessage, history)
+    await createMessage(historyMessage)
   })
 
   client.on('messageUpdate', async (_, updatedMessage) => {
