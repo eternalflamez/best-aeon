@@ -122,12 +122,6 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         return
       }
 
-      const categoryChannel = await client.channels.fetch(mainCategoryChannelId)
-
-      if (!categoryChannel || !(categoryChannel instanceof CategoryChannel)) {
-        return
-      }
-
       const channels = await member.guild.channels.fetch()
 
       const userChannel = channels.find((channel) => {
@@ -146,12 +140,12 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       try {
         userChannel.edit({
           name: `🚩goodbye-${member.displayName}`,
-          position: categoryChannel.children.cache.size - 1,
+          position: userChannel.parent!.children.cache.size - 1,
         })
       } catch {
         userChannel.edit({
           name: `🚩goodbye`,
-          position: categoryChannel.children.cache.size - 1,
+          position: userChannel.parent!.children.cache.size - 1,
         })
       }
     } catch (e) {
