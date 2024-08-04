@@ -1,20 +1,13 @@
-import {
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  Client,
-  Collection,
-  Message,
-  Snowflake,
-  TextChannel,
-  User,
-} from 'discord.js'
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Message, TextChannel } from 'discord.js'
 // @ts-ignore
 import sellChannels from '../constants/sellChannels.js'
+
+const MCMysticCoinEmoji = '545057156274323486'
 
 export default function setup(client: Client, historyChannelId: string, region: 'NA' | 'EU') {
   let historyMessage: void | Message<true> | undefined
   const history: HistoryMessage[] = []
+  let isStarting = true
 
   client.once('ready', async () => {
     try {
@@ -45,15 +38,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
             if (sellMessages) {
               for (const sellMessage of sellMessages.values()) {
-                const match = getTimestampMatch(sellMessage.content)
-                const timeText = extractTimeText(match)
-                const timestamp = extractTimestamp(match)
-                history.push({
-                  id: sellMessage.id,
-                  channelId: sellMessage.channelId,
-                  date: timestamp,
-                  text: getSortedMessage(sellMessage, timeText),
-                })
+                await addToHistory(sellMessage)
               }
             }
           }
@@ -62,6 +47,8 @@ export default function setup(client: Client, historyChannelId: string, region: 
         console.log(history.length)
 
         await createMessage(historyMessage, history)
+
+        isStarting = false
       }
     } catch (e: any) {
       console.error('---- AN ERROR WAS THROWN ----')
@@ -87,15 +74,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
       if (sellChannels[message.channelId] && sellChannels[message.channelId].region === region) {
         if (message.content.includes('<t:')) {
-          const match = getTimestampMatch(message.content)
-          const timeText = extractTimeText(match)
-          const timestamp = extractTimestamp(match)
-          history.push({
-            id: message.id,
-            channelId: message.channelId,
-            date: timestamp,
-            text: getSortedMessage(message, timeText),
-          })
+          await addToHistory(message)
 
           await createMessage(historyMessage, history)
         }
@@ -170,16 +149,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
         }
 
         if (updatedMessage.content.includes('<t:')) {
-          const match = getTimestampMatch(updatedMessage.content)
-          const timeText = extractTimeText(match)
-          const timestamp = extractTimestamp(match)
-
-          history.push({
-            id: updatedMessage.id,
-            channelId: updatedMessage.channelId,
-            date: timestamp,
-            text: getSortedMessage(updatedMessage, timeText),
-          })
+          await addToHistory(updatedMessage)
 
           await createMessage(historyMessage, history)
         }
@@ -192,52 +162,25 @@ export default function setup(client: Client, historyChannelId: string, region: 
       return
     }
 
+    if (isStarting) {
+      await interaction.reply({
+        content: "I'm still booting, please try again in at least 10 seconds.",
+        ephemeral: true,
+      })
+      return
+    }
+
     try {
       const id = interaction.customId
 
       if (id === 'my-schedule') {
-        const guild = client.guilds.cache.get('544892003545251841')!
-
-        const result = []
-
         await interaction.deferReply({
           ephemeral: true,
         })
 
-        for (let i = 0; i < history.length; i++) {
-          const item = history[i]
-
-          const channel = (await guild.channels.fetch(item.channelId)) as TextChannel
-          const message = channel.messages.cache.get(item.id)
-
-          if (!message) {
-            continue
-          }
-
-          const userManager = message.reactions.cache.get('545057156274323486')?.users
-
-          if (!userManager) {
-            continue
-          }
-
-          let usersThatReacted: Collection<Snowflake, User> | undefined = undefined
-
-          if (!userManager.cache.size) {
-            usersThatReacted = await userManager.fetch()
-          } else {
-            usersThatReacted = userManager.cache
-          }
-
-          if (!usersThatReacted) {
-            continue
-          }
-
-          const reacted = usersThatReacted.get(interaction.user.id)
-
-          if (reacted) {
-            result.push(item)
-          }
-        }
+        const result = history.filter((historyMessage) => {
+          return historyMessage.reactors.includes(interaction.user.id)
+        })
 
         if (!result.length) {
           await interaction.editReply({
@@ -263,6 +206,59 @@ export default function setup(client: Client, historyChannelId: string, region: 
       }
     }
   })
+
+  client.on('messageReactionAdd', async (reaction, user) => {
+    const matchingHistoryItem = history.find((item) => item.id === reaction.message.id)
+
+    if (!matchingHistoryItem || reaction.emoji.id !== MCMysticCoinEmoji) {
+      return
+    }
+
+    matchingHistoryItem.reactors.push(user.id)
+  })
+
+  client.on('messageReactionRemove', async (reaction, user) => {
+    const matchingHistoryItem = history.find((item) => item.id === reaction.message.id)
+
+    if (!matchingHistoryItem || reaction.emoji.id !== MCMysticCoinEmoji) {
+      return
+    }
+
+    const index = matchingHistoryItem.reactors.indexOf(user.id)
+    if (index > -1) {
+      // only splice array when item is found
+      matchingHistoryItem.reactors.splice(index, 1) // 2nd parameter means remove one item only
+    }
+  })
+
+  async function addToHistory(message: Message<boolean>) {
+    const match = getTimestampMatch(message.content)
+    const timeText = extractTimeText(match)
+    const timestamp = extractTimestamp(match)
+
+    let messageReaction = message.reactions.cache.get(MCMysticCoinEmoji)
+
+    if (!messageReaction) {
+      return
+    }
+
+    if (messageReaction.partial) {
+      messageReaction = await messageReaction.fetch()
+    }
+
+    const users = await messageReaction.users.fetch()
+    const userIds = users.map((_, id) => {
+      return id
+    })
+
+    history.push({
+      id: message.id,
+      channelId: message.channelId,
+      reactors: userIds,
+      date: timestamp,
+      text: getSortedMessage(message, timeText),
+    })
+  }
 }
 
 function createMessage(historyMessage: Message<true>, history: HistoryMessage[]) {
@@ -288,21 +284,28 @@ function createMessage(historyMessage: Message<true>, history: HistoryMessage[])
 function getPrunedOutput(history: HistoryMessage[]) {
   history.sort((a, b) => a.date - b.date)
 
+  let hasAddedSubText = false
+
   const result = history.reduce<{ length: number; output: string[] }>(
-    (cum, message) => {
+    (cum, message, index) => {
       const newText = message.text.replaceAll('@everyone', '').replaceAll('@', '').replaceAll('  ', ' ').trim()
 
       // Message limit is 2000
-      if (cum.length + newText.length > 1900) {
-        return cum
+      if (cum.length + newText.length < 1900) {
+        cum.output.push(newText)
+
+        return {
+          length: cum.length + newText.length,
+          output: cum.output,
+        }
       }
 
-      cum.output.push(newText)
-
-      return {
-        length: cum.length + newText.length,
-        output: cum.output,
+      if (!hasAddedSubText) {
+        hasAddedSubText = true
+        cum.output.push(`⚠️ ${history.length - index} items not displayed. ⚠️`)
       }
+
+      return cum
     },
     {
       length: 0,
@@ -353,6 +356,7 @@ function getSortedMessage(message: Message<boolean>, timeText: string) {
 type HistoryMessage = {
   id: string
   channelId: string
+  reactors: string[]
   date: number
   text: string
 }
