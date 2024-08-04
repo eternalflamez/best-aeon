@@ -457,7 +457,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
   }
 
   async function readPriceEmbed(messageId: string) {
-    const channel = client.channels.cache.get('1263915263682809989')
+    const channel = client.channels.cache.get('1264595533515980820')
 
     if (!channel || !(channel instanceof TextChannel)) {
       return null
