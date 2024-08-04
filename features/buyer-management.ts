@@ -139,6 +139,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       })
 
       if (!userChannel) {
+        console.log(`${member.user.displayName} left but could not find a channel for them.`)
         return
       }
 
