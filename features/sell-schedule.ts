@@ -46,7 +46,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
         console.log(history.length)
 
-        await createMessage(historyMessage, history)
+        await createMessage(historyMessage)
 
         isStarting = false
       }
@@ -76,7 +76,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
         if (message.content.includes('<t:')) {
           await addToHistory(message)
 
-          await createMessage(historyMessage, history)
+          await createMessage(historyMessage)
         }
       }
     } catch (e: any) {
@@ -101,7 +101,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
 
     history.splice(index, 1)
 
-    await createMessage(historyMessage, history)
+    await createMessage(historyMessage)
   })
 
   client.on('messageDeleteBulk', async (messages) => {
@@ -140,7 +140,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
       history[messageIndex].date = timestamp
       history[messageIndex].text = getSortedMessage(updatedMessage, timeText)
 
-      await createMessage(historyMessage, history)
+      await createMessage(historyMessage)
     } else {
       // If something was updated and now matches, add it
       if (sellChannels[updatedMessage.channelId] && sellChannels[updatedMessage.channelId].region === region) {
@@ -151,7 +151,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
         if (updatedMessage.content.includes('<t:')) {
           await addToHistory(updatedMessage)
 
-          await createMessage(historyMessage, history)
+          await createMessage(historyMessage)
         }
       }
     }
@@ -173,7 +173,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
     try {
       const id = interaction.customId
 
-      if (id === 'my-schedule') {
+      if (id === `my-${region}-schedule`) {
         await interaction.deferReply({
           ephemeral: true,
         })
@@ -259,26 +259,26 @@ export default function setup(client: Client, historyChannelId: string, region: 
       text: getSortedMessage(message, timeText),
     })
   }
-}
 
-function createMessage(historyMessage: Message<true>, history: HistoryMessage[]) {
-  if (history.length === 0) {
-    return historyMessage.edit(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
+  function createMessage(historyMessage: Message<true>) {
+    if (history.length === 0) {
+      return historyMessage.edit(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
+    }
+
+    const result = getPrunedOutput(history)
+
+    const mySchedule = new ButtonBuilder()
+      .setCustomId(`my-${region}-schedule`)
+      .setLabel('My Schedule')
+      .setStyle(ButtonStyle.Primary)
+
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(mySchedule)
+
+    return historyMessage.edit({
+      content: result,
+      components: [row],
+    })
   }
-
-  const result = getPrunedOutput(history)
-
-  const mySchedule = new ButtonBuilder()
-    .setCustomId('my-schedule')
-    .setLabel('My Schedule')
-    .setStyle(ButtonStyle.Primary)
-
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(mySchedule)
-
-  return historyMessage.edit({
-    content: result,
-    components: [row],
-  })
 }
 
 function getPrunedOutput(history: HistoryMessage[]) {
