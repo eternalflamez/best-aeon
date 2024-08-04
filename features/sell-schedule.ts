@@ -235,21 +235,20 @@ export default function setup(client: Client, historyChannelId: string, region: 
     const match = getTimestampMatch(message.content)
     const timeText = extractTimeText(match)
     const timestamp = extractTimestamp(match)
+    let userIds: string[] = []
 
     let messageReaction = message.reactions.cache.get(MCMysticCoinEmoji)
 
-    if (!messageReaction) {
-      return
-    }
+    if (messageReaction) {
+      if (messageReaction.partial) {
+        messageReaction = await messageReaction.fetch()
+      }
 
-    if (messageReaction.partial) {
-      messageReaction = await messageReaction.fetch()
+      const users = await messageReaction.users.fetch()
+      userIds = users.map((_, id) => {
+        return id
+      })
     }
-
-    const users = await messageReaction.users.fetch()
-    const userIds = users.map((_, id) => {
-      return id
-    })
 
     history.push({
       id: message.id,
