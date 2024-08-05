@@ -4,7 +4,7 @@ import sellChannels from '../constants/sellChannels.js'
 
 const MCMysticCoinEmoji = '545057156274323486'
 
-export default function setup(client: Client, historyChannelId: string, region: 'NA' | 'EU') {
+export default function setup(client: Client, historyChannelId: string, regions: string[]) {
   let historyMessage: void | Message<true> | undefined
   const history: HistoryMessage[] = []
   let isStarting = true
@@ -25,7 +25,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
         }
 
         for (const sellChannelId in sellChannels) {
-          if (sellChannels[sellChannelId].region !== region) {
+          if (!regions.includes(sellChannels[sellChannelId].region)) {
             continue
           }
 
@@ -72,7 +72,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
         return
       }
 
-      if (sellChannels[message.channelId] && sellChannels[message.channelId].region === region) {
+      if (sellChannels[message.channelId] && regions.includes(sellChannels[message.channelId].region)) {
         if (message.content.includes('<t:')) {
           await addToHistory(message)
 
@@ -143,7 +143,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
       await createMessage(historyMessage)
     } else {
       // If something was updated and now matches, add it
-      if (sellChannels[updatedMessage.channelId] && sellChannels[updatedMessage.channelId].region === region) {
+      if (sellChannels[updatedMessage.channelId] && regions.includes(sellChannels[updatedMessage.channelId].region)) {
         if (updatedMessage.partial) {
           updatedMessage = await updatedMessage.fetch()
         }
@@ -173,7 +173,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
     try {
       const id = interaction.customId
 
-      if (id === `my-${region}-schedule`) {
+      if (id === `my-${regions.join('-')}-schedule`) {
         await interaction.deferReply({
           ephemeral: true,
         })
@@ -267,7 +267,7 @@ export default function setup(client: Client, historyChannelId: string, region: 
     const result = getPrunedOutput(history)
 
     const mySchedule = new ButtonBuilder()
-      .setCustomId(`my-${region}-schedule`)
+      .setCustomId(`my-${regions.join('-')}-schedule`)
       .setLabel('My Schedule')
       .setStyle(ButtonStyle.Primary)
 
