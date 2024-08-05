@@ -16,6 +16,8 @@ import HelloIAm from './onMessageCreateHooks/7.helloIAm.js'
 
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.js'
 
+import YoinkSellSpot from './onInteractionHooks/yoink-sell-spot.ts'
+
 const TOKEN = process.env.TOKEN
 const client = new Client({
   intents: [
@@ -107,8 +109,19 @@ client.on('messageReactionAdd', async (reaction, user) => {
 })
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  // can introduce another handling here later, when other interactions are added
-  if (!interaction.isChatInputCommand()) return
+  if (interaction.isButton()) {
+    try {
+      const id = interaction.customId
+
+      if (id === 'yoink-sell-spot') {
+        await YoinkSellSpot(client, interaction)
+        return
+      }
+    } catch (error) {
+      console.error(`Error while trying to perform button management.`)
+      return
+    }
+  } else if (interaction.isChatInputCommand()) {
   const command = interaction.client.commands.get(interaction.commandName)
 
   if (!command) {
@@ -130,6 +143,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
         content: 'There was an error while executing this command!',
         ephemeral: true,
       })
+      }
     }
   }
 })

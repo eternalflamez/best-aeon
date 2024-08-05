@@ -112,10 +112,15 @@ module.exports = {
       }
     }
 
-    let messageText = `<@${interactionUser}> signed off for this sell. Go yoink!\n\n`
+    let messageText = `${userMention(interactionUser)} signed off for this sell.\n\nGo yoink!\n`
+    const yoinkButton = new ButtonBuilder()
+      .setCustomId('yoink-sell-spot')
+      .setLabel('Yoink')
+      .setStyle(ButtonStyle.Success)
+    const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(yoinkButton)
     messageText += `${formatMentions(backupPeople)}`
 
-    await interaction.reply({ content: messageText, ephemeral: false })
+    await interaction.reply({ content: messageText, components: [buttonRow], ephemeral: false })
   },
 }
 
