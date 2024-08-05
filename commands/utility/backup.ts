@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ThreadChannel, Message, CommandInteraction } from 'discord.js'
+import { SlashCommandBuilder, ThreadChannel, Message, CommandInteraction, userMention } from 'discord.js'
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -64,14 +64,11 @@ module.exports = {
         }
       }
 
-    let messageText = ''
-
-    messageText += `Aye, a backup is needed!\n${formatMentions(backupPeople)}`
-
+    const messageText = `Aye, a backup is needed!\n${formatMentions(backupPeople)}`
     await interaction.reply({ content: messageText, ephemeral: false })
   },
 }
 
 function formatMentions(userIds: string[]) {
-  return userIds.map((id) => `<@${id}>`).join(' ')
+  return userIds.map((id) => userMention(id)).join(' ')
 }

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ThreadChannel, Message, CommandInteraction } from 'discord.js'
+import { SlashCommandBuilder, ThreadChannel, Message, CommandInteraction, userMention } from 'discord.js'
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -95,5 +95,5 @@ module.exports = {
 }
 
 function formatMentions(userIds: string[]) {
-  return userIds.map((id) => `<@${id}>`).join(', ')
+  return userIds.map((id) => userMention(id)).join(', ')
 }
