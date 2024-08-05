@@ -4,52 +4,57 @@ import sellChannels from '../constants/sellChannels.js'
 
 const MCMysticCoinEmoji = '545057156274323486'
 
-export default function setup(client: Client, historyChannelId: string, regions: string[]) {
-  let historyMessage: void | Message<true> | undefined
-  const history: HistoryMessage[] = []
+export default function (client: Client, scheduleChannelIds: [{ id: string; regions: string[] }]) {
+  const scheduleMessages: { id: string; message: Message<true> }[] = []
+  const schedule: ScheduleMessage[] = []
   let isStarting = true
 
   client.once('ready', async () => {
     try {
-      const channel = await client.channels.fetch(historyChannelId)
+      for (let i = 0; i < scheduleChannelIds.length; i++) {
+        const channelInfo = scheduleChannelIds[i]
 
-      if (channel && channel instanceof TextChannel) {
-        historyMessage = await channel.messages
-          .fetch()
-          .then((messages) => messages.filter((message) => message.author.id === client.user?.id))
-          .then((messages) => messages.at(0))
+        const channel = await client.channels.fetch(channelInfo.id)
 
-        if (!historyMessage) {
-          // Create new message
-          historyMessage = await channel.send('Loading History...')
-        }
+        if (channel && channel instanceof TextChannel) {
+          let message = await channel.messages
+            .fetch()
+            .then((messages) => messages.filter((message) => message.author.id === client.user?.id))
+            .then((messages) => messages.at(0))
 
-        for (const sellChannelId in sellChannels) {
-          if (!regions.includes(sellChannels[sellChannelId].region)) {
-            continue
+          if (!message) {
+            // Create new message
+            message = await channel.send('Loading History...')
           }
 
-          const sellChannel = await client.channels.fetch(sellChannelId)
+          scheduleMessages.push({
+            id: channelInfo.id,
+            message,
+          })
+        }
+      }
 
-          if (sellChannel && sellChannel instanceof TextChannel) {
-            let sellMessages = await sellChannel.messages
-              .fetch()
-              .then((messages) => messages.filter((message) => message.content.includes('<t:')))
+      for (const sellChannelId in sellChannels) {
+        const sellChannel = await client.channels.fetch(sellChannelId)
 
-            if (sellMessages) {
-              for (const sellMessage of sellMessages.values()) {
-                await addToHistory(sellMessage)
-              }
+        if (sellChannel && sellChannel instanceof TextChannel) {
+          let sellMessages = await sellChannel.messages
+            .fetch()
+            .then((messages) => messages.filter((message) => message.content.includes('<t:')))
+
+          if (sellMessages) {
+            for (const sellMessage of sellMessages.values()) {
+              await addToSchedule(sellMessage)
             }
           }
         }
-
-        console.log(history.length)
-
-        await createMessage(historyMessage)
-
-        isStarting = false
       }
+
+      console.log(scheduleMessages.length, schedule.length)
+
+      await createMessages()
+
+      isStarting = false
     } catch (e: any) {
       console.error('---- AN ERROR WAS THROWN ----')
       console.error('message', e.rawError?.message)
@@ -68,15 +73,13 @@ export default function setup(client: Client, historyChannelId: string, regions:
     if (message.author.bot || message.system) return
 
     try {
-      if (!historyMessage) {
-        return
-      }
+      const region = sellChannels[message.channelId]?.region
 
-      if (sellChannels[message.channelId] && regions.includes(sellChannels[message.channelId].region)) {
+      if (region) {
         if (message.content.includes('<t:')) {
-          await addToHistory(message)
+          await addToSchedule(message)
 
-          await createMessage(historyMessage)
+          await createMessages()
         }
       }
     } catch (e: any) {
@@ -89,45 +92,33 @@ export default function setup(client: Client, historyChannelId: string, regions:
   })
 
   client.on('messageDelete', async (message) => {
-    if (!historyMessage) {
-      return
-    }
-
-    const index = history.findIndex((value) => value.id === message.id)
+    const index = schedule.findIndex((value) => value.id === message.id)
 
     if (index < 0) {
       return
     }
 
-    history.splice(index, 1)
+    schedule.splice(index, 1)
 
-    await createMessage(historyMessage)
+    await createMessages()
   })
 
   client.on('messageDeleteBulk', async (messages) => {
-    if (!historyMessage) {
-      return
-    }
-
     messages.each((message) => {
-      const index = history.findIndex((value) => value.id === message.id)
+      const index = schedule.findIndex((value) => value.id === message.id)
 
       if (index < 0) {
         return
       }
 
-      history.splice(index, 1)
+      schedule.splice(index, 1)
     })
 
-    await createMessage(historyMessage)
+    await createMessages()
   })
 
   client.on('messageUpdate', async (_, updatedMessage) => {
-    if (!historyMessage) {
-      return
-    }
-
-    const messageIndex = history.findIndex((message) => message.id === updatedMessage.id)
+    const messageIndex = schedule.findIndex((message) => message.id === updatedMessage.id)
 
     if (messageIndex !== -1) {
       if (updatedMessage.partial) {
@@ -137,21 +128,21 @@ export default function setup(client: Client, historyChannelId: string, regions:
       const match = getTimestampMatch(updatedMessage.content)
       const timeText = extractTimeText(match)
       const timestamp = extractTimestamp(match)
-      history[messageIndex].date = timestamp
-      history[messageIndex].text = getSortedMessage(updatedMessage, timeText)
+      schedule[messageIndex].date = timestamp
+      schedule[messageIndex].text = getSortedMessage(updatedMessage, timeText)
 
-      await createMessage(historyMessage)
+      await createMessages()
     } else {
       // If something was updated and now matches, add it
-      if (sellChannels[updatedMessage.channelId] && regions.includes(sellChannels[updatedMessage.channelId].region)) {
+      if (sellChannels[updatedMessage.channelId]) {
         if (updatedMessage.partial) {
           updatedMessage = await updatedMessage.fetch()
         }
 
         if (updatedMessage.content.includes('<t:')) {
-          await addToHistory(updatedMessage)
+          await addToSchedule(updatedMessage)
 
-          await createMessage(historyMessage)
+          await createMessages()
         }
       }
     }
@@ -173,13 +164,15 @@ export default function setup(client: Client, historyChannelId: string, regions:
     try {
       const id = interaction.customId
 
-      if (id === `my-${regions.join('-')}-schedule`) {
+      if (id.startsWith('my-schedule-')) {
         await interaction.deferReply({
           ephemeral: true,
         })
 
-        const result = history.filter((historyMessage) => {
-          return historyMessage.reactors.includes(interaction.user.id)
+        const regions = id.replace('my-schedule-', '').split('-')
+
+        const result = schedule.filter((message) => {
+          return message.reactors.includes(interaction.user.id) && regions.includes(message.region)
         })
 
         if (!result.length) {
@@ -208,7 +201,7 @@ export default function setup(client: Client, historyChannelId: string, regions:
   })
 
   client.on('messageReactionAdd', async (reaction, user) => {
-    const matchingHistoryItem = history.find((item) => item.id === reaction.message.id)
+    const matchingHistoryItem = schedule.find((item) => item.id === reaction.message.id)
 
     if (!matchingHistoryItem || reaction.emoji.id !== MCMysticCoinEmoji) {
       return
@@ -218,7 +211,7 @@ export default function setup(client: Client, historyChannelId: string, regions:
   })
 
   client.on('messageReactionRemove', async (reaction, user) => {
-    const matchingHistoryItem = history.find((item) => item.id === reaction.message.id)
+    const matchingHistoryItem = schedule.find((item) => item.id === reaction.message.id)
 
     if (!matchingHistoryItem || reaction.emoji.id !== MCMysticCoinEmoji) {
       return
@@ -231,7 +224,7 @@ export default function setup(client: Client, historyChannelId: string, regions:
     }
   })
 
-  async function addToHistory(message: Message<boolean>) {
+  async function addToSchedule(message: Message<boolean>) {
     const match = getTimestampMatch(message.content)
     const timeText = extractTimeText(match)
     const timestamp = extractTimestamp(match)
@@ -250,37 +243,51 @@ export default function setup(client: Client, historyChannelId: string, regions:
       })
     }
 
-    history.push({
+    schedule.push({
       id: message.id,
       channelId: message.channelId,
+      region: sellChannels[message.channelId].region,
       reactors: userIds,
       date: timestamp,
       text: getSortedMessage(message, timeText),
     })
   }
 
-  function createMessage(historyMessage: Message<true>) {
-    if (history.length === 0) {
-      return historyMessage.edit(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
+  async function createMessages() {
+    for (let i = 0; i < scheduleChannelIds.length; i++) {
+      const messageInfo = scheduleChannelIds[i]
+
+      const scheduleMessage = scheduleMessages.find((m) => m.id === messageInfo.id)
+
+      if (!scheduleMessage) {
+        console.error(`--- No message existed for region ${messageInfo.regions.join('-')} ---`)
+        return
+      }
+
+      const regionSchedule = schedule.filter((message) => messageInfo.regions.includes(message.region))
+
+      if (regionSchedule.length === 0) {
+        return scheduleMessage.message.edit(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
+      }
+
+      const result = getPrunedOutput(regionSchedule)
+
+      const myScheduleButton = new ButtonBuilder()
+        .setCustomId(`my-schedule-${messageInfo.regions.join('-')}`)
+        .setLabel('My Schedule')
+        .setStyle(ButtonStyle.Primary)
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(myScheduleButton)
+
+      await scheduleMessage.message.edit({
+        content: result,
+        components: [row],
+      })
     }
-
-    const result = getPrunedOutput(history)
-
-    const mySchedule = new ButtonBuilder()
-      .setCustomId(`my-${regions.join('-')}-schedule`)
-      .setLabel('My Schedule')
-      .setStyle(ButtonStyle.Primary)
-
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(mySchedule)
-
-    return historyMessage.edit({
-      content: result,
-      components: [row],
-    })
   }
 }
 
-function getPrunedOutput(history: HistoryMessage[]) {
+function getPrunedOutput(history: ScheduleMessage[]) {
   history.sort((a, b) => a.date - b.date)
 
   let hasAddedSubText = false
@@ -352,10 +359,11 @@ function getSortedMessage(message: Message<boolean>, timeText: string) {
   return timeText.trim() + ' ' + messageWithoutTime.trim() + ' ' + message.url
 }
 
-type HistoryMessage = {
+type ScheduleMessage = {
   id: string
   channelId: string
   reactors: string[]
+  region: string
   date: number
   text: string
 }

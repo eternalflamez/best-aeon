@@ -1,7 +1,7 @@
 // require('dotenv').config()
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
 
-import * as SetupSellHistory from './features/sell-schedule.ts'
+import SetupSellHistory from './features/sell-schedule.ts'
 import * as SetupBuyerManagement from './features/buyer-management.ts'
 
 import LoadCommands from './load-commands'
@@ -39,9 +39,21 @@ client.once('ready', () => {
   console.log(`Logged in as ${client.user?.tag}`)
 })
 
-SetupSellHistory.default(client, '1270000848239329290', ['NA', 'EU'])
-SetupSellHistory.default(client, '1263126224247717928', ['EU'])
-SetupSellHistory.default(client, '1263276208028778619', ['NA'])
+SetupSellHistory(client, [
+  {
+    id: '1270000848239329290',
+    regions: ['NA', 'EU'],
+  },
+  {
+    id: '1263126224247717928',
+    regions: ['EU'],
+  },
+  {
+    id: '1263276208028778619',
+    regions: ['NA'],
+  },
+])
+
 SetupBuyerManagement.default()
 
 client.on('messageCreate', async (message) => {
