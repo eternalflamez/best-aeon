@@ -1,10 +1,10 @@
-require('dotenv').config()
+// require('dotenv').config()
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
 
-import LoadCommands from './load-commands'
 import * as SetupSellHistory from './features/sell-schedule.ts'
 import * as SetupBuyerManagement from './features/buyer-management.ts'
 
+import LoadCommands from './load-commands'
 import MaxDebug from './onMessageCreateHooks/0.debug.js'
 import StartSellThread from './onMessageCreateHooks/1.startSellThread.ts'
 import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.js'
@@ -28,21 +28,22 @@ const client = new Client({
   ],
   partials: [Partials.Message, Partials.Channel, Partials.Reaction],
 })
-LoadCommands(client)
 
 let maxCounter = {
   value: 1,
 }
 
+LoadCommands(client)
+
 client.once('ready', () => {
   console.log(`Logged in as ${client.user?.tag}`)
 })
 
-// SetupSellHistory.default(client, '1263126224247717928', 'EU')
-// SetupSellHistory.default(client, '1263276208028778619', 'NA')
-// SetupBuyerManagement.default()
+SetupSellHistory.default(client, '1270000848239329290', ['NA', 'EU'])
+SetupSellHistory.default(client, '1263126224247717928', ['EU'])
+SetupSellHistory.default(client, '1263276208028778619', ['NA'])
+SetupBuyerManagement.default()
 
-/*
 client.on('messageCreate', async (message) => {
   if (message.author.bot || message.system) return
 
@@ -92,7 +93,6 @@ client.on('messageCreate', async (message) => {
 client.on('messageReactionAdd', async (reaction, user) => {
   await AddToThread(reaction, user)
 })
-*/
 
 client.on(Events.InteractionCreate, async (interaction) => {
   // can introduce another handling here later, when other interactions are added
