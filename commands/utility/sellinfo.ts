@@ -46,13 +46,7 @@ module.exports = {
     let backupPeople: string[] = []
     let unsurePeople: string[] = []
 
-    const validReactions = [
-      reactions.get(relevantEmojis[0]),
-      reactions.get(relevantEmojis[1]),
-      reactions.get(relevantEmojis[2]),
-    ]
-
-    for (const reaction of validReactions) {
+    for (const reaction of filteredReactions.values()) {
       if (!reaction) {
         continue
       }

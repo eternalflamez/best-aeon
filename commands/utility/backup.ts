@@ -41,10 +41,10 @@ module.exports = {
 
     let backupPeople: string[] = []
 
-    if (reactions.values()) {
+    if (filteredReactions.values()) {
       let users
 
-      const reaction = reactions.get('MCBU')
+      let reaction = filteredReactions.at(0)
 
       if (!reaction) {
         return
