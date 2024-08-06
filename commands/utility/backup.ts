@@ -44,7 +44,7 @@ module.exports = {
     if (filteredReactions.values()) {
       let users
 
-      let reaction = filteredReactions.at(0)
+      const reaction = filteredReactions.at(0)
 
       if (!reaction) {
         return
