@@ -24,6 +24,7 @@ module.exports = {
     }
 
     let originalMessage: Message | null = null
+
     try {
       originalMessage = await interaction.channel.fetchStarterMessage()
     } catch (error) {
@@ -33,6 +34,7 @@ module.exports = {
         ephemeral: true,
       })
     }
+
     if (!originalMessage) {
       return
     }
@@ -73,6 +75,7 @@ module.exports = {
     for (const reaction of filteredReactions.values()) {
       const emoji = reaction.emoji.name
       let users
+
       try {
         users = await reaction.users.fetch()
       } catch (error) {
@@ -83,6 +86,7 @@ module.exports = {
         })
         return
       }
+
       switch (emoji) {
         case 'MCMysticCoin':
           if (!users.has(interactionUser)) {
@@ -112,12 +116,13 @@ module.exports = {
       }
     }
 
-    let messageText = `${userMention(interactionUser)} signed off for this sell.\n\nGo yoink!\n`
     const yoinkButton = new ButtonBuilder()
       .setCustomId('yoink-sell-spot')
       .setLabel('Yoink')
       .setStyle(ButtonStyle.Success)
     const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(yoinkButton)
+
+    let messageText = `${userMention(interactionUser)} signed off for this sell.\n\nGo yoink!\n`
     messageText += `${formatMentions(backupPeople)}`
 
     await interaction.reply({ content: messageText, components: [buttonRow], ephemeral: false })

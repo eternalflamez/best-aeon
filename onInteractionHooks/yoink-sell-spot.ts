@@ -1,6 +1,6 @@
-import { Interaction, ButtonInteraction, userMention, Client } from 'discord.js'
+import { Interaction, ButtonInteraction, userMention } from 'discord.js'
 
-export default async function onYoinkSellSpot(client: Client, interaction: Interaction) {
+export default async function onYoinkSellSpot(interaction: Interaction) {
   const buttonInteraction = interaction as ButtonInteraction
   const message = buttonInteraction.message
 

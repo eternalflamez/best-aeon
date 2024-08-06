@@ -41,28 +41,28 @@ module.exports = {
 
     let backupPeople: string[] = []
 
-    if (reactions.values())
-      for (const reaction of reactions.values()) {
-        const emoji = reaction.emoji.name
-        let users
-        try {
-          users = await reaction.users.fetch()
-        } catch (error) {
-          console.error('Error fetching users for reaction:', error)
-          await interaction.reply({
-            content: 'Failed to fetch users for a reaction.',
-            ephemeral: true,
-          })
-          return
-        }
-        switch (emoji) {
-          case 'MCBU':
-            backupPeople.push(...users.keys())
-            break
-          default:
-            break
-        }
+    if (reactions.values()) {
+      let users
+
+      const reaction = reactions.get('MCBU')
+
+      if (!reaction) {
+        return
       }
+
+      try {
+        users = await reaction.users.fetch()
+      } catch (error) {
+        console.error('Error fetching users for reaction:', error)
+        await interaction.reply({
+          content: 'Failed to fetch users for a reaction.',
+          ephemeral: true,
+        })
+        return
+      }
+
+      backupPeople.push(...users.keys())
+    }
 
     const messageText = `Aye, a backup is needed!\n${formatMentions(backupPeople)}`
     await interaction.reply({ content: messageText, ephemeral: false })

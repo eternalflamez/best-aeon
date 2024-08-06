@@ -5,7 +5,6 @@ module.exports = {
     .setName('sellinfo')
     .setDescription('Posts the sign-up for the corresponding sell. Only works in the sell thread.'),
   async execute(interaction: CommandInteraction) {
-    const interactionUser = interaction.user.id
     if (!(interaction.channel instanceof ThreadChannel)) {
       await interaction.reply({
         content: 'This channel is not a thread! Command only works in the corresponding sell thread.',
@@ -14,16 +13,19 @@ module.exports = {
       return
     }
 
-    let originalMessage: Message | null = null
-    try {
-      originalMessage = await interaction.channel.fetchStarterMessage()
-    } catch (error) {
+    let originalMessage = await interaction.channel.fetchStarterMessage().catch((error) => {
       console.error('Error fetching starter message:', error)
-      await interaction.reply({
-        content: 'Failed to fetch the original message.',
-        ephemeral: true,
-      })
-    }
+
+      interaction
+        .reply({
+          content: 'Failed to fetch the original message.',
+          ephemeral: true,
+        })
+        .catch(() => {
+          // Do nothing
+        })
+    })
+
     if (!originalMessage) {
       return
     }
@@ -44,9 +46,20 @@ module.exports = {
     let backupPeople: string[] = []
     let unsurePeople: string[] = []
 
-    for (const reaction of reactions.values()) {
+    const validReactions = [
+      reactions.get(relevantEmojis[0]),
+      reactions.get(relevantEmojis[1]),
+      reactions.get(relevantEmojis[2]),
+    ]
+
+    for (const reaction of validReactions) {
+      if (!reaction) {
+        continue
+      }
+
       const emoji = reaction.emoji.name
       let users
+
       try {
         users = await reaction.users.fetch()
       } catch (error) {
@@ -57,6 +70,7 @@ module.exports = {
         })
         return
       }
+
       switch (emoji) {
         case 'MCMysticCoin':
           signedPeople.push(...users.keys())
@@ -72,6 +86,7 @@ module.exports = {
       }
     }
 
+    const interactionUser = interaction.user.id
     let messageText = ''
 
     if (signedPeople.includes(interactionUser)) {
@@ -83,13 +98,16 @@ module.exports = {
     } else {
       messageText += '**You are not signed up at all!**\n'
     }
+
     messageText += '\n'
 
     messageText += `Main roster (${signedPeople.length}): ${formatMentions(signedPeople)}\n`
     messageText += `Backup (${backupPeople.length}): ${formatMentions(backupPeople)}\n`
+
     if (unsurePeople.length > 0) {
       messageText += `Unsure (${unsurePeople.length}): ${formatMentions(unsurePeople)}\n`
     }
+
     await interaction.reply({ content: messageText, ephemeral: true })
   },
 }

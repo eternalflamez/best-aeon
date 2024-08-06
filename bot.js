@@ -110,41 +110,25 @@ client.on('messageReactionAdd', async (reaction, user) => {
 
 client.on(Events.InteractionCreate, async (interaction) => {
   if (interaction.isButton()) {
-    try {
-      const id = interaction.customId
+    const id = interaction.customId
 
-      if (id === 'yoink-sell-spot') {
-        await YoinkSellSpot(client, interaction)
-        return
-      }
-    } catch (error) {
-      console.error(`Error while trying to perform button management.`)
-      return
+    if (id === 'yoink-sell-spot') {
+      await YoinkSellSpot(interaction).catch(() => {
+        console.error(`Error while trying to perform button management.`)
+      })
     }
   } else if (interaction.isChatInputCommand()) {
-  const command = interaction.client.commands.get(interaction.commandName)
+    const command = interaction.client.commands.get(interaction.commandName)
 
-  if (!command) {
-    console.error(`No command matching ${interaction.commandName} was found.`)
-    return
-  }
-
-  try {
-    await command.execute(interaction)
-  } catch (error) {
-    console.error(error)
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({
-        content: 'There was an error while executing this command!',
-        ephemeral: true,
-      })
-    } else {
-      await interaction.reply({
-        content: 'There was an error while executing this command!',
-        ephemeral: true,
-      })
-      }
+    if (!command) {
+      console.error(`No command matching ${interaction.commandName} was found.`)
+      return
     }
+
+    await command.execute(interaction).catch((error) => {
+      console.error(`--- A custom command threw, ${interaction.commandName} ---`)
+      console.error(error)
+    })
   }
 })
 
