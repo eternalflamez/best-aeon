@@ -1,9 +1,10 @@
 // require('dotenv').config()
-import { Client, GatewayIntentBits, Partials } from 'discord.js'
+import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
 
 import SetupSellHistory from './features/sell-schedule.ts'
 import * as SetupBuyerManagement from './features/buyer-management.ts'
 
+import LoadCommands from './load-commands'
 import MaxDebug from './onMessageCreateHooks/0.debug.js'
 import StartSellThread from './onMessageCreateHooks/1.startSellThread.ts'
 import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.js'
@@ -14,6 +15,8 @@ import WhatsDn from './onMessageCreateHooks/6.whatsDn.js'
 import HelloIAm from './onMessageCreateHooks/7.helloIAm.js'
 
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.js'
+
+import YoinkSellSpot from './onInteractionHooks/yoink-sell-spot.ts'
 
 const TOKEN = process.env.TOKEN
 const client = new Client({
@@ -31,6 +34,8 @@ const client = new Client({
 let maxCounter = {
   value: 1,
 }
+
+LoadCommands(client)
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user?.tag}`)
@@ -101,6 +106,30 @@ client.on('messageCreate', async (message) => {
 
 client.on('messageReactionAdd', async (reaction, user) => {
   await AddToThread(reaction, user)
+})
+
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (interaction.isButton()) {
+    const id = interaction.customId
+
+    if (id === 'yoink-sell-spot') {
+      await YoinkSellSpot(interaction).catch(() => {
+        console.error(`Error while trying to perform button management.`)
+      })
+    }
+  } else if (interaction.isChatInputCommand()) {
+    const command = interaction.client.commands.get(interaction.commandName)
+
+    if (!command) {
+      console.error(`No command matching ${interaction.commandName} was found.`)
+      return
+    }
+
+    await command.execute(interaction).catch((error) => {
+      console.error(`--- A custom command threw, ${interaction.commandName} ---`)
+      console.error(error)
+    })
+  }
 })
 
 client.login(TOKEN)

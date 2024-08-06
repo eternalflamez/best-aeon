@@ -83,12 +83,12 @@ Your selections have been registered. What would you like to do next?
     french: `**__Etape 4 : Actions supplémentaires__** 👣 
 Tes selections ont ete enregistrées. Que veux-tu faire ensuite?
 
-🔹 **Contactez-nous** : Envoyez-nous une notification si vous avez des questions ou si vous souhaitez acheter quelque chose.
+🔹 **Contacte-nous**: Envoie-nous une notification si t'as des questions ou si tu veux acheter quelque chose.
 🔹 **Retour**: Reviens au début pour explorer plus d'options.`,
     spanish: `**__Ultimo Paso: Proximas opciones__** 👣 
 Tus selecciones han sido registradas. Que te gustaria hacer ahora?
 
-🔹 **Contacte con nosotros**: Envíenos una notificación si tiene alguna pregunta o desea comprar algo.
+🔹 **Contacta nos**: Envíenos una notificación si tienes algunas preguntas o deseas comprar algo.
 🔹 **Regresar**: regresa al principio para explorar otras opciones.`,
     german: `**__Letzter Schritt:  Checkout__** 👣
 Deine Auswahl wurde registriert. Was würdest du gerne als nächstes tun?
@@ -98,8 +98,8 @@ Deine Auswahl wurde registriert. Was würdest du gerne als nächstes tun?
   },
   contact_us: {
     english: 'Contact us',
-    french: 'Contactez-nous',
-    spanish: 'Contacte con nosotros',
+    french: 'Contacte-nous',
+    spanish: 'Contacta nos',
     german: 'Kontaktiere uns',
   },
   return: {
