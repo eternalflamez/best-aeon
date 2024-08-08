@@ -15,7 +15,6 @@ import {
   Partials,
   Interaction,
   CacheType,
-  OverwriteType,
 } from 'discord.js'
 import translations from '../constants/translations.ts'
 import { Language } from '../constants/buyerManagementLanguages.ts'
@@ -31,8 +30,6 @@ interface PingByUser {
 export default function setup() {
   const mainCategoryChannelId = process.env.MAIN_CATEGORY_CHANNEL_ID!
   const contactedCategoryChannelId = process.env.CONTACTED_CATEGORY_CHANNEL_ID!
-  const sellScheduledCategoryChannelId = process.env.SELL_SCHEDULED_CATEGORY_CHANNEL_ID!
-  const lcmScheduledCategoryChannelId = process.env.LCM_SCHEDULED_CATEGORY_CHANNEL_ID!
   const buyerManagementChannelId = process.env.BUYER_MANAGEMENT_CHANNEL_ID!
   const guildId = process.env.GUILD_ID!
   const roleName = '[Rise] LFG'
@@ -235,16 +232,8 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
             .setCustomId('management-dibs')
             .setLabel('Dibs')
             .setStyle(ButtonStyle.Primary)
-          const scheduleSell = new ButtonBuilder()
-            .setCustomId('management-sell')
-            .setLabel('Sell Scheduled')
-            .setStyle(ButtonStyle.Primary)
-          const scheduleLCM = new ButtonBuilder()
-            .setCustomId('management-sell-lcm')
-            .setLabel('LCM Scheduled')
-            .setStyle(ButtonStyle.Primary)
 
-          const row = new ActionRowBuilder<ButtonBuilder>().addComponents(callDibs, scheduleSell, scheduleLCM)
+          const row = new ActionRowBuilder<ButtonBuilder>().addComponents(callDibs)
 
           buyerManagementChannel.send({
             content: `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}.
@@ -412,13 +401,10 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
 
     if (buttonInteraction.customId === 'management-dibs') {
       if (!message.content.includes('Contacted by')) {
-        const categoryChannel = client.channels.cache.get(contactedCategoryChannelId) as CategoryChannel
-        await channel.setParent(categoryChannel)
-
         message.edit(`~~${message.content}~~\r\nContacted by ${userMention(interaction.user.id)}`)
 
         await buttonInteraction.reply({
-          content: 'You called dibs!',
+          content: `You called dibs!\r\nPlease move the channel to ${channelMention(contactedCategoryChannelId)}`,
           ephemeral: true,
         })
       } else if (message.content.includes(interaction.user.id)) {
@@ -432,22 +418,6 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           ephemeral: true,
         })
       }
-    } else if (buttonInteraction.customId === 'management-sell') {
-      const categoryChannel = client.channels.cache.get(sellScheduledCategoryChannelId) as CategoryChannel
-      await channel.setParent(categoryChannel)
-
-      await buttonInteraction.reply({
-        content: `Moved the channel to ${categoryChannel.name}`,
-        ephemeral: true,
-      })
-    } else if (buttonInteraction.customId === 'management-sell-lcm') {
-      const categoryChannel = client.channels.cache.get(lcmScheduledCategoryChannelId) as CategoryChannel
-      await channel.setParent(categoryChannel)
-
-      await buttonInteraction.reply({
-        content: `Moved the channel to ${categoryChannel.name}`,
-        ephemeral: true,
-      })
     }
   }
 
