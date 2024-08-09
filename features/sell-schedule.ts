@@ -257,7 +257,7 @@ export default function (client: Client, scheduleChannelIds: [{ id: string; regi
         continue
       }
 
-      const messages = channel.messages.cache.filter((message) => message.author.id === client.user?.id)
+      const messages = (await channel.messages.fetch()).filter((message) => message.author.id === client.user?.id)
 
       for (let i = 0; i < messages.size; i++) {
         const messageToDelete = messages.at(i)
