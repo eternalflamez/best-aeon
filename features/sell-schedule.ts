@@ -296,22 +296,24 @@ function getPrunedOutput(history: ScheduleMessage[]) {
     (cum, message, index) => {
       const newText = message.text.replaceAll('@everyone', '').replaceAll('@', '').replaceAll('  ', ' ').trim()
 
-      // Message limit is 2000
-      if (cum.length + newText.length < 1900) {
-        cum.output.push(newText)
-
-        return {
-          length: cum.length + newText.length,
-          output: cum.output,
-        }
+      if (hasAddedSubText) {
+        return cum
       }
 
-      if (!hasAddedSubText) {
+      // Message limit is 2000
+      if (cum.length + newText.length >= 1900) {
         hasAddedSubText = true
         cum.output.push(`⚠️ ${history.length - index} items not displayed. ⚠️`)
+
+        return cum
       }
 
-      return cum
+      cum.output.push(newText)
+
+      return {
+        length: cum.length + newText.length,
+        output: cum.output,
+      }
     },
     {
       length: 0,
