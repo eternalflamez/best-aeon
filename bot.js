@@ -43,15 +43,15 @@ client.once('ready', () => {
 
 SetupSellSchedule(client, [
   {
-    id: '1270000848239329290',
+    id: process.env.SELL_CHANNEL_BOTH,
     regions: ['NA', 'EU'],
   },
   {
-    id: '1263126224247717928',
+    id: process.env.SELL_CHANNEL_EU,
     regions: ['EU'],
   },
   {
-    id: '1263276208028778619',
+    id: process.env.SELL_CHANNEL_NA,
     regions: ['NA'],
   },
 ])
