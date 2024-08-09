@@ -1,7 +1,7 @@
-// require('dotenv').config()
+require('dotenv').config()
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
 
-import SetupSellHistory from './features/sell-schedule.ts'
+import SetupSellSchedule from './features/sell-schedule.ts'
 import * as SetupBuyerManagement from './features/buyer-management.ts'
 
 import LoadCommands from './load-commands'

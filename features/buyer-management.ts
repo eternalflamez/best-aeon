@@ -28,7 +28,6 @@ interface PingByUser {
 }
 
 export default function setup() {
-  const mainCategoryChannelId = process.env.MAIN_CATEGORY_CHANNEL_ID!
   const contactedCategoryChannelId = process.env.CONTACTED_CATEGORY_CHANNEL_ID!
   const buyerManagementChannelId = process.env.BUYER_MANAGEMENT_CHANNEL_ID!
   const guildId = process.env.GUILD_ID!
@@ -57,14 +56,26 @@ export default function setup() {
 
   client.on('guildMemberAdd', async (member) => {
     try {
-      if (guildId !== member.guild.id) {
+      if (member.guild.id !== guildId) {
         return
       }
 
-      const categoryChannel = await client.channels.fetch(mainCategoryChannelId)
+      const guild = client.guilds.cache.get(guildId)!
 
-      if (!categoryChannel || !(categoryChannel instanceof CategoryChannel)) {
-        return
+      const categoryChannels = guild.channels.cache.filter((c) => c.name === 'gamers-only')
+      let targetChannel = categoryChannels.at(0) as CategoryChannel
+      let index = 0
+
+      while (targetChannel.children.cache.size >= 50) {
+        index++
+        const c = categoryChannels.at(index)
+
+        if (!c) {
+          console.error('--- ERROR: Ran out of channels to put new members under! ---')
+          return
+        }
+
+        targetChannel = c as CategoryChannel
       }
 
       const adminRole = member.guild.roles.cache.find((role) => role.name === roleName)
@@ -76,9 +87,9 @@ export default function setup() {
       let channel
 
       try {
-        channel = await createChannel(`welcome-${member.displayName}`, categoryChannel, member, adminRole, guildId)
+        channel = await createChannel(`welcome-${member.displayName}`, targetChannel, member, adminRole, guildId)
       } catch {
-        channel = await createChannel('welcome', categoryChannel, member, adminRole, guildId)
+        channel = await createChannel('welcome', targetChannel, member, adminRole, guildId)
       }
 
       if (!channel) {
@@ -187,13 +198,13 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         let embeds
 
         if (id === 'raid-boss') {
-          embeds = await readPriceEmbed('1264596066444115969')
+          embeds = await readPriceEmbed(process.env.EMBED_RAID_BOSS!)
         } else if (id === 'raid-achievements') {
-          embeds = await readPriceEmbed('1264596103995723829')
+          embeds = await readPriceEmbed(process.env.EMBED_RAID_ACHIEVEMENTS!)
         } else if (id === 'strikes') {
-          embeds = await readPriceEmbed('1264596122710573130')
+          embeds = await readPriceEmbed(process.env.EMBED_STRIKES!)
         } else if (id === 'fractals') {
-          embeds = await readPriceEmbed('1264596136778268772')
+          embeds = await readPriceEmbed(process.env.EMBED_FRACTALS!)
         }
 
         if (!embeds) {
@@ -381,8 +392,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           allow: ['ViewChannel'],
         },
         {
-          // Bot Role
-          id: '1264588777121382527',
+          id: process.env.BOT_ROLE_ID!,
           allow: ['ViewChannel'],
         },
         {
@@ -422,7 +432,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
   }
 
   async function readPriceEmbed(messageId: string) {
-    const channel = client.channels.cache.get('1264595533515980820')
+    const channel = client.channels.cache.get(process.env.PRICE_EMBED_CHANNEL!)
 
     if (!channel || !(channel instanceof TextChannel)) {
       return null
