@@ -41,7 +41,7 @@ client.once('ready', () => {
   console.log(`Logged in as ${client.user?.tag}`)
 })
 
-SetupSellHistory(client, [
+SetupSellSchedule(client, [
   {
     id: '1270000848239329290',
     regions: ['NA', 'EU'],
