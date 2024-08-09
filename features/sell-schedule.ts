@@ -5,7 +5,6 @@ import sellChannels from '../constants/sellChannels.js'
 const MCMysticCoinEmoji = '545057156274323486'
 
 export default function (client: Client, scheduleChannelIds: [{ id: string; regions: string[] }]) {
-  const scheduleMessages: { id: string; message: Message<true> }[] = []
   const schedule: ScheduleMessage[] = []
   let isStarting = true
 
@@ -23,14 +22,8 @@ export default function (client: Client, scheduleChannelIds: [{ id: string; regi
             .then((messages) => messages.at(0))
 
           if (!message) {
-            // Create new message
-            message = await channel.send('Loading History...')
+            await channel.send('Loading History...')
           }
-
-          scheduleMessages.push({
-            id: channelInfo.id,
-            message,
-          })
         }
       }
 
@@ -50,7 +43,7 @@ export default function (client: Client, scheduleChannelIds: [{ id: string; regi
         }
       }
 
-      console.log(scheduleMessages.length, schedule.length)
+      console.log('loaded schedule', schedule.length)
 
       await createMessages()
 
@@ -181,7 +174,7 @@ export default function (client: Client, scheduleChannelIds: [{ id: string; regi
           })
         } else {
           await interaction.editReply({
-            content: getPrunedOutput(result),
+            content: getPrunedOutput(result, true)[0].join('\r\n\r\n'),
           })
         }
       }
@@ -255,44 +248,54 @@ export default function (client: Client, scheduleChannelIds: [{ id: string; regi
 
   async function createMessages() {
     for (let i = 0; i < scheduleChannelIds.length; i++) {
-      const messageInfo = scheduleChannelIds[i]
+      const channelInfo = scheduleChannelIds[i]
 
-      const scheduleMessage = scheduleMessages.find((m) => m.id === messageInfo.id)
+      const channel = client.channels.cache.get(channelInfo.id) as TextChannel | undefined
 
-      if (!scheduleMessage) {
-        console.error(`--- No message existed for region ${messageInfo.regions.join('-')} ---`)
-        return
+      if (!channel) {
+        console.error(`--- ERROR: Channel not found to post sell-schedule ${channelInfo.regions.join('-')} ---`)
+        continue
       }
 
-      const regionSchedule = schedule.filter((message) => messageInfo.regions.includes(message.region))
+      const messages = channel.messages.cache.filter((message) => message.author.id === client.user?.id)
+
+      messages.forEach((message) => {
+        message.delete()
+      })
+
+      const regionSchedule = schedule.filter((message) => channelInfo.regions.includes(message.region))
 
       if (regionSchedule.length === 0) {
-        return scheduleMessage.message.edit(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
+        return channel.send(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
       }
 
       const result = getPrunedOutput(regionSchedule)
 
       const myScheduleButton = new ButtonBuilder()
-        .setCustomId(`my-schedule-${messageInfo.regions.join('-')}`)
+        .setCustomId(`my-schedule-${channelInfo.regions.join('-')}`)
         .setLabel('My Schedule')
         .setStyle(ButtonStyle.Primary)
 
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(myScheduleButton)
 
-      await scheduleMessage.message.edit({
-        content: result,
-        components: [row],
-      })
+      for (let i = 0; i < result.length; i++) {
+        const schedule = result[i]
+
+        await channel.send({
+          content: schedule.join('\r\n\r\n'),
+          ...(i === result.length - 1 && { components: [row] }),
+        })
+      }
     }
   }
 }
 
-function getPrunedOutput(history: ScheduleMessage[]) {
+function getPrunedOutput(history: ScheduleMessage[], addSubtext = false) {
   history.sort((a, b) => a.date - b.date)
 
   let hasAddedSubText = false
 
-  const result = history.reduce<{ length: number; output: string[] }>(
+  const result = history.reduce<{ length: number; position: number; output: string[][] }>(
     (cum, message, index) => {
       const newText = message.text.replaceAll('@everyone', '').replaceAll('@', '').replaceAll('  ', ' ').trim()
 
@@ -300,28 +303,45 @@ function getPrunedOutput(history: ScheduleMessage[]) {
         return cum
       }
 
+      if (cum.output.length - 1 < cum.position) {
+        cum.output.push([])
+
+        if (index !== 0) {
+          const split = '-------------------------'
+          cum.output[cum.position].push(split)
+          cum.length += split.length
+        }
+      }
+
       // Message limit is 2000
       if (cum.length + newText.length >= 1900) {
-        hasAddedSubText = true
-        cum.output.push(`⚠️ ${history.length - index} items not displayed. ⚠️`)
+        if (addSubtext) {
+          hasAddedSubText = true
+          cum.output[cum.position].push(`⚠️ ${history.length - index} items not displayed ⚠️`)
+        }
+
+        cum.position++
+        cum.length = 0
 
         return cum
       }
 
-      cum.output.push(newText)
+      cum.output[cum.position].push(newText)
 
       return {
         length: cum.length + newText.length,
+        position: cum.position,
         output: cum.output,
       }
     },
     {
       length: 0,
+      position: 0,
       output: [],
     },
   )
 
-  return result.output.join('\r\n\r\n')
+  return result.output
 }
 
 function getTimestampMatch(messageText: string) {
