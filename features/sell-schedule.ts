@@ -265,10 +265,6 @@ export default function (client: Client, scheduleChannelIds: [{ id: string; regi
         await messageToDelete?.delete()
       }
 
-      messages.forEach((message) => {
-        message.delete()
-      })
-
       const regionSchedule = schedule.filter((message) => channelInfo.regions.includes(message.region))
 
       if (regionSchedule.length === 0) {
