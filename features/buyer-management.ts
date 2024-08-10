@@ -153,10 +153,10 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       const parentName = userChannel.parent?.name.toLowerCase()
 
       if (parentName?.includes('scheduled')) {
-        const previousBuyers = channels.get(process.env.PREVIOUS_BUYERS_CHANNEL!) as TextChannel | undefined
+        const previousBuyersChannel = channels.get(process.env.PREVIOUS_BUYERS_CHANNEL!) as TextChannel | undefined
 
-        if (previousBuyers) {
-          previousBuyers.send(`${userMention(member.user.id)} ${getLanguage(userChannel.id)}`)
+        if (previousBuyersChannel) {
+          previousBuyersChannel.send(`${userMention(member.user.id)} ${getLanguage(userChannel.id)}`)
         }
       }
 
