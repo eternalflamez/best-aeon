@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ThreadChannel, Message, CommandInteraction, userMention } from 'discord.js'
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName('sellinfo')
     .setDescription('Posts the sign-up for the corresponding sell. Only works in the sell thread.'),

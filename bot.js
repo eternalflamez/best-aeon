@@ -1,10 +1,9 @@
-require('dotenv').config()
+import { config } from 'dotenv'
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
 
 import SetupSellSchedule from './features/sell-schedule.ts'
 import * as SetupBuyerManagement from './features/buyer-management.ts'
 
-import LoadCommands from './load-commands'
 import MaxDebug from './onMessageCreateHooks/0.debug.js'
 import StartSellThread from './onMessageCreateHooks/1.startSellThread.ts'
 import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.js'
@@ -17,6 +16,8 @@ import HelloIAm from './onMessageCreateHooks/7.helloIAm.js'
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.js'
 
 import YoinkSellSpot from './onInteractionHooks/yoink-sell-spot.ts'
+
+config()
 
 const TOKEN = process.env.TOKEN
 const client = new Client({
@@ -34,8 +35,6 @@ const client = new Client({
 let maxCounter = {
   value: 1,
 }
-
-LoadCommands(client)
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user?.tag}`)

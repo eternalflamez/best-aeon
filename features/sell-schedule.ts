@@ -1,11 +1,14 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Message, TextChannel } from 'discord.js'
 // @ts-ignore
 import sellChannels from '../constants/sellChannels.js'
+import Queue from 'queue'
 
 const MCMysticCoinEmoji = '545057156274323486'
 
 export default function (client: Client, scheduleChannelIds: [{ id: string; regions: string[] }]) {
+  const q = new Queue({ autostart: true, concurrency: 1 })
   const schedule: ScheduleMessage[] = []
+  let writtenSchedule: string[] = []
   let isStarting = true
 
   client.once('ready', async () => {
@@ -45,9 +48,15 @@ export default function (client: Client, scheduleChannelIds: [{ id: string; regi
 
       console.log('loaded schedule', schedule.length)
 
-      await createMessages()
+      const endListener = () => {
+        isStarting = false
 
-      isStarting = false
+        q.removeEventListener('end', endListener)
+      }
+
+      q.addEventListener('end', endListener)
+
+      q.push(createMessages)
     } catch (e: any) {
       console.error('---- AN ERROR WAS THROWN ----')
       console.error('message', e.rawError?.message)
@@ -248,48 +257,77 @@ export default function (client: Client, scheduleChannelIds: [{ id: string; regi
   }
 
   async function createMessages() {
-    for (let i = 0; i < scheduleChannelIds.length; i++) {
-      const channelInfo = scheduleChannelIds[i]
-
-      const channel = client.channels.cache.get(channelInfo.id) as TextChannel | undefined
-
-      if (!channel) {
-        console.error(`--- ERROR: Channel not found to post sell-schedule ${channelInfo.regions.join('-')} ---`)
-        continue
-      }
-
-      const messages = (await channel.messages.fetch()).filter((message) => message.author.id === client.user?.id)
-
-      for (let i = 0; i < messages.size; i++) {
-        const messageToDelete = messages.at(i)
-
-        await messageToDelete?.delete().catch(() => {})
-      }
-
-      const regionSchedule = schedule.filter((message) => channelInfo.regions.includes(message.region))
-
-      if (regionSchedule.length === 0) {
-        return channel.send(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
-      }
-
-      const result = getPrunedOutput(regionSchedule)
-
-      const myScheduleButton = new ButtonBuilder()
-        .setCustomId(`my-schedule-${channelInfo.regions.join('-')}`)
-        .setLabel('My Schedule')
-        .setStyle(ButtonStyle.Primary)
-
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(myScheduleButton)
-
-      for (let i = 0; i < result.length; i++) {
-        const schedule = result[i]
-
-        await channel.send({
-          content: schedule.join('\r\n\r\n'),
-          ...(i === result.length - 1 && { components: [row] }),
+    const queueFunction = async () => {
+      if (writtenSchedule.length === schedule.length) {
+        const currentMap = schedule.map((item) => {
+          return item.id + item.date + item.text
         })
+
+        let isDifferent = false
+
+        for (let i = 0; i < currentMap.length; i++) {
+          const item = currentMap[i]
+
+          if (item !== writtenSchedule[i]) {
+            isDifferent = true
+            break
+          }
+        }
+
+        if (!isDifferent) {
+          return
+        }
       }
+
+      for (let i = 0; i < scheduleChannelIds.length; i++) {
+        const channelInfo = scheduleChannelIds[i]
+
+        const channel = client.channels.cache.get(channelInfo.id) as TextChannel | undefined
+
+        if (!channel) {
+          console.error(`--- ERROR: Channel not found to post sell-schedule ${channelInfo.regions.join('-')} ---`)
+          continue
+        }
+
+        const messages = (await channel.messages.fetch()).filter((message) => message.author.id === client.user?.id)
+
+        for (let i = 0; i < messages.size; i++) {
+          const messageToDelete = messages.at(i)
+
+          await messageToDelete?.delete().catch(() => {})
+        }
+
+        const regionSchedule = schedule.filter((message) => channelInfo.regions.includes(message.region))
+
+        if (regionSchedule.length === 0) {
+          return channel.send(NO_SELLS_COMMENTS[Math.round(Math.random() * NO_SELLS_COMMENTS.length)])
+        }
+
+        const result = getPrunedOutput(regionSchedule)
+
+        const myScheduleButton = new ButtonBuilder()
+          .setCustomId(`my-schedule-${channelInfo.regions.join('-')}`)
+          .setLabel('My Schedule')
+          .setStyle(ButtonStyle.Primary)
+
+        const row = new ActionRowBuilder<ButtonBuilder>().addComponents(myScheduleButton)
+
+        for (let i = 0; i < result.length; i++) {
+          const schedule = result[i]
+
+          await channel.send({
+            content: schedule.join('\r\n\r\n'),
+            ...(i === result.length - 1 && { components: [row] }),
+          })
+        }
+      }
+
+      writtenSchedule = schedule.map((item) => {
+        return item.id + item.date + item.text
+      })
     }
+
+    q.push(queueFunction)
   }
 }
 
@@ -329,6 +367,7 @@ function getPrunedOutput(history: ScheduleMessage[], addSubtext = false) {
         return cum
       }
 
+      // TODO: Split on newline and only add the first line, but what is a newline in discord?
       cum.output[cum.position].push(newText)
 
       return {

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, ThreadChannel, Message, CommandInteraction, userMention } from 'discord.js'
 
-module.exports = {
+export default {
   data: new SlashCommandBuilder()
     .setName('backup')
     .setDescription('Pings the backups for the corresponding sell. Only works in the sell thread.'),
