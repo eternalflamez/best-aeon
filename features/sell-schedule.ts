@@ -124,6 +124,7 @@ export default function (client: Client, scheduleChannelIds: [{ id: string; regi
       schedule[messageIndex].date = timestamp
       schedule[messageIndex].text = getSortedMessage(updatedMessage, timeText)
 
+      // TODO: Only update the channels that are relevant.
       await createMessages()
     } else {
       // If something was updated and now matches, add it

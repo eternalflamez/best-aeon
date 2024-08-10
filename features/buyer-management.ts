@@ -145,6 +145,16 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         return
       }
 
+      const parentName = userChannel.parent?.name.toLowerCase()
+
+      if (parentName?.includes('scheduled')) {
+        const previousBuyers = channels.get(process.env.PREVIOUS_BUYERS_CHANNEL!) as TextChannel | undefined
+
+        if (previousBuyers) {
+          previousBuyers.send(`${userMention(member.user.id)} ${getLanguage(userChannel.id)}`)
+        }
+      }
+
       try {
         userChannel.edit({
           name: `🚩goodbye-${member.displayName}`,
@@ -284,8 +294,8 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     })
   }
 
-  function getLanguage(interaction: ButtonInteraction) {
-    const channel = client.channels.cache.get(interaction.channelId)
+  function getLanguage(channelId: string) {
+    const channel = client.channels.cache.get(channelId)
 
     if (!channel || !(channel instanceof TextChannel)) {
       return Language.ENGLISH
@@ -295,7 +305,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
   }
 
   function getLanguagePrettyPrint(interaction: ButtonInteraction) {
-    const language = getLanguage(interaction)
+    const language = getLanguage(interaction.channelId)
     switch (language) {
       case Language.GERMAN:
         return `:flag_de: ${Language.GERMAN.toUpperCase()}`
@@ -310,7 +320,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
   }
 
   function getTranslation(id: string, interaction: ButtonInteraction) {
-    const language = getLanguage(interaction)
+    const language = getLanguage(interaction.channelId)
 
     if (
       language !== Language.ENGLISH &&
