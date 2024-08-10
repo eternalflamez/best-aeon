@@ -62,7 +62,12 @@ export default function setup() {
 
       const guild = client.guilds.cache.get(guildId)!
 
-      const categoryChannels = guild.channels.cache.filter((c) => c.name === 'gamers-only')
+      const categoryChannels = guild.channels.cache
+        .filter((c) => c.name === 'gamers-only' && c instanceof CategoryChannel)
+        .sort((a, b) => {
+          return (a as CategoryChannel).position - (b as CategoryChannel).position
+        })
+
       let targetChannel = categoryChannels.at(0) as CategoryChannel
       let index = 0
 
