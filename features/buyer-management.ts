@@ -195,19 +195,19 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       }
 
       if (id.startsWith('raid-') || id === 'strikes' || id === 'fractals') {
-        let embeds
+        let embed
 
         if (id === 'raid-boss') {
-          embeds = await readPriceEmbed(process.env.EMBED_RAID_BOSS!)
+          embed = await readPriceEmbed(process.env.EMBED_RAID_BOSS!)
         } else if (id === 'raid-achievements') {
-          embeds = await readPriceEmbed(process.env.EMBED_RAID_ACHIEVEMENTS!)
+          embed = await readPriceEmbed(process.env.EMBED_RAID_ACHIEVEMENTS!)
         } else if (id === 'strikes') {
-          embeds = await readPriceEmbed(process.env.EMBED_STRIKES!)
+          embed = await readPriceEmbed(process.env.EMBED_STRIKES!)
         } else if (id === 'fractals') {
-          embeds = await readPriceEmbed(process.env.EMBED_FRACTALS!)
+          embed = await readPriceEmbed(process.env.EMBED_FRACTALS!)
         }
 
-        if (!embeds) {
+        if (!embed) {
           interaction.reply({
             content: getTranslation('generic_error', interaction),
             ephemeral: true,
@@ -216,7 +216,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         }
 
         await interaction.reply({
-          embeds,
+          embeds: embed,
           ephemeral: true,
         })
 
