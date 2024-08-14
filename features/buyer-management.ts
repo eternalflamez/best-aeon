@@ -157,7 +157,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
 
         if (previousBuyersChannel) {
           previousBuyersChannel.send(
-            `${userMention(member.user.id)} ${getLanguage(userChannel.id)} was in ${parentName}`,
+            `${userMention(member.user.username)} -- ${getLanguage(userChannel.id)} -- ${parentName}`,
           )
         }
       }
