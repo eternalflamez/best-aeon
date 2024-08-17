@@ -156,9 +156,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         const previousBuyersChannel = channels.get(process.env.PREVIOUS_BUYERS_CHANNEL!) as TextChannel | undefined
 
         if (previousBuyersChannel) {
-          previousBuyersChannel.send(
-            `${userMention(member.user.username)} -- ${getLanguage(userChannel.id)} -- ${parentName}`,
-          )
+          previousBuyersChannel.send(`${member.user.username} -- ${getLanguage(userChannel.id)} -- ${parentName}`)
         }
       }
 
