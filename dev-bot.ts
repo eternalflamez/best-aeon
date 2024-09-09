@@ -74,20 +74,6 @@ SetupBuyerManagement({
   botRoleId: '1264610829811056718',
 })
 
-SetupBuyerManagement({
-  guildId: '1281584783323041803',
-  managerToken: process.env.HT_MANAGER_TOKEN!,
-  contactedCategoryChannelId: '1281584783754788971',
-  buyerManagementChannelId: '1281584783507329036',
-  previousBuyersChannelId: '1281584783507329038',
-  priceEmbedChannelId: '1281584783754788967',
-  embedRaidBoss: '1282735829604630640',
-  embedRaidAchievements: '1282735886869598219',
-  embedFractals: '1282735938010878035',
-  embedStrikes: '1282735912639533210',
-  botRoleId: '1281615075337310220',
-})
-
 client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot || message.system) return
 
