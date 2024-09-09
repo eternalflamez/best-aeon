@@ -5,7 +5,7 @@ import Queue from 'queue'
 
 const MCMysticCoinEmoji = '545057156274323486'
 
-export default function (client: Client, scheduleChannelIds: [{ id: string; regions: string[] }]) {
+export default function (client: Client, scheduleChannelIds: { id: string; regions: string[] }[]) {
   const q = new Queue({ autostart: true, concurrency: 1 })
   const schedule: ScheduleMessage[] = []
   let writtenSchedule: string[] = []

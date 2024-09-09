@@ -2,20 +2,25 @@ import { config } from 'dotenv'
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
 
 import SetupSellSchedule from './features/sell-schedule.ts'
-import * as SetupBuyerManagement from './features/buyer-management.ts'
+import SetupBuyerManagement from './features/buyer-management.ts'
 
+// @ts-ignore
 import MaxDebug from './onMessageCreateHooks/0.debug.js'
 import StartSellThread from './onMessageCreateHooks/1.startSellThread.ts'
+// @ts-ignore
 import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.js'
+// @ts-ignore
 import BestAeon from './onMessageCreateHooks/3.bestAeon.js'
+// @ts-ignore
 import BestMax from './onMessageCreateHooks/4.bestMax.js'
+// @ts-ignore
 import AustrianNow from './onMessageCreateHooks/5.austrianNow.js'
+// @ts-ignore
 import WhatsDn from './onMessageCreateHooks/6.whatsDn.js'
-import HelloIAm from './onMessageCreateHooks/7.helloIAm.js'
-
+// @ts-ignore
+import HelloIAm from './onMessageCreateHooks/7.helloIAm.ts'
+// @ts-ignore
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.js'
-
-import YoinkSellSpot from './onInteractionHooks/yoink-sell-spot.ts'
 
 config()
 
@@ -42,22 +47,48 @@ client.once('ready', () => {
 
 SetupSellSchedule(client, [
   {
-    id: process.env.SELL_CHANNEL_BOTH,
+    id: process.env.SELL_CHANNEL_BOTH!,
     regions: ['NA', 'EU'],
   },
   {
-    id: process.env.SELL_CHANNEL_EU,
+    id: process.env.SELL_CHANNEL_EU!,
     regions: ['EU'],
   },
   {
-    id: process.env.SELL_CHANNEL_NA,
+    id: process.env.SELL_CHANNEL_NA!,
     regions: ['NA'],
   },
 ])
 
-SetupBuyerManagement.default()
+SetupBuyerManagement({
+  guildId: '1248337933413650614',
+  managerToken: process.env.MANAGER_TOKEN!,
+  contactedCategoryChannelId: '1269279315590250600',
+  buyerManagementChannelId: '1263780410089799726',
+  previousBuyersChannelId: '1271422645606285374',
+  priceEmbedChannelId: '1263915263682809989',
+  embedRaidBoss: '1263940136081686614',
+  embedRaidAchievements: '1263940136081686614',
+  embedFractals: '1263940136081686614',
+  embedStrikes: '1263940136081686614',
+  botRoleId: '1264610829811056718',
+})
 
-client.on('messageCreate', async (message) => {
+SetupBuyerManagement({
+  guildId: '1281584783323041803',
+  managerToken: process.env.HT_MANAGER_TOKEN!,
+  contactedCategoryChannelId: '1281584783754788971',
+  buyerManagementChannelId: '1281584783507329036',
+  previousBuyersChannelId: '1281584783507329038',
+  priceEmbedChannelId: '1281584783754788967',
+  embedRaidBoss: '1282735829604630640',
+  embedRaidAchievements: '1282735886869598219',
+  embedFractals: '1282735938010878035',
+  embedStrikes: '1282735912639533210',
+  botRoleId: '1281615075337310220',
+})
+
+client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot || message.system) return
 
   try {
@@ -94,7 +125,7 @@ client.on('messageCreate', async (message) => {
     if (await HelloIAm(client, message)) {
       return
     }
-  } catch (e) {
+  } catch (e: any) {
     if (e.rawError?.message === 'Missing Permissions') {
       return
     }
@@ -103,32 +134,8 @@ client.on('messageCreate', async (message) => {
   }
 })
 
-client.on('messageReactionAdd', async (reaction, user) => {
+client.on(Events.MessageReactionAdd, async (reaction, user) => {
   await AddToThread(reaction, user)
-})
-
-client.on(Events.InteractionCreate, async (interaction) => {
-  if (interaction.isButton()) {
-    const id = interaction.customId
-
-    if (id === 'yoink-sell-spot') {
-      await YoinkSellSpot(interaction).catch(() => {
-        console.error(`Error while trying to perform button management.`)
-      })
-    }
-  } else if (interaction.isChatInputCommand()) {
-    const command = interaction.client.commands.get(interaction.commandName)
-
-    if (!command) {
-      console.error(`No command matching ${interaction.commandName} was found.`)
-      return
-    }
-
-    await command.execute(interaction).catch((error) => {
-      console.error(`--- A custom command threw, ${interaction.commandName} ---`)
-      console.error(error)
-    })
-  }
 })
 
 client.login(TOKEN)
