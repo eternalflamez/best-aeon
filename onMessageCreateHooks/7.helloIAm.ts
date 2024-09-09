@@ -14,7 +14,7 @@ export default async function (client: Client, message: Message) {
   )
 
   if (iAm && Math.random() < 0.1) {
-    await message.channel.send(iAm)
+    await message.reply(iAm)
     return true
   }
 }
