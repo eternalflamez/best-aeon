@@ -31,18 +31,22 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       }
 
       for (const sellChannelId in sellChannels) {
-        const sellChannel = await client.channels.fetch(sellChannelId)
+        try {
+          const sellChannel = await client.channels.fetch(sellChannelId)
 
-        if (sellChannel && sellChannel instanceof TextChannel) {
-          let sellMessages = await sellChannel.messages
-            .fetch()
-            .then((messages) => messages.filter((message) => message.content.includes('<t:')))
+          if (sellChannel && sellChannel instanceof TextChannel) {
+            let sellMessages = await sellChannel.messages
+              .fetch()
+              .then((messages) => messages.filter((message) => message.content.includes('<t:')))
 
-          if (sellMessages) {
-            for (const sellMessage of sellMessages.values()) {
-              await addToSchedule(sellMessage)
+            if (sellMessages) {
+              for (const sellMessage of sellMessages.values()) {
+                await addToSchedule(sellMessage)
+              }
             }
           }
+        } catch (e: any) {
+          continue
         }
       }
 
