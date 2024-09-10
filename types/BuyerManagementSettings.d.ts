@@ -1,4 +1,5 @@
 interface BuyerManagementSettings {
+  guildTag: string
   guildId: string
   managerToken: string
   contactedCategoryChannelId: string
@@ -10,4 +11,5 @@ interface BuyerManagementSettings {
   embedFractals: string
   embedStrikes: string
   botRoleId: string
+  translations: Translations
 }

@@ -1,19 +1,9 @@
-interface Translations {
-  [key: string]: {
-    english: string
-    french: string
-    spanish: string
-    german: string
-  }
-}
-
 const translations: Translations = {
   generic_error: {
-    english: 'Something went wrong, please try again, or contact someone from [Rise] :(',
-    french: "Il semble qu'il y ait un probleme, reessayer stp, ou contacte quelqu'un de [Rise] :(",
-    spanish: 'Parece que hay un problema, por favor intentalo de nuevo, o contacta a alguien de [Rise] :(',
-    german:
-      'Hier ist etwas schief gelaufen. Bitte versuche es erneut oder kontaktiere eines unserer [Rise] Mitglieder.',
+    english: 'Something went wrong, please try again, or contact someone from [HT] :(',
+    french: "Il semble qu'il y ait un probleme, reessayer stp, ou contacte quelqu'un de [HT] :(",
+    spanish: 'Parece que hay un problema, por favor intentalo de nuevo, o contacta a alguien de [HT] :(',
+    german: 'Hier ist etwas schief gelaufen. Bitte versuche es erneut oder kontaktiere eines unserer [HT] Mitglieder.',
   },
   staff_called: {
     english: "I've sent a message to our staff! We will get back to you as soon as the next person is available.",

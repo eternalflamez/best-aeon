@@ -16,7 +16,6 @@ import {
   Interaction,
   CacheType,
 } from 'discord.js'
-import translations from '../constants/translations.ts'
 import { Language } from '../constants/buyerManagementLanguages.ts'
 
 interface LanguageByChannel {
@@ -28,6 +27,7 @@ interface PingByUser {
 }
 
 export default function setup({
+  guildTag,
   guildId,
   managerToken,
   contactedCategoryChannelId,
@@ -39,9 +39,8 @@ export default function setup({
   embedFractals,
   embedStrikes,
   botRoleId,
+  translations,
 }: BuyerManagementSettings) {
-  const roleName = '[Rise] LFG'
-
   const languageByChannel: LanguageByChannel = {}
   const lastCtaPings: PingByUser = {}
 
@@ -92,7 +91,7 @@ export default function setup({
         targetChannel = c as CategoryChannel
       }
 
-      const adminRole = member.guild.roles.cache.find((role) => role.name === roleName)
+      const adminRole = member.guild.roles.cache.find((role) => role.name.includes('LFG'))
 
       if (!adminRole) {
         return
@@ -125,7 +124,7 @@ export default function setup({
       const languageRow = new ActionRowBuilder<ButtonBuilder>().addComponents(english, french, german, spanish)
 
       await channel.send({
-        content: `Hello and welcome to [Rise] ${userMention(member.id)}! 🌟
+        content: `Hello and welcome to [${guildTag}] ${userMention(member.id)}! 🌟
   
 I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. Let's get started!
 

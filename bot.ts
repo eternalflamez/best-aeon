@@ -1,5 +1,7 @@
 import { config } from 'dotenv'
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
+import riseTranslations from './constants/rise-translations.ts'
+import htTranslations from './constants/harvest-templars-translations.ts'
 
 import SetupSellSchedule from './features/sell-schedule.ts'
 import SetupBuyerManagement from './features/buyer-management.ts'
@@ -61,6 +63,7 @@ SetupSellSchedule(client, [
 ])
 
 SetupBuyerManagement({
+  guildTag: 'Rise',
   guildId: '1054032215446663278',
   managerToken: process.env.MANAGER_TOKEN!,
   contactedCategoryChannelId: '1269269252305715221',
@@ -72,9 +75,11 @@ SetupBuyerManagement({
   embedFractals: '1264596136778268772',
   embedStrikes: '1264596122710573130',
   botRoleId: '1264588777121382527',
+  translations: riseTranslations,
 })
 
 SetupBuyerManagement({
+  guildTag: 'HT',
   guildId: '1281584783323041803',
   managerToken: process.env.HT_MANAGER_TOKEN!,
   contactedCategoryChannelId: '1281584783754788971',
@@ -86,6 +91,7 @@ SetupBuyerManagement({
   embedFractals: '1282735938010878035',
   embedStrikes: '1282735912639533210',
   botRoleId: '1281615075337310220',
+  translations: htTranslations,
 })
 
 client.on(Events.MessageCreate, async (message) => {
