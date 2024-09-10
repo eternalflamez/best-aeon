@@ -20,7 +20,7 @@ import WhatsDn from './onMessageCreateHooks/6.whatsDn.js'
 // @ts-ignore
 import HelloIAm from './onMessageCreateHooks/7.helloIAm.ts'
 // @ts-ignore
-import AddToThread from './onMessageReactionAddHooks/0.addToThread.js'
+import AddToThread from './onMessageReactionAddHooks/0.addToThread.ts'
 
 config()
 
