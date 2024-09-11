@@ -10,7 +10,7 @@ import SetupBuyerManagement from './features/buyer-management.ts'
 import MaxDebug from './onMessageCreateHooks/0.debug.js'
 import StartSellThread from './onMessageCreateHooks/1.startSellThread.ts'
 // @ts-ignore
-import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.js'
+import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.ts'
 // @ts-ignore
 import BestAeon from './onMessageCreateHooks/3.bestAeon.js'
 // @ts-ignore

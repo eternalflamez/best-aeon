@@ -1,5 +1,6 @@
 import { config } from 'dotenv'
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
+import riseTranslations from './constants/rise-translations.ts'
 
 import SetupSellSchedule from './features/sell-schedule.ts'
 import SetupBuyerManagement from './features/buyer-management.ts'
@@ -8,7 +9,7 @@ import SetupBuyerManagement from './features/buyer-management.ts'
 import MaxDebug from './onMessageCreateHooks/0.debug.js'
 import StartSellThread from './onMessageCreateHooks/1.startSellThread.ts'
 // @ts-ignore
-import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.js'
+import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.ts'
 // @ts-ignore
 import BestAeon from './onMessageCreateHooks/3.bestAeon.js'
 // @ts-ignore
@@ -61,6 +62,7 @@ SetupSellSchedule(client, [
 ])
 
 SetupBuyerManagement({
+  guildTag: 'Rice',
   guildId: '1248337933413650614',
   managerToken: process.env.MANAGER_TOKEN!,
   contactedCategoryChannelId: '1269279315590250600',
@@ -72,6 +74,7 @@ SetupBuyerManagement({
   embedFractals: '1263940136081686614',
   embedStrikes: '1263940136081686614',
   botRoleId: '1264610829811056718',
+  translations: riseTranslations,
 })
 
 client.on(Events.MessageCreate, async (message) => {
