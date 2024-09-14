@@ -4,7 +4,7 @@ import riseTranslations from './constants/rise-translations.ts'
 import htTranslations from './constants/harvest-templars-translations.ts'
 
 import SetupSellSchedule from './features/sell-schedule.ts'
-import SetupBuyerManagement from './features/buyer-management.ts'
+import SetupBuyerManagement from './features/buyer-management/buyer-management.ts'
 
 // @ts-ignore
 import MaxDebug from './onMessageCreateHooks/0.debug.js'

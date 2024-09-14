@@ -16,7 +16,8 @@ import {
   Interaction,
   CacheType,
 } from 'discord.js'
-import { Language } from '../constants/buyerManagementLanguages.ts'
+import { Language } from '../../constants/buyerManagementLanguages.ts'
+import AutomaticallyClearUsers from './clear-users.ts'
 
 interface LanguageByChannel {
   [key: string]: string
@@ -60,6 +61,8 @@ export default function setup({
 
   client.once('ready', async () => {
     console.log(`Logged in as ${client.user?.tag}`)
+
+    AutomaticallyClearUsers(client, guildId)
   })
 
   client.on('guildMemberAdd', async (member) => {
@@ -125,7 +128,7 @@ export default function setup({
 
       await channel.send({
         content: `Hello and welcome to [${guildTag}] ${userMention(member.id)}! 🌟
-  
+
 I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. Let's get started!
 
 **__STEP 1: Choose a Language, Elige un idioma, Wähle eine Sprache, Choisir une langue 🌐__**`,
@@ -270,8 +273,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           const row = new ActionRowBuilder<ButtonBuilder>().addComponents(callDibs)
 
           buyerManagementChannel.send({
-            content: `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}.
-  Their preferred language is ${getLanguagePrettyPrint(interaction)}`,
+            content: `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}.\rTheir preferred language is ${getLanguagePrettyPrint(interaction)}`,
             components: [row],
           })
         }

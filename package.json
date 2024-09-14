@@ -12,9 +12,11 @@
     "discord.js": "^14.15.3",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "node-cron": "^3.0.3",
     "queue": "^7.0.0"
   },
   "devDependencies": {
+    "@types/node-cron": "^3.0.11",
     "prettier": "3.3.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.16.2"
