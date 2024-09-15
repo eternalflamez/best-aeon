@@ -1,5 +1,7 @@
 import { Client, Collection, TextChannel } from 'discord.js'
 import cron from 'node-cron'
+import { config } from 'dotenv'
+config()
 
 export default function automaticallyClearUsers(client: Client, guildId: string) {
   cron.schedule('0 2 * * *', () => {
@@ -80,7 +82,7 @@ async function clearUsers(client: Client, guildId: string) {
 We noticed you have been inactive on our discord, so you have been kicked.
 
 Not to worry, if you want to buy anything or browse our prices again, feel free to rejoin:
-https://discord.gg/JwESDDnSXu`)
+https://discord.gg/${process.env['INVITE_' + guildId]}`)
 
         await member.kick()
 
