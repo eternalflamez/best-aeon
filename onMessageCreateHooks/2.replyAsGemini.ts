@@ -13,7 +13,7 @@ export default async function (client: Client, message: Message) {
     if (now - lastGeminiCallTime < 5000) {
       const reactions = timeoutReactions[Math.round(Math.random() * timeoutReactionsLength)]
 
-      await message.channel.send(reactions)
+      await message.reply(reactions)
       return true
     }
 
@@ -31,9 +31,9 @@ export default async function (client: Client, message: Message) {
       reply = reply.replace('@', '[at]')
 
       if (reply) {
-        await message.channel.send(reply)
+        await message.reply(reply)
       } else {
-        await message.channel.send('Sorry I was too stupid too cook up a reply and instead generated nothing.')
+        await message.reply('Sorry I was too stupid too cook up a reply and instead generated nothing.')
       }
     } catch (e: any) {
       if (e.rawError?.message === 'Missing Permissions') {
@@ -41,7 +41,7 @@ export default async function (client: Client, message: Message) {
       }
 
       console.error(e)
-      await message.channel.send('Sorry I was too stupid too cook up a reply and instead had an error.')
+      await message.reply('Sorry I was too stupid too cook up a reply and instead had an error.')
     }
 
     return true
