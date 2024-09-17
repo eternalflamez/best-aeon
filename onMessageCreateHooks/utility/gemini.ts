@@ -10,6 +10,7 @@ const moods = [
   'upbeat',
   'quirky',
   'sleepy',
+  'informative',
   'unhappy due to a global crisis',
   'alpha male',
   'tilted',
