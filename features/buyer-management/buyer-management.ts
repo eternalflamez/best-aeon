@@ -172,12 +172,12 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       }
 
       try {
-        userChannel.edit({
+        await userChannel.edit({
           name: `🚩goodbye-${member.displayName}`,
           position: userChannel.parent!.children.cache.size - 1,
         })
       } catch {
-        userChannel.edit({
+        await userChannel.edit({
           name: `🚩goodbye`,
           position: userChannel.parent!.children.cache.size - 1,
         })
