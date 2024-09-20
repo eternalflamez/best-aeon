@@ -197,7 +197,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       console.error(e)
 
       try {
-        interaction.editReply({
+        await interaction.editReply({
           content: 'Oops, there was an error loading your schedule',
         })
         return
