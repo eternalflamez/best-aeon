@@ -182,8 +182,8 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           position: userChannel.parent!.children.cache.size - 1,
         })
       }
-    } catch (e) {
-      console.error(e)
+    } catch (e: any) {
+      console.error(e.message)
     }
   })
 
