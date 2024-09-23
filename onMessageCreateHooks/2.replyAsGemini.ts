@@ -33,14 +33,17 @@ export default async function (client: Client, message: Message) {
       if (reply) {
         await message.reply(reply)
       } else {
+        console.error('No message generated for gemini')
         await message.reply('Sorry I was too stupid too cook up a reply and instead generated nothing.')
       }
     } catch (e: any) {
       if (e.rawError?.message === 'Missing Permissions') {
+        console.error('Gemini had a no permissions error')
         return true
       }
 
       console.error(e)
+
       await message.reply('Sorry I was too stupid too cook up a reply and instead had an error.')
     }
 
