@@ -17,17 +17,23 @@ export default async function (messageText: string, message: Message<boolean>) {
 
       try {
         if (name) {
-          await message.startThread({
+          const thread = await message.startThread({
             name,
             autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
           })
+
+          const wrongTitle = name.match(/\btitel\b/i)
+
+          if (wrongTitle) {
+            await thread.send(`${userMention(message.author.id)}, it's title, not titel.`)
+          }
         } else {
           const thread = await message.startThread({
             name: 'Please put the thread title on first line of sell post',
             autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
           })
 
-          thread.send(
+          await thread.send(
             `${userMention(message.author.id)}, please put the thread title on first line of sell post, now you gotta edit the title yourself.`,
           )
         }
