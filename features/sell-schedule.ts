@@ -193,8 +193,11 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         }
       }
     } catch (e: any) {
-      console.error(e.rawError?.message || 'Something went wrong?')
-      console.error(e)
+      console.error(`Sell-schedule reply failed: ${e.rawError?.message}` || 'Something went wrong?')
+
+      if (e.rawError?.message !== 'Unknown interaction') {
+        console.error(e)
+      }
 
       try {
         await interaction.editReply({

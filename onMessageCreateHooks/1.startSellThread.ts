@@ -13,22 +13,26 @@ export default async function (messageText: string, message: Message<boolean>) {
         name = name.slice(0, 97) + '...'
       }
 
-      console.log('Created a thread:', name)
+      console.log('Creating a thread:', name)
 
-      if (name) {
-        await message.startThread({
-          name,
-          autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
-        })
-      } else {
-        const thread = await message.startThread({
-          name: 'Please put the thread title on first line of sell post',
-          autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
-        })
+      try {
+        if (name) {
+          await message.startThread({
+            name,
+            autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
+          })
+        } else {
+          const thread = await message.startThread({
+            name: 'Please put the thread title on first line of sell post',
+            autoArchiveDuration: ThreadAutoArchiveDuration.OneWeek,
+          })
 
-        thread.send(
-          `${userMention(message.author.id)}, please put the thread title on first line of sell post, now you gotta edit the title yourself.`,
-        )
+          thread.send(
+            `${userMention(message.author.id)}, please put the thread title on first line of sell post, now you gotta edit the title yourself.`,
+          )
+        }
+      } catch (e: any) {
+        console.error('Failed to create thread:', name, 'Reason: ', e.rawError?.message)
       }
     }
 
