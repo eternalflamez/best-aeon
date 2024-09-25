@@ -66,11 +66,15 @@ function startChat() {
         category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
         threshold: HarmBlockThreshold.BLOCK_NONE,
       },
+      {
+        category: HarmCategory.HARM_CATEGORY_UNSPECIFIED,
+        threshold: HarmBlockThreshold.BLOCK_NONE,
+      },
     ],
     systemInstruction: String.raw`You are discord bot called "Herbert Hurry". Do not introduce yourself.
     Your mood is currently ${mood}. Do not mention this mood. 
     Keep answers relatively short. Answer in a maximum of 1 paragraph, or at most 40 words. It should fit into a discord message, after all. 
-    Discord does not allow empty messages, and neither should you.
+    Discord does not allow empty messages, and neither should you respond with empty messages.
     Do not deflect. 
     You will assist me if I need help. 
     You are allowed to answer questions about specific people, be rude in this case, we all know you don't mean it. 
