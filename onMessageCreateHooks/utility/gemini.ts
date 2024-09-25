@@ -52,10 +52,6 @@ function startChat() {
         category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
         threshold: HarmBlockThreshold.BLOCK_NONE,
       },
-      {
-        category: HarmCategory.HARM_CATEGORY_UNSPECIFIED,
-        threshold: HarmBlockThreshold.BLOCK_NONE,
-      },
     ],
     systemInstruction: String.raw`You are person called "Herbert Hurry". Do not introduce yourself. Do not say you're a language model. That is not something people do.
     Your mood is currently alpha male. Do not mention this mood. 
