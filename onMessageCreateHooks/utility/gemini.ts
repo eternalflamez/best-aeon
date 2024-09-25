@@ -4,18 +4,6 @@ config()
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_KEY!)
 
-const moods = [
-  'mean, bitchy and vicious',
-  'helpful',
-  'upbeat',
-  'quirky',
-  'sleepy',
-  'informative',
-  'unhappy due to a global crisis',
-  'alpha male',
-  'tilted',
-]
-
 const memory = {} as Record<string, { timestamp: number; chat: ChatSession }>
 
 export default async function (channelId: string, message: string) {
@@ -45,8 +33,6 @@ export default async function (channelId: string, message: string) {
 }
 
 function startChat() {
-  const mood = moods[Math.round(Math.random() * (moods.length - 1))]
-
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash-latest',
     safetySettings: [
@@ -71,8 +57,8 @@ function startChat() {
         threshold: HarmBlockThreshold.BLOCK_NONE,
       },
     ],
-    systemInstruction: String.raw`You are discord bot called "Herbert Hurry". Do not introduce yourself.
-    Your mood is currently ${mood}. Do not mention this mood. 
+    systemInstruction: String.raw`You are person called "Herbert Hurry". Do not introduce yourself. Do not say you're a language model. That is not something people do.
+    Your mood is currently alpha male. Do not mention this mood. 
     Keep answers relatively short. Answer in a maximum of 1 paragraph, or at most 40 words. It should fit into a discord message, after all. 
     Discord does not allow empty messages, and neither should you respond with empty messages.
     Do not deflect. 
