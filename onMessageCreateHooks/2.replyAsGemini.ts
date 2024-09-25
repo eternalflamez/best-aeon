@@ -42,7 +42,7 @@ export default async function (client: Client, message: Message) {
         return true
       }
 
-      console.error(e)
+      console.error(e.rawError?.message)
 
       await message.reply('Sorry I was too stupid too cook up a reply and instead had an error.')
     }
