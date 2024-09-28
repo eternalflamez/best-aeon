@@ -5,7 +5,12 @@ config()
 
 export default function automaticallyClearUsers(client: Client, guildId: string) {
   cron.schedule('0 2 * * *', () => {
-    clearUsers(client, guildId)
+    try {
+      clearUsers(client, guildId)
+    } catch (e: any) {
+      console.error('[Error] Failed to clear users: ')
+      console.error(e)
+    }
   })
 }
 
@@ -86,7 +91,11 @@ We noticed you have been inactive on our discord, so you have been kicked.
 Not to worry, if you want to buy anything or browse our prices again, feel free to rejoin:
 https://discord.gg/${process.env['INVITE_' + guildId]}`)
 
-        await member.kick()
+        try {
+          await member.kick()
+        } catch (e: any) {
+          console.error('[Error] Failed to kick user due to ', e.message)
+        }
 
         await new Promise<void>((resolve) => {
           setTimeout(() => {
@@ -95,7 +104,11 @@ https://discord.gg/${process.env['INVITE_' + guildId]}`)
         })
       }
 
-      await channel.delete()
+      try {
+        await channel.delete()
+      } catch (e: any) {
+        console.error('[Error] Failed to delete user channel due to ', e.message)
+      }
     }
   }
 }
