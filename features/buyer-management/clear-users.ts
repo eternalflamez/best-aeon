@@ -78,6 +78,8 @@ async function clearUsers(client: Client, guildId: string) {
       if (member.roles.cache.size === 1) {
         const user = await client.users.fetch(userId)
 
+        console.log(guildId, 'kicked:', channel.name, `https://discord.gg/${process.env['INVITE_' + guildId]}`)
+
         await user.send(String.raw`Greetings, I am a bot. Messages sent to me are not read by real people.
 We noticed you have been inactive on our discord, so you have been kicked.
 
@@ -91,8 +93,6 @@ https://discord.gg/${process.env['INVITE_' + guildId]}`)
             resolve()
           }, 200)
         })
-
-        console.log(guildId, 'kicked:', channel.name)
       }
 
       await channel.delete()
