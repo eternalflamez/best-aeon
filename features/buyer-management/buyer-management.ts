@@ -183,6 +183,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         })
       }
     } catch (e: any) {
+      console.error('[Error] During cleanup after user leave;')
       console.error(e.message)
     }
   })
