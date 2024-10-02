@@ -26,7 +26,10 @@ export default async function (client: Client, message: Message) {
     try {
       lastGeminiCallTime = now
 
-      let reply = await replyTo(message.channelId, filteredMessage)
+      let reply = await replyTo(
+        message.channelId,
+        `${message.member?.displayName}[${new Date().toUTCString()}]: ${filteredMessage}`,
+      )
 
       reply = reply.replace('@', '[at]')
 
