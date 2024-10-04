@@ -209,15 +209,15 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         id === 'go-back'
       ) {
         if (id !== 'go-back') {
-          setLanguage(interaction)
+          await setLanguage(interaction)
         }
 
-        postSellTypes(interaction)
+        await postSellTypes(interaction)
         return
       }
 
       if (id === 'raids') {
-        postRaidList(interaction)
+        await postRaidList(interaction)
         return
       }
 
@@ -235,7 +235,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         }
 
         if (!embed) {
-          interaction.reply({
+          await interaction.reply({
             content: getTranslation('generic_error', interaction),
             ephemeral: true,
           })
@@ -247,7 +247,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           ephemeral: true,
         })
 
-        postCTA(interaction)
+        await postCTA(interaction)
         return
       }
 
@@ -258,7 +258,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           return
         }
 
-        interaction.reply({
+        await interaction.reply({
           content: getTranslation('staff_called', interaction),
           ephemeral: true,
         })
@@ -273,7 +273,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
 
           const row = new ActionRowBuilder<ButtonBuilder>().addComponents(callDibs)
 
-          buyerManagementChannel.send({
+          await buyerManagementChannel.send({
             content: `@here The buyer at ${channelMention(interaction.channelId)} clicked on ${id}.\rTheir preferred language is ${getLanguagePrettyPrint(interaction)}`,
             components: [row],
           })
@@ -285,7 +285,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       console.error(e)
 
       try {
-        interaction.reply({
+        await interaction.reply({
           content: getTranslation('generic_error', interaction),
           ephemeral: true,
         })
