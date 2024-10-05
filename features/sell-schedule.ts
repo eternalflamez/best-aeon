@@ -392,13 +392,20 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       })
       .filter((item) => !!item)
 
-    const icsFiles = generateIcs(messages)
+    const icsFile = generateIcs(messages)
 
-    return interaction.reply({
-      content: 'Here is your downloads:',
-      files: icsFiles,
-      ephemeral: true,
-    })
+    if (icsFile) {
+      return interaction.reply({
+        content: 'Here is your .ics file:',
+        files: [icsFile],
+        ephemeral: true,
+      })
+    } else {
+      return interaction.reply({
+        content: 'Something went wrong generating the calendar data!',
+        ephemeral: true,
+      })
+    }
   }
 }
 

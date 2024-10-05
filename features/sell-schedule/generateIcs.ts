@@ -1,8 +1,12 @@
-import { AttachmentBuilder, RawFile } from 'discord.js'
+import { AttachmentBuilder } from 'discord.js'
 import ics from 'ics'
 
 export default function generateIcs(schedule: ScheduleMessage[]) {
-  const icsList = [] as AttachmentBuilder[]
+  const events = [] as {
+    start: number
+    duration: { hours: number }
+    title: string
+  }[]
 
   schedule.forEach((scheduleItem) => {
     const timestampPattern = /<t:\d+:[a-zA-Z]>/
@@ -16,19 +20,19 @@ export default function generateIcs(schedule: ScheduleMessage[]) {
       .replace(urlPattern, '')
       .trim()
 
-    const event = ics.createEvent({
+    events.push({
       start: scheduleItem.date * 1000,
       duration: { hours: 1 },
       title: `[${scheduleItem.region}] ${prunedTitle}`,
     })
-
-    if (event.error) {
-      console.error(event.error)
-      return
-    }
-
-    icsList.push(new AttachmentBuilder(Buffer.from(event.value!), { name: `${prunedTitle}.ics` }))
   })
 
-  return icsList
+  const data = ics.createEvents(events)
+
+  if (data.error) {
+    console.error(data.error)
+    return undefined
+  }
+
+  return new AttachmentBuilder(Buffer.from(data.value!), { name: 'sells.ics' })
 }
