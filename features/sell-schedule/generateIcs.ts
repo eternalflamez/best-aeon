@@ -1,10 +1,10 @@
 import { AttachmentBuilder } from 'discord.js'
-import ics from 'ics'
+import ics, { DurationObject } from 'ics'
 
 export default function generateIcs(schedule: ScheduleMessage[]) {
   const events = [] as {
     start: number
-    duration: { hours: number }
+    duration: DurationObject
     title: string
   }[]
 
@@ -20,10 +20,19 @@ export default function generateIcs(schedule: ScheduleMessage[]) {
       .replace(urlPattern, '')
       .trim()
 
+    const defaultDuration = { hours: 1 } as DurationObject
+    let duration = defaultDuration
+
+    const readableTitle = prunedTitle.toLowerCase()
+
+    if (readableTitle.includes('lcm') || readableTitle.includes('cerus cm')) {
+      duration = { minutes: 30 }
+    }
+
     events.push({
       start: scheduleItem.date * 1000,
-      duration: { hours: 1 },
       title: `[${scheduleItem.region}] ${prunedTitle}`,
+      duration,
     })
   })
 
