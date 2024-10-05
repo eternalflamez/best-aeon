@@ -202,7 +202,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
             content: "You didn't sign up to anything!",
           })
         } else {
-          if (interaction.user.id === '332175471598895105') {
+          if (interaction.user.id === '332175471598895105' || interaction.user.id === '126772834860007424') {
             const downloadSelect = new StringSelectMenuBuilder()
               .setCustomId('my-schedule-download-select')
               .setPlaceholder('Select items to download calendars for')
