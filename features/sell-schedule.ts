@@ -1,7 +1,18 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, Client, Message, TextChannel } from 'discord.js'
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  Client,
+  Message,
+  StringSelectMenuBuilder,
+  StringSelectMenuInteraction,
+  StringSelectMenuOptionBuilder,
+  TextChannel,
+} from 'discord.js'
 // @ts-ignore
 import sellChannels from '../constants/sellChannels.js'
 import Queue from 'queue'
+import generateIcs from './sell-schedule/generateIcs.ts'
 
 const MCMysticCoinEmoji = '545057156274323486'
 
@@ -157,6 +168,10 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
   client.on('interactionCreate', async (interaction) => {
     if (!interaction.isButton()) {
+      if (interaction.isStringSelectMenu()) {
+        return downloadIcs(interaction)
+      }
+
       return
     }
 
@@ -187,9 +202,40 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
             content: "You didn't sign up to anything!",
           })
         } else {
-          await interaction.editReply({
-            content: getPrunedOutput(result, true)[0].join('\r\n\r\n'),
-          })
+          if (interaction.user.id === '332175471598895105') {
+            const downloadSelect = new StringSelectMenuBuilder()
+              .setCustomId('my-schedule-download-select')
+              .setPlaceholder('Select items to download calendars for')
+              .setMinValues(1)
+              .setMaxValues(Math.min(10, result.length))
+              .addOptions(
+                ...result.map((item) => {
+                  const text = getPrunedOutput([item])[0][0]
+
+                  const timestampPattern = /<t:\d+:[a-zA-Z]>/
+                  const urlPattern = /https:\/\/discord\.com\/channels\/\d+\/\d+\/\d+/
+
+                  let prunedMessage = text.replace(timestampPattern, '').replace(urlPattern, '')
+
+                  prunedMessage = prunedMessage.trim()
+
+                  return new StringSelectMenuOptionBuilder()
+                    .setLabel(`[${item.region}] ${prunedMessage}`)
+                    .setValue(`${item.id}`)
+                }),
+              )
+
+            const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(downloadSelect)
+
+            await interaction.editReply({
+              content: getPrunedOutput(result, true)[0].join('\r\n\r\n'),
+              components: [row],
+            })
+          } else {
+            await interaction.editReply({
+              content: getPrunedOutput(result, true)[0].join('\r\n\r\n'),
+            })
+          }
         }
       }
     } catch (e: any) {
@@ -336,6 +382,24 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
     q.push(queueFunction)
   }
+
+  function downloadIcs(interaction: StringSelectMenuInteraction) {
+    const messages = interaction.values
+      .map((id) => {
+        return schedule.find((scheduleItem) => {
+          return scheduleItem.id === id
+        })
+      })
+      .filter((item) => !!item)
+
+    const icsFiles = generateIcs(messages)
+
+    return interaction.reply({
+      content: 'Here is your downloads:',
+      files: icsFiles,
+      ephemeral: true,
+    })
+  }
 }
 
 function getPrunedOutput(history: ScheduleMessage[], addSubtext = false) {
@@ -428,15 +492,6 @@ function getSortedMessage(message: Message<boolean>, timeText: string) {
 
   const messageWithoutTime = message.content.replace(timeText, '')
   return timeText.trim() + ' ' + messageWithoutTime.trim() + ' ' + message.url
-}
-
-type ScheduleMessage = {
-  id: string
-  channelId: string
-  reactors: string[]
-  region: string
-  date: number
-  text: string
 }
 
 const NO_SELLS_COMMENTS = [
