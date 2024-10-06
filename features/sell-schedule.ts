@@ -202,40 +202,34 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
             content: "You didn't sign up to anything!",
           })
         } else {
-          if (interaction.user.id === '332175471598895105' || interaction.user.id === '126772834860007424') {
-            const downloadSelect = new StringSelectMenuBuilder()
-              .setCustomId('my-schedule-download-select')
-              .setPlaceholder('Select items to download calendars for')
-              .setMinValues(1)
-              .setMaxValues(Math.min(10, result.length))
-              .addOptions(
-                ...result.map((item) => {
-                  const text = getPrunedOutput([item])[0][0]
+          const downloadSelect = new StringSelectMenuBuilder()
+            .setCustomId('my-schedule-download-select')
+            .setPlaceholder('Select items to download calendars for')
+            .setMinValues(1)
+            .setMaxValues(Math.min(10, result.length))
+            .addOptions(
+              ...result.map((item) => {
+                const text = getPrunedOutput([item])[0][0]
 
-                  const timestampPattern = /<t:\d+:[a-zA-Z]>/
-                  const urlPattern = /https:\/\/discord\.com\/channels\/\d+\/\d+\/\d+/
+                const timestampPattern = /<t:\d+:[a-zA-Z]>/
+                const urlPattern = /https:\/\/discord\.com\/channels\/\d+\/\d+\/\d+/
 
-                  let prunedMessage = text.replace(timestampPattern, '').replace(urlPattern, '')
+                let prunedMessage = text.replace(timestampPattern, '').replace(urlPattern, '')
 
-                  prunedMessage = prunedMessage.trim()
+                prunedMessage = prunedMessage.trim()
 
-                  return new StringSelectMenuOptionBuilder()
-                    .setLabel(`[${item.region}] ${prunedMessage}`)
-                    .setValue(`${item.id}`)
-                }),
-              )
+                return new StringSelectMenuOptionBuilder()
+                  .setLabel(`[${item.region}] ${prunedMessage}`)
+                  .setValue(`${item.id}`)
+              }),
+            )
 
-            const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(downloadSelect)
+          const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(downloadSelect)
 
-            await interaction.editReply({
-              content: getPrunedOutput(result, true)[0].join('\r\n\r\n'),
-              components: [row],
-            })
-          } else {
-            await interaction.editReply({
-              content: getPrunedOutput(result, true)[0].join('\r\n\r\n'),
-            })
-          }
+          await interaction.editReply({
+            content: getPrunedOutput(result, true)[0].join('\r\n\r\n'),
+            components: [row],
+          })
         }
       }
     } catch (e: any) {
