@@ -11,7 +11,7 @@ export default async function (client: Client, message: Message) {
     const now = Date.now()
 
     if (now - lastGeminiCallTime < 5000) {
-      const reactions = timeoutReactions[Math.round(Math.random() * timeoutReactionsLength)]
+      const reactions = timeoutReactions[Math.round(Math.random() * (timeoutReactionsLength - 1))]
 
       await message.reply(reactions)
       return true
