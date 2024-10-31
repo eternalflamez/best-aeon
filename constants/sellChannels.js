@@ -11,6 +11,8 @@ export default {
   '1196920908842008728': { region: 'NA' },
   // na-scheduled-strikes
   '1196923586791874640': { region: 'NA' },
+  // na-scheduled-fractals
+  '1285376242597625927': { region: 'NA' },
 
   // BTB
   // instant-sales
