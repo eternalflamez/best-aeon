@@ -1,4 +1,11 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold, ChatSession } from '@google/generative-ai'
+import {
+  GoogleGenerativeAI,
+  HarmCategory,
+  HarmBlockThreshold,
+  ChatSession,
+  GenerateContentCandidate,
+  EnhancedGenerateContentResponse,
+} from '@google/generative-ai'
 import { config } from 'dotenv'
 config()
 
@@ -28,8 +35,30 @@ export default async function (channelId: string, message: string) {
     chat,
   }
 
-  const result = await chat.sendMessageStream(message)
-  return (await result.response).text()
+  const streamResult = await chat.sendMessageStream(message)
+  const response = await streamResult.response
+
+  const text = response.text()
+
+  if (text) {
+    return text
+  }
+
+  return readCandidateParts(response)
+}
+
+function readCandidateParts(response: EnhancedGenerateContentResponse): string {
+  if (!response.candidates) {
+    return ''
+  }
+
+  // @ts-ignore
+  const contentCandidate = response.candidates['undefined'] as GenerateContentCandidate
+  const candidate = contentCandidate.content
+
+  return candidate.parts.reduce((result, part) => {
+    return result + part.text
+  }, '')
 }
 
 function startChat() {
