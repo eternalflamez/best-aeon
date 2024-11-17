@@ -37,12 +37,12 @@ export default async function (client: Client, message: Message) {
         await message.reply(reply)
       } else {
         console.error('No message generated for gemini')
-        await message.reply('Sorry I was too stupid too cook up a reply and instead generated nothing.')
+        await message.reply('Sorry I was too stupid to cook up a reply and instead generated nothing.')
       }
     } catch (e: any) {
       console.error(e.message)
 
-      await message.reply('Sorry I was too stupid too cook up a reply and instead had an error.')
+      await message.reply('Sorry I was too stupid to cook up a reply and instead had an error.')
     }
 
     return true
