@@ -63,7 +63,7 @@ function readCandidateParts(response: EnhancedGenerateContentResponse): string {
 
 function startChat() {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash-latest',
+    model: 'gemini-1.5-flash-001',
     safetySettings: [
       {
         category: HarmCategory.HARM_CATEGORY_HATE_SPEECH,
