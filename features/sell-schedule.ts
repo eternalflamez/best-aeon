@@ -216,7 +216,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
                 let prunedMessage = text.replace(timestampPattern, '').replace(urlPattern, '')
 
-                prunedMessage = prunedMessage.trim()
+                prunedMessage = prunedMessage.trim().slice(0, 100)
 
                 return new StringSelectMenuOptionBuilder()
                   .setLabel(`[${item.region}] ${prunedMessage}`)
