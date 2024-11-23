@@ -7,6 +7,8 @@ export default {
   '982039087663951892': { region: 'EU' },
   // scheduled-fractals
   '982039130047397988': { region: 'EU' },
+  // na-instant-sells
+  '1285719338371911832': { region: 'NA' },
   // na-scheduled-raids
   '1196920908842008728': { region: 'NA' },
   // na-scheduled-strikes
