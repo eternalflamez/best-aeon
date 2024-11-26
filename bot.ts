@@ -9,7 +9,6 @@ import SetupBuyerManagement from './features/buyer-management/buyer-management.t
 // @ts-ignore
 import MaxDebug from './onMessageCreateHooks/0.debug.js'
 import StartSellThread from './onMessageCreateHooks/1.startSellThread.ts'
-// @ts-ignore
 import ReplyAsGemini from './onMessageCreateHooks/2.replyAsGemini.ts'
 // @ts-ignore
 import BestAeon from './onMessageCreateHooks/3.bestAeon.js'
@@ -21,7 +20,7 @@ import AustrianNow from './onMessageCreateHooks/5.austrianNow.js'
 import WhatsDn from './onMessageCreateHooks/6.whatsDn.js'
 // @ts-ignore
 import HelloIAm from './onMessageCreateHooks/7.helloIAm.ts'
-// @ts-ignore
+import Crab from './onMessageCreateHooks/8.crab.ts'
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.ts'
 
 config()
@@ -103,6 +102,8 @@ client.on(Events.MessageCreate, async (message) => {
     if (await MaxDebug(messageText, message, maxCounter)) {
       return
     }
+
+    await Crab(message)
 
     if (await StartSellThread(messageText, message)) {
       return
