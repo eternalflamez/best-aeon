@@ -14,8 +14,6 @@ import BestAeon from './onMessageCreateHooks/3.bestAeon.js'
 // @ts-ignore
 import BestMax from './onMessageCreateHooks/4.bestMax.js'
 // @ts-ignore
-import AustrianNow from './onMessageCreateHooks/5.austrianNow.js'
-// @ts-ignore
 import WhatsDn from './onMessageCreateHooks/6.whatsDn.js'
 import HelloIAm from './onMessageCreateHooks/7.helloIAm.ts'
 import Crab from './onMessageCreateHooks/8.crab.ts'
@@ -100,10 +98,6 @@ client.on(Events.MessageCreate, async (message) => {
     }
 
     if (await BestMax(messageText, message, maxCounter)) {
-      return
-    }
-
-    if (await AustrianNow(messageText, message)) {
       return
     }
 
