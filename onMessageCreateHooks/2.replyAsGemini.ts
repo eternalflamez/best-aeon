@@ -6,7 +6,13 @@ const timeoutReactionsLength = timeoutReactions.length
 
 let lastGeminiCallTime = 0
 
+const bans = ['219560133271748608']
+
 export default async function (client: Client, message: Message) {
+  if (bans.includes(message.author.id)) {
+    return false
+  }
+
   if (message.mentions.has(client.user!.id)) {
     const now = Date.now()
 
