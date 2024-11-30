@@ -6,7 +6,7 @@ const timeoutReactionsLength = timeoutReactions.length
 
 let lastGeminiCallTime = 0
 
-const bans = ['219560133271748608']
+const bans = ['']
 
 export default async function (client: Client, message: Message) {
   if (bans.includes(message.author.id)) {
