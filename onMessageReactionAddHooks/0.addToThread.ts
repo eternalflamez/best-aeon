@@ -1,6 +1,5 @@
 import { MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js'
-// @ts-ignore
-import sellChannels from '../constants/sellChannels.js'
+import { isValidSellChannel } from '../constants/sellChannels.ts'
 
 export default async function (reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) {
   if (reaction.partial) {
@@ -12,7 +11,7 @@ export default async function (reaction: MessageReaction | PartialMessageReactio
     }
   }
 
-  if (!sellChannels[reaction.message.channelId]) {
+  if (!isValidSellChannel(reaction.message.channelId)) {
     return
   }
 

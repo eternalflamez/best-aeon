@@ -1,10 +1,11 @@
 import { userMention, Message, ThreadAutoArchiveDuration } from 'discord.js'
-// @ts-ignore
-import sellChannels from '../constants/sellChannels.js'
+import { isValidSellChannel, isInstantChannel } from '../constants/sellChannels.ts'
 
 export default async function (messageText: string, message: Message<boolean>) {
-  if (sellChannels[message.channelId]) {
-    if (messageText.includes('<t:')) {
+  if (isValidSellChannel(message.channelId)) {
+    const isPingInInstantChannel = isInstantChannel(message.channelId) && messageText.includes('@everyone')
+
+    if (messageText.includes('<t:') || isPingInInstantChannel) {
       const limit = 100
       const timestampPattern = /<t:\d+:[a-zA-Z]>/g
       let name = message.content.split('\n')[0].replace(timestampPattern, '').replace('@everyone', '').trim()

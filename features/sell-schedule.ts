@@ -9,8 +9,7 @@ import {
   StringSelectMenuOptionBuilder,
   TextChannel,
 } from 'discord.js'
-// @ts-ignore
-import sellChannels from '../constants/sellChannels.js'
+import { sellChannels, isValidSellChannel, getRegion } from '../constants/sellChannels.ts'
 import Queue from 'queue'
 import generateIcs from './sell-schedule/generateIcs.ts'
 
@@ -90,9 +89,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     if (message.author.bot || message.system) return
 
     try {
-      const region = sellChannels[message.channelId]?.region
-
-      if (region) {
+      if (getRegion(message.channelId)) {
         if (message.content.includes('<t:')) {
           await addToSchedule(message)
 
@@ -152,7 +149,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       await createMessages()
     } else {
       // If something was updated and now matches, add it
-      if (sellChannels[updatedMessage.channelId]) {
+      if (isValidSellChannel(updatedMessage.channelId)) {
         if (updatedMessage.partial) {
           updatedMessage = await updatedMessage.fetch()
         }
@@ -296,7 +293,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     schedule.push({
       id: message.id,
       channelId: message.channelId,
-      region: sellChannels[message.channelId].region,
+      region: getRegion(message.channelId)!,
       reactors: userIds,
       date: timestamp,
       text: getSortedMessage(message, timeText),
