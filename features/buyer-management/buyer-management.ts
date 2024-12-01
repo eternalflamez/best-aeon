@@ -390,7 +390,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
 
     const sellRow = new ActionRowBuilder<ButtonBuilder>().addComponents(contactUs, goBack)
 
-    return interaction.message.channel.send({
+    return (interaction.message.channel as TextChannel).send({
       content: getTranslation('call_to_action', interaction),
       components: [sellRow],
     })

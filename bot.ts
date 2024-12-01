@@ -21,6 +21,8 @@ import HelloIAm from './onMessageCreateHooks/7.helloIAm.ts'
 import Crab from './onMessageCreateHooks/8.crab.ts'
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.ts'
 
+import BirthdayReminders from './features/birthday-reminders.ts'
+
 config()
 
 const TOKEN = process.env.TOKEN
@@ -42,6 +44,8 @@ let maxCounter = {
 
 client.once('ready', () => {
   console.log(`Logged in as ${client.user?.tag}`)
+
+  BirthdayReminders(client)
 })
 
 SetupSellSchedule(client, [
