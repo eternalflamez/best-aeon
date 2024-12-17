@@ -1,5 +1,4 @@
 import { userMention } from 'discord.js'
-import { logIAm } from '../../firestore/log.ts'
 
 export default function (message: string, self: string, authorId: string) {
   message = message.replace(/<@!?(\d+)>/g, userMention(authorId))
@@ -10,9 +9,10 @@ export default function (message: string, self: string, authorId: string) {
   if (match) {
     const input = match[2]
 
-    logIAm(authorId, input)
-
-    return `Hello ${input}, I am ${self}`
+    return {
+      output: `Hello ${input}, I am ${self}`,
+      clip: input,
+    }
   } else {
     return null
   }
