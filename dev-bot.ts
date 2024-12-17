@@ -1,5 +1,5 @@
 import { config } from 'dotenv'
-import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
+import { Client, Events, GatewayIntentBits, Partials, TextChannel } from 'discord.js'
 import riseTranslations from './constants/rise-translations.ts'
 
 import SetupSellSchedule from './features/sell-schedule.ts'
@@ -21,6 +21,8 @@ import AddToThread from './onMessageReactionAddHooks/0.addToThread.ts'
 
 import BirthdayReminders from './features/birthday-reminders.ts'
 
+import { v4 as uuidv4 } from 'uuid'
+
 config()
 
 const TOKEN = process.env.TOKEN
@@ -40,10 +42,15 @@ let maxCounter = {
   value: 1,
 }
 
-client.once('ready', () => {
+const clientId = uuidv4()
+
+client.once('ready', async () => {
   console.log(`Logged in as ${client.user?.tag}`)
 
   BirthdayReminders(client)
+
+  const botStartedChannel = (await client.channels.fetch('1318663460569092186')) as TextChannel
+  botStartedChannel.send(`Succesfully booted! ${clientId}`)
 })
 
 SetupSellSchedule(client, [
@@ -78,6 +85,15 @@ SetupBuyerManagement({
 })
 
 client.on(Events.MessageCreate, async (message) => {
+  if (
+    message.channelId === '1318663460569092186' &&
+    message.author.id === client.user?.id &&
+    !message.content.includes(clientId)
+  ) {
+    client.destroy()
+    return
+  }
+
   if (message.author.bot || message.system) return
 
   try {
