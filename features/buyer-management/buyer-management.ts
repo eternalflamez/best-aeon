@@ -18,6 +18,7 @@ import {
 } from 'discord.js'
 import { Language } from '../../constants/buyerManagementLanguages.ts'
 import AutomaticallyClearUsers from './clear-users.ts'
+import { logCallDibs } from '../../firestore/log.ts'
 
 interface LanguageByChannel {
   [key: string]: string
@@ -435,6 +436,8 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
 
     if (buttonInteraction.customId === 'management-dibs') {
       if (!message.content.includes('Contacted by')) {
+        logCallDibs(interaction.user.id, interaction.user.username, message.createdTimestamp)
+
         message.edit(`~~${message.content}~~\r\nContacted by ${userMention(interaction.user.id)}`)
 
         await buttonInteraction.reply({

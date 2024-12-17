@@ -1,5 +1,6 @@
 import { userMention, Message, ThreadAutoArchiveDuration } from 'discord.js'
 import { isValidSellChannel, isInstantChannel } from '../constants/sellChannels.ts'
+import { logStartSellThread } from '../firestore/log.ts'
 
 export default async function (messageText: string, message: Message<boolean>) {
   if (isValidSellChannel(message.channelId)) {
@@ -15,6 +16,8 @@ export default async function (messageText: string, message: Message<boolean>) {
       }
 
       console.log('Creating a thread:', name)
+
+      logStartSellThread(message.author.id, message.author.username)
 
       try {
         if (name) {

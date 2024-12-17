@@ -12,6 +12,7 @@ import {
 import { sellChannels, isValidSellChannel, getRegion } from '../constants/sellChannels.ts'
 import Queue from 'queue'
 import generateIcs from './sell-schedule/generateIcs.ts'
+import { logRequestSignups } from '../firestore/log.ts'
 
 const MCMysticCoinEmoji = '545057156274323486'
 
@@ -193,6 +194,8 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         const result = schedule.filter((message) => {
           return message.reactors.includes(interaction.user.id) && regions.includes(message.region)
         })
+
+        logRequestSignups(interaction.user.id, interaction.user.username, result.length)
 
         if (!result.length) {
           await interaction.editReply({

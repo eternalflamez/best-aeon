@@ -1,5 +1,6 @@
 import { MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js'
 import { isValidSellChannel } from '../constants/sellChannels.ts'
+import { logSignup } from '../firestore/log.ts'
 
 export default async function (reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) {
   if (reaction.partial) {
@@ -43,6 +44,15 @@ export default async function (reaction: MessageReaction | PartialMessageReactio
 
     if (!isMember) {
       await thread.members.add(user)
+
+      logSignup(
+        reaction.message.id,
+        user.id,
+        user.username,
+        reaction.emoji.name || 'unknown',
+        reaction.message.createdTimestamp,
+      )
+
       console.log(`Added ${user.displayName} to ${thread.name}`)
     }
   } catch (error) {
