@@ -7,11 +7,39 @@ const timeoutReactionsLength = timeoutReactions.length
 
 let lastGeminiCallTime = 0
 
-const bans = ['']
+const bannedUser = '109707866629246976'
+let banTimestamp = 0
+let count = 0
+
+async function handleBan(message: Message) {
+  if (message.author.id === bannedUser) {
+    if (banTimestamp) {
+      if (new Date(banTimestamp).toDateString() && new Date().toDateString()) {
+        return true
+      } else {
+        banTimestamp = 0
+        count = 0
+      }
+    }
+
+    if (Math.random() < 0.1) {
+      banTimestamp = Date.now()
+
+      await sendReply(
+        message,
+        `I'm going to block you. Please get help, ${message.author.displayName}. I hope you get help. I'm going to end this conversation. You're blocked.`,
+      )
+
+      return true
+    }
+  }
+
+  return false
+}
 
 export default async function (client: Client, message: Message) {
-  if (bans.includes(message.author.id)) {
-    return false
+  if (await handleBan(message)) {
+    return true
   }
 
   if (message.mentions.has(client.user!.id)) {
@@ -20,7 +48,7 @@ export default async function (client: Client, message: Message) {
     if (now - lastGeminiCallTime < 5000) {
       const reactions = timeoutReactions[Math.round(Math.random() * (timeoutReactionsLength - 1))]
 
-      await message.reply(reactions)
+      await sendReply(message, reactions)
 
       logGemini(message.author.id, message.author.username, '', 'cooldown')
       return true
@@ -45,7 +73,7 @@ export default async function (client: Client, message: Message) {
       if (reply) {
         logGemini(message.author.id, message.author.username, reply, 'response')
 
-        await message.reply(reply)
+        await sendReply(message, reply)
       } else {
         console.error('No message generated for gemini')
 
@@ -53,7 +81,7 @@ export default async function (client: Client, message: Message) {
 
         logGemini(message.author.id, message.author.username, reply, 'error')
 
-        await message.reply(reply)
+        await sendReply(message, reply)
       }
     } catch (e: any) {
       console.error(e.message)
@@ -62,9 +90,19 @@ export default async function (client: Client, message: Message) {
 
       logGemini(message.author.id, message.author.username, reply, 'error')
 
-      await message.reply(reply)
+      await sendReply(message, reply)
     }
 
     return true
   }
+}
+
+function sendReply(message: Message, reply: string) {
+  reply = reply.trim()
+
+  if (message.author.id === bannedUser) {
+    reply += `\r\n(${++count}/20)`
+  }
+
+  return message.reply(reply)
 }
