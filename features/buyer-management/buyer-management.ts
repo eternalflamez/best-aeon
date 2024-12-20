@@ -15,6 +15,7 @@ import {
   Partials,
   Interaction,
   CacheType,
+  Events,
 } from 'discord.js'
 import { Language } from '../../constants/buyerManagementLanguages.ts'
 import AutomaticallyClearUsers from './clear-users.ts'
@@ -29,6 +30,7 @@ interface PingByUser {
 }
 
 export default function setup({
+  botClientId,
   guildTag,
   guildId,
   managerToken,
@@ -64,6 +66,17 @@ export default function setup({
     console.log(`Logged in as ${client.user?.tag}`)
 
     AutomaticallyClearUsers(client, guildId)
+  })
+
+  client.on(Events.MessageCreate, async (message) => {
+    if (
+      message.channelId === '1318663460569092186' &&
+      message.author.id === client.user?.id &&
+      !message.content.includes(botClientId)
+    ) {
+      client.destroy()
+      return
+    }
   })
 
   client.on('guildMemberAdd', async (member) => {

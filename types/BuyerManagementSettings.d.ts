@@ -1,4 +1,5 @@
 interface BuyerManagementSettings {
+  botClientId: string
   guildTag: string
   guildId: string
   managerToken: string

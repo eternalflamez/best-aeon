@@ -71,6 +71,7 @@ SetupSellSchedule(client, [
 ])
 
 SetupBuyerManagement({
+  botClientId: clientId,
   guildTag: 'Rise',
   guildId: '1054032215446663278',
   managerToken: process.env.MANAGER_TOKEN!,
@@ -87,6 +88,7 @@ SetupBuyerManagement({
 })
 
 SetupBuyerManagement({
+  botClientId: clientId,
   guildTag: 'HT',
   guildId: '1281584783323041803',
   managerToken: process.env.HT_MANAGER_TOKEN!,

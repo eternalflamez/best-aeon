@@ -69,6 +69,7 @@ SetupSellSchedule(client, [
 ])
 
 SetupBuyerManagement({
+  botClientId: clientId,
   guildTag: 'Rice',
   guildId: '1248337933413650614',
   managerToken: process.env.MANAGER_TOKEN!,
