@@ -66,6 +66,9 @@ export default function setup({
     console.log(`Logged in as ${client.user?.tag}`)
 
     AutomaticallyClearUsers(client, guildId)
+
+    const botStartedChannel = (await client.channels.fetch('1318663460569092186')) as TextChannel
+    botStartedChannel.send(`Succesfully booted! ${botClientId}`)
   })
 
   client.on(Events.MessageCreate, async (message) => {
