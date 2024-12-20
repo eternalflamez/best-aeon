@@ -21,6 +21,8 @@ export default async function (client: Client, message: Message) {
       const reactions = timeoutReactions[Math.round(Math.random() * (timeoutReactionsLength - 1))]
 
       await message.reply(reactions)
+
+      logGemini(message.author.id, message.author.username, '', 'cooldown')
       return true
     }
 
