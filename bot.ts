@@ -47,7 +47,7 @@ let maxCounter = {
 const clientId = uuidv4()
 
 client.once('ready', async () => {
-  console.log(`Logged in as ${client.user?.tag}`)
+  console.log(`Logged in as ${client.user?.tag}, ${clientId}`)
 
   BirthdayReminders(client)
 
@@ -110,6 +110,7 @@ client.on(Events.MessageCreate, async (message) => {
     message.author.id === client.user?.id &&
     !message.content.includes(clientId)
   ) {
+    console.log('A new instance has started, self-destructing')
     client.destroy()
     return
   }

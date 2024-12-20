@@ -74,6 +74,7 @@ export default function setup({
       message.author.id === client.user?.id &&
       !message.content.includes(botClientId)
     ) {
+      console.log(`A new instance has started, self-destructing buyer-management ${guildTag}`)
       client.destroy()
       return
     }
