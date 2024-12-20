@@ -7,7 +7,7 @@ const timeoutReactionsLength = timeoutReactions.length
 
 let lastGeminiCallTime = 0
 
-const bannedUser = '109707866629246976'
+const bannedUser = '219560133271748608'
 let banTimestamp = 0
 let count = 0
 
