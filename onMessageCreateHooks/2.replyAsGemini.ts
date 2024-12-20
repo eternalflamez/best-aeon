@@ -22,7 +22,7 @@ async function handleBan(message: Message) {
       }
     }
 
-    if (Math.random() < 0.1) {
+    if (Math.random() < 0.15) {
       banTimestamp = Date.now()
 
       await sendReply(
