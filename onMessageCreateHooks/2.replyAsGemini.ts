@@ -14,7 +14,7 @@ let count = 0
 async function handleBan(message: Message) {
   if (message.author.id === bannedUser) {
     if (banTimestamp) {
-      if (new Date(banTimestamp).toDateString() && new Date().toDateString()) {
+      if (new Date(banTimestamp).toDateString() === new Date().toDateString()) {
         return true
       } else {
         banTimestamp = 0
