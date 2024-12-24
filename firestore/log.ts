@@ -1,6 +1,6 @@
 import { FieldValue, Firestore, getFirestore, Timestamp } from 'firebase-admin/firestore'
 import { initializeApp, cert, ServiceAccount } from 'firebase-admin/app'
-import serviceAccount from '/etc/secrets/buyer-management-94826-firebase-adminsdk-yiuo8-baa8ef4085.json'
+import serviceAccount from '../etc/secrets/buyer-management-94826-firebase-adminsdk-yiuo8-baa8ef4085.json'
 import { config } from 'dotenv'
 
 config()
@@ -30,7 +30,7 @@ export async function logGemini(
   userId: string,
   username: string,
   response: string,
-  triggerType: 'response' | 'cooldown' | 'error',
+  triggerType: 'response' | 'cooldown' | 'error' | 'ban',
 ) {
   try {
     await db?.collection('users').doc(userId).collection('used_gemini').doc().set({

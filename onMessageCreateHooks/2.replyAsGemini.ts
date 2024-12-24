@@ -27,8 +27,10 @@ async function handleBan(message: Message) {
 
       await sendReply(
         message,
-        `I'm going to block you. Please get help, ${message.author.displayName}. I hope you get help. I'm going to end this conversation. You're blocked.`,
+        "I'm not even going to respond to that.  I'm blocking you, and I'm never speaking to you again.",
       )
+
+      logGemini(message.author.id, message.author.username, '', 'ban')
 
       return true
     }
@@ -38,63 +40,65 @@ async function handleBan(message: Message) {
 }
 
 export default async function (client: Client, message: Message) {
+  if (!message.mentions.has(client.user!.id)) {
+    return
+  }
+
+  const now = Date.now()
+
+  if (now - lastGeminiCallTime < 5000) {
+    const reactions = timeoutReactions[Math.round(Math.random() * (timeoutReactionsLength - 1))]
+
+    await sendReply(message, reactions)
+
+    logGemini(message.author.id, message.author.username, '', 'cooldown')
+    return true
+  }
+
   if (await handleBan(message)) {
     return true
   }
 
-  if (message.mentions.has(client.user!.id)) {
-    const now = Date.now()
+  let filteredMessage = message.content.replace(userMention(client.user!.id), client.user!.displayName)
 
-    if (now - lastGeminiCallTime < 5000) {
-      const reactions = timeoutReactions[Math.round(Math.random() * (timeoutReactionsLength - 1))]
+  message.mentions.users.each((user) => {
+    filteredMessage = filteredMessage.replace(userMention(user.id), user.displayName || '')
+  })
 
-      await sendReply(message, reactions)
+  try {
+    lastGeminiCallTime = now
 
-      logGemini(message.author.id, message.author.username, '', 'cooldown')
-      return true
-    }
+    let reply = await replyTo(
+      message.channelId,
+      `${message.member?.displayName}[${new Date().toUTCString()}]: ${filteredMessage}`,
+    )
 
-    let filteredMessage = message.content.replace(userMention(client.user!.id), client.user!.displayName)
+    reply = reply.replace('@', '[at]')
 
-    message.mentions.users.each((user) => {
-      filteredMessage = filteredMessage.replace(userMention(user.id), user.displayName || '')
-    })
+    if (reply) {
+      logGemini(message.author.id, message.author.username, reply, 'response')
 
-    try {
-      lastGeminiCallTime = now
+      await sendReply(message, reply)
+    } else {
+      console.error('No message generated for gemini')
 
-      let reply = await replyTo(
-        message.channelId,
-        `${message.member?.displayName}[${new Date().toUTCString()}]: ${filteredMessage}`,
-      )
-
-      reply = reply.replace('@', '[at]')
-
-      if (reply) {
-        logGemini(message.author.id, message.author.username, reply, 'response')
-
-        await sendReply(message, reply)
-      } else {
-        console.error('No message generated for gemini')
-
-        reply = 'Sorry I was too stupid to cook up a reply and instead generated nothing.'
-
-        logGemini(message.author.id, message.author.username, reply, 'error')
-
-        await sendReply(message, reply)
-      }
-    } catch (e: any) {
-      console.error(e.message)
-
-      const reply = 'Sorry I was too stupid to cook up a reply and instead had an error.'
+      reply = 'Sorry I was too stupid to cook up a reply and instead generated nothing.'
 
       logGemini(message.author.id, message.author.username, reply, 'error')
 
       await sendReply(message, reply)
     }
+  } catch (e: any) {
+    console.error(e.message)
 
-    return true
+    const reply = 'Sorry I was too stupid to cook up a reply and instead had an error.'
+
+    logGemini(message.author.id, message.author.username, reply, 'error')
+
+    await sendReply(message, reply)
   }
+
+  return true
 }
 
 function sendReply(message: Message, reply: string) {
