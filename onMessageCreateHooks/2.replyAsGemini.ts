@@ -59,10 +59,10 @@ export default async function (client: Client, message: Message) {
     return true
   }
 
-  let filteredMessage = message.content.replace(userMention(client.user!.id), client.user!.displayName)
+  let filteredMessage = message.content
 
-  message.mentions.users.each((user) => {
-    filteredMessage = filteredMessage.replace(userMention(user.id), user.displayName || '')
+  message.mentions.members?.each(async (member) => {
+    filteredMessage = filteredMessage.replace(userMention(member.id), member.displayName || '')
   })
 
   try {
