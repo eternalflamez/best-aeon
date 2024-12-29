@@ -47,7 +47,9 @@ export async function logGemini(
           ping_count: FieldValue.increment(1),
           ...(triggerType === 'cooldown' && { cooldown_triggers: FieldValue.increment(1) }),
           ...(triggerType === 'error' && { error_triggers: FieldValue.increment(1) }),
-          ...(response.includes('blocking you') && { block_responses: FieldValue.increment(1) }),
+          ...((response.includes('blocking you') || response.includes('block you')) && {
+            block_responses: FieldValue.increment(1),
+          }),
         },
         { merge: true },
       )
