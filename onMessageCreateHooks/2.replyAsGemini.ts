@@ -7,38 +7,6 @@ const timeoutReactionsLength = timeoutReactions.length
 
 let lastGeminiCallTime = 0
 
-const bannedUser = '219560133271748608'
-let banTimestamp = 0
-let count = 0
-
-async function handleBan(message: Message) {
-  if (message.author.id === bannedUser) {
-    if (banTimestamp) {
-      if (new Date(banTimestamp).toDateString() === new Date().toDateString()) {
-        return true
-      } else {
-        banTimestamp = 0
-        count = 0
-      }
-    }
-
-    if (Math.random() < 1 / 15) {
-      banTimestamp = Date.now()
-
-      await sendReply(
-        message,
-        "I'm not even going to respond to that.  I'm blocking you, and I'm never speaking to you again.",
-      )
-
-      logGemini(message.author.id, message.author.username, '', 'ban')
-
-      return true
-    }
-  }
-
-  return false
-}
-
 export default async function (client: Client, message: Message) {
   if (!message.mentions.has(client.user!.id)) {
     return
@@ -52,10 +20,6 @@ export default async function (client: Client, message: Message) {
     await sendReply(message, reactions)
 
     logGemini(message.author.id, message.author.username, '', 'cooldown')
-    return true
-  }
-
-  if (await handleBan(message)) {
     return true
   }
 
@@ -102,11 +66,5 @@ export default async function (client: Client, message: Message) {
 }
 
 function sendReply(message: Message, reply: string) {
-  reply = reply.trim()
-
-  if (message.author.id === bannedUser) {
-    reply += `\r\n(${++count}/20)`
-  }
-
-  return message.reply(reply)
+  return message.reply(reply.trim())
 }
