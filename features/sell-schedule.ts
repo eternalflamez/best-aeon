@@ -113,21 +113,41 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       return
     }
 
+    if (message.hasThread) {
+      try {
+        await message.thread!.delete()
+      } catch (e) {
+        console.error('--- ERROR: Failed to delete thread ---')
+        console.error(e)
+      }
+    }
+
     schedule.splice(index, 1)
 
     await createMessages()
   })
 
   client.on('messageDeleteBulk', async (messages) => {
-    messages.each((message) => {
+    for (let i = 0; i < messages.size; i++) {
+      let message = messages.at(i)!
+
       const index = schedule.findIndex((value) => value.id === message.id)
 
       if (index < 0) {
         return
       }
 
+      if (message.hasThread) {
+        try {
+          await message.thread!.delete()
+        } catch (e) {
+          console.error('--- ERROR: Failed to delete thread (from bulk) ---')
+          console.error(e)
+        }
+      }
+
       schedule.splice(index, 1)
-    })
+    }
 
     await createMessages()
   })
