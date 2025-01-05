@@ -356,8 +356,8 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
         const messages = (await channel.messages.fetch()).filter((message) => message.author.id === client.user?.id)
 
-        for (let i = 0; i < messages.size; i++) {
-          const messageToDelete = messages.at(i)
+        for (let j = 0; j < messages.size; j++) {
+          const messageToDelete = messages.at(j)
 
           await messageToDelete?.delete().catch(() => {})
         }
@@ -377,12 +377,12 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(myScheduleButton)
 
-        for (let i = 0; i < result.length; i++) {
-          const schedule = result[i]
+        for (let j = 0; j < result.length; j++) {
+          const schedule = result[j]
 
           await channel.send({
             content: schedule.join('\r\n\r\n'),
-            ...(i === result.length - 1 && { components: [row] }),
+            ...(j === result.length - 1 && { components: [row] }),
           })
         }
       }
