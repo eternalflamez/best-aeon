@@ -36,7 +36,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
             .then((messages) => messages.at(0))
 
           if (!message) {
-            await channel.send('Loading History...')
+            await channel.send('Loading history...')
           }
         }
       }
@@ -346,7 +346,6 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
       for (let i = 0; i < scheduleChannelIds.length; i++) {
         const channelInfo = scheduleChannelIds[i]
-
         const channel = client.channels.cache.get(channelInfo.id) as TextChannel | undefined
 
         if (!channel) {
