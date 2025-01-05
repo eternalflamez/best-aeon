@@ -364,7 +364,8 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         const regionSchedule = schedule.filter((message) => channelInfo.regions.includes(message.region))
 
         if (regionSchedule.length === 0) {
-          return channel.send(NO_SELLS_COMMENTS[Math.round(Math.random() * (NO_SELLS_COMMENTS.length - 1))])
+          await channel.send(NO_SELLS_COMMENTS[Math.round(Math.random() * (NO_SELLS_COMMENTS.length - 1))])
+          continue
         }
 
         const result = getPrunedOutput(regionSchedule)
