@@ -134,7 +134,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       const index = schedule.findIndex((value) => value.id === message.id)
 
       if (index < 0) {
-        return
+        continue
       }
 
       if (message.hasThread) {
