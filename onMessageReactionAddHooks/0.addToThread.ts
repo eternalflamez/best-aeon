@@ -42,16 +42,16 @@ export default async function (reaction: MessageReaction | PartialMessageReactio
     await thread.members.fetch()
     const isMember = thread.members.cache.has(user.id)
 
+    logSignup(
+      reaction.message.id,
+      user.id,
+      user.username,
+      reaction.emoji.name || 'unknown',
+      reaction.message.createdTimestamp,
+    )
+
     if (!isMember) {
       await thread.members.add(user)
-
-      logSignup(
-        reaction.message.id,
-        user.id,
-        user.username,
-        reaction.emoji.name || 'unknown',
-        reaction.message.createdTimestamp,
-      )
 
       console.log(`Added ${user.displayName} to ${thread.name}`)
     }
