@@ -20,6 +20,7 @@ import {
 import { Language } from '../../constants/buyerManagementLanguages.ts'
 import AutomaticallyClearUsers from './clear-users.ts'
 import { logCallDibs } from '../../firestore/log.ts'
+import { setupSelfDestruct, checkDestruction } from '../utils/self-destruct.ts'
 
 interface LanguageByChannel {
   [key: string]: string
@@ -62,28 +63,18 @@ export default function setup({
 
   client.login(managerToken)
 
-  client.once('ready', async () => {
+  client.once(Events.ClientReady, async () => {
     console.log(`Logged in as ${client.user?.tag}`)
 
     AutomaticallyClearUsers(client, guildId)
-
-    const botStartedChannel = (await client.channels.fetch('1318663460569092186')) as TextChannel
-    botStartedChannel.send(`Succesfully booted! ${botClientId}`)
+    setupSelfDestruct(client, botClientId)
   })
 
   client.on(Events.MessageCreate, async (message) => {
-    if (
-      message.channelId === '1318663460569092186' &&
-      message.author.id === client.user?.id &&
-      !message.content.includes(botClientId)
-    ) {
-      console.log(`A new instance has started, self-destructing buyer-management ${guildTag}`)
-      client.destroy()
-      return
-    }
+    checkDestruction(client, botClientId, message, `buyer-management ${guildTag}`)
   })
 
-  client.on('guildMemberAdd', async (member) => {
+  client.on(Events.GuildMemberAdd, async (member) => {
     try {
       if (member.guild.id !== guildId) {
         return

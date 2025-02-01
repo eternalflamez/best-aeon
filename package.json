@@ -9,15 +9,15 @@
   "exports": "./bot.js",
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "discord.js": "^14.16.3",
+    "discord.js": "^14.17.3",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "firebase-admin": "^13.0.1",
+    "firebase-admin": "^13.0.2",
     "googleapis": "^144.0.0",
     "ics": "^3.8.1",
     "node-cron": "^3.0.3",
     "queue": "^7.0.0",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.5"
   },
   "devDependencies": {
     "@types/node-cron": "^3.0.11",
