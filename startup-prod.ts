@@ -1,6 +1,7 @@
 import { config } from 'dotenv'
 import riseTranslations from './constants/rise-translations.ts'
 import htTranslations from './constants/harvest-templars-translations.ts'
+import startup from './bot.ts'
 
 import SetupBuyerManagement from './features/buyer-management/buyer-management.ts'
 
@@ -43,3 +44,5 @@ SetupBuyerManagement({
   botRoleId: '1281615075337310220',
   translations: htTranslations,
 })
+
+startup(clientId)
