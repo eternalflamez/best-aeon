@@ -29,6 +29,10 @@ export default function generateIcs(schedule: ScheduleMessage[]) {
       duration = { minutes: 30 }
     }
 
+    if (readableTitle.includes('fc')) {
+      duration = { hours: 2 }
+    }
+
     events.push({
       start: scheduleItem.date * 1000,
       title: `[${scheduleItem.region}] ${prunedTitle}`,
