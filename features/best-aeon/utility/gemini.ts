@@ -5,6 +5,7 @@ import {
   ChatSession,
   GenerateContentCandidate,
   EnhancedGenerateContentResponse,
+  Part,
 } from '@google/generative-ai'
 import { config } from 'dotenv'
 config()
@@ -39,16 +40,15 @@ export default async function (
     chat,
   }
 
-  // If there are images, include them in the message
-  const parts =
-    images.length > 0
-      ? [
-          { text: message },
-          ...images.map((img) => ({
-            inlineData: { data: Buffer.from(img.data).toString('base64'), mimeType: img.mimeType },
-          })),
-        ]
-      : message
+  let parts = [{ text: message }] as Array<string | Part>
+
+  if (images.length > 0) {
+    parts.push(
+      ...images.map((img) => ({
+        inlineData: { data: Buffer.from(img.data).toString('base64'), mimeType: img.mimeType },
+      })),
+    )
+  }
 
   const streamResult = await chat.sendMessageStream(parts)
   const response = await streamResult.response
