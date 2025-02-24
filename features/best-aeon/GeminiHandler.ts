@@ -30,6 +30,22 @@ export default class GeminiHandler implements MessageHandler {
     }
 
     let filteredMessage = message.content
+    const images: { data: Uint8Array; mimeType: string }[] = []
+
+    for (const attachment of message.attachments.values()) {
+      if (attachment.contentType?.startsWith('image/')) {
+        try {
+          const response = await fetch(attachment.url)
+          const arrayBuffer = await response.arrayBuffer()
+          images.push({
+            data: new Uint8Array(arrayBuffer),
+            mimeType: attachment.contentType,
+          })
+        } catch (error) {
+          console.error('Failed to fetch image:', error)
+        }
+      }
+    }
 
     message.mentions.members?.each(async (member) => {
       filteredMessage = filteredMessage.replace(userMention(member.id), member.displayName || '')
@@ -41,6 +57,7 @@ export default class GeminiHandler implements MessageHandler {
       let reply = await replyTo(
         message.channelId,
         `${message.member?.displayName}[${new Date().toUTCString()}]: ${filteredMessage}`,
+        images,
       )
 
       reply = reply.replace('@', '[at]')
