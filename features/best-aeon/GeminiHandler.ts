@@ -1,4 +1,4 @@
-import { Client, Message, userMention } from 'discord.js'
+import { Client, Message, TextChannel, userMention } from 'discord.js'
 import replyTo from './utility/gemini.ts'
 import timeoutReactions from '../../constants/timeoutReactions.ts'
 import { logGemini } from '../../firestore/log.ts'
@@ -28,6 +28,8 @@ export default class GeminiHandler implements MessageHandler {
       logGemini(message.author.id, message.author.username, '', 'cooldown')
       return true
     }
+
+    await (message.channel as TextChannel).sendTyping()
 
     let filteredMessage = message.content
     const images: { data: Uint8Array; mimeType: string }[] = []
