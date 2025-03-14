@@ -3,6 +3,7 @@ import {
   ButtonBuilder,
   ButtonStyle,
   Client,
+  Events,
   Message,
   MessageFlags,
   StringSelectMenuBuilder,
@@ -15,6 +16,7 @@ import Queue, { QueueWorkerCallback } from 'queue'
 import generateIcs from './sell-schedule/generateIcs.ts'
 import { logRequestSignups } from '../firestore/log.ts'
 
+const MESSAGE_PADDING = '\n\u200B'
 const MCMysticCoinEmoji = '545057156274323486'
 
 export default function (client: Client, scheduleChannelIds: { id: string; regions: string[] }[]) {
@@ -166,7 +168,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     await createMessages(undefined, Array.from(regions))
   })
 
-  client.on('messageUpdate', async (_, updatedMessage) => {
+  client.on(Events.MessageUpdate, async (_, updatedMessage) => {
     const messageIndex = schedule.findIndex((message) => message.id === updatedMessage.id)
 
     if (messageIndex !== -1) {
@@ -227,13 +229,16 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
         const regions = id.replace('my-schedule-', '').split('-')
 
-        const result = schedule.filter((message) => {
-          return message.reactors.includes(interaction.user.id) && regions.includes(message.region)
+        const reactedItems = schedule.filter((message) => {
+          return (
+            message.reactors.some((reaction) => reaction.userId === interaction.user.id) &&
+            regions.includes(message.region)
+          )
         })
 
-        logRequestSignups(interaction.user.id, interaction.user.username, result.length)
+        logRequestSignups(interaction.user.id, interaction.user.username, reactedItems.length)
 
-        if (!result.length) {
+        if (!reactedItems.length) {
           await interaction.editReply({
             content: "You didn't sign up to anything!",
           })
@@ -242,9 +247,9 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
             .setCustomId('my-schedule-download-select')
             .setPlaceholder('Select items to download calendars for')
             .setMinValues(1)
-            .setMaxValues(Math.min(10, result.length))
+            .setMaxValues(Math.min(10, reactedItems.length))
             .addOptions(
-              ...result.map((item) => {
+              ...reactedItems.map((item) => {
                 const text = getPrunedOutput([item])[0][0]
 
                 const timestampPattern = /<t:\d+:[a-zA-Z]>/
@@ -260,8 +265,74 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
           const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(downloadSelect)
 
+          const signedMessages = reactedItems.filter((message) =>
+            message.reactors.some(
+              (reaction) => reaction.userId === interaction.user.id && reaction.reactionId === MCMysticCoinEmoji,
+            ),
+          )
+
+          const otherMessages = reactedItems.filter((message) =>
+            message.reactors.some(
+              (reaction) => reaction.userId === interaction.user.id && reaction.reactionId !== MCMysticCoinEmoji,
+            ),
+          )
+
+          let output = ''
+          let hiddenSignups = 0
+          let hiddenBackups = 0
+
+          if (signedMessages.length) {
+            const signedOutput = getPrunedOutput(signedMessages, true)
+
+            if (signedOutput[0]) {
+              output += `**Things you signed up for:**\n${MESSAGE_PADDING}`
+              output += signedOutput[0].join('\r\n\r\n')
+              hiddenSignups =
+                signedMessages.length - signedOutput[0].filter((line) => !line.includes('items not displayed')).length
+            }
+          }
+
+          if (otherMessages.length && output.length < 1900) {
+            const backupOutput = getPrunedOutput(otherMessages, true)
+
+            if (backupOutput[0]) {
+              if (output) {
+                output += `\n${MESSAGE_PADDING}`
+              }
+
+              output += `**Things you are backup for:**\n${MESSAGE_PADDING}`
+              output += backupOutput[0].join('\r\n\r\n')
+              hiddenBackups =
+                otherMessages.length - backupOutput[0].filter((line) => !line.includes('items not displayed')).length
+            }
+          } else if (otherMessages.length) {
+            hiddenBackups = otherMessages.length
+          }
+
+          if (hiddenSignups > 0 || hiddenBackups > 0) {
+            let summary = '\n\n📋 Summary of hidden items:'
+
+            if (hiddenSignups > 0) {
+              summary += `\n• ${hiddenSignups} signed up sell(s) not shown`
+            }
+
+            if (hiddenBackups > 0) {
+              summary += `\n• ${hiddenBackups} backup sell(s) not shown`
+            }
+
+            summary += '\nUse the dropdown below to see all items!'
+
+            // Only add summary if we have room
+            if (output.length + summary.length <= 2000) {
+              output += summary
+            }
+          }
+
+          output = output || "You didn't sign up to anything!"
+          output += `${MESSAGE_PADDING}`
+
           await interaction.editReply({
-            content: getPrunedOutput(result, true)[0].join('\r\n\r\n'),
+            content: output,
             components: [row],
           })
         }
@@ -287,21 +358,27 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
   client.on('messageReactionAdd', async (reaction, user) => {
     const matchingHistoryItem = schedule.find((item) => item.id === reaction.message.id)
 
-    if (!matchingHistoryItem || reaction.emoji.id !== MCMysticCoinEmoji) {
+    if (!matchingHistoryItem) {
       return
     }
 
-    matchingHistoryItem.reactors.push(user.id)
+    matchingHistoryItem.reactors.push({
+      userId: user.id,
+      reactionId: reaction.emoji.id || reaction.emoji.name!,
+    })
   })
 
   client.on('messageReactionRemove', async (reaction, user) => {
     const matchingHistoryItem = schedule.find((item) => item.id === reaction.message.id)
 
-    if (!matchingHistoryItem || reaction.emoji.id !== MCMysticCoinEmoji) {
+    if (!matchingHistoryItem) {
       return
     }
 
-    const index = matchingHistoryItem.reactors.indexOf(user.id)
+    const index = matchingHistoryItem.reactors.findIndex(
+      (reactor) => reactor.userId === user.id && reactor.reactionId === (reaction.emoji.id || reaction.emoji.name!),
+    )
+
     if (index > -1) {
       // only splice array when item is found
       matchingHistoryItem.reactors.splice(index, 1) // 2nd parameter means remove one item only
@@ -312,19 +389,25 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     const match = getTimestampMatch(message.content)
     const timeText = extractTimeText(match)
     const timestamp = extractTimestamp(match)
-    let userIds: string[] = []
+    let userIds: ScheduleReaction[] = []
 
-    let messageReaction = message.reactions.cache.get(MCMysticCoinEmoji)
+    for (const [_, messageReaction] of message.reactions.cache) {
+      let reaction = messageReaction
 
-    if (messageReaction) {
-      if (messageReaction.partial) {
-        messageReaction = await messageReaction.fetch()
+      if (reaction.partial) {
+        reaction = await reaction.fetch()
       }
 
-      const users = await messageReaction.users.fetch()
-      userIds = users.map((_, id) => {
-        return id
+      const users = await reaction.users.fetch()
+
+      const reactionUserIds = users.map((_, id) => {
+        return {
+          userId: id,
+          reactionId: reaction.emoji.id || reaction.emoji.name!,
+        }
       })
+
+      userIds.push(...reactionUserIds)
     }
 
     schedule.push({
@@ -403,7 +486,6 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
           .setStyle(ButtonStyle.Primary)
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(myScheduleButton)
-        const lastRowPadding = '\n\u200B'
 
         for (let j = 0; j < result.length; j++) {
           const schedule = result[j]
@@ -413,7 +495,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
           const isLastRow = j === result.length - 1
 
           if (isLastRow) {
-            padding = lastRowPadding
+            padding = MESSAGE_PADDING
           }
 
           await channel.send({
