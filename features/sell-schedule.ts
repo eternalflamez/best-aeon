@@ -10,7 +10,7 @@ import {
   TextChannel,
 } from 'discord.js'
 import { sellChannels, isValidSellChannel, getRegion } from '../constants/sellChannels.ts'
-import Queue from 'queue'
+import Queue, { QueueWorkerCallback } from 'queue'
 import generateIcs from './sell-schedule/generateIcs.ts'
 import { logRequestSignups } from '../firestore/log.ts'
 
@@ -57,6 +57,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
             }
           }
         } catch (e: any) {
+          console.error(e)
           continue
         }
       }
@@ -71,7 +72,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
       q.addEventListener('end', endListener)
 
-      q.push(createMessages)
+      await createMessages()
     } catch (e: any) {
       console.error('---- AN ERROR WAS THROWN ----')
       console.error('message', e.rawError?.message)
@@ -90,11 +91,13 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     if (message.author.bot || message.system) return
 
     try {
-      if (getRegion(message.channelId)) {
+      let region = getRegion(message.channelId)
+
+      if (region) {
         if (message.content.includes('<t:')) {
           await addToSchedule(message)
 
-          await createMessages()
+          await createMessages(undefined, region)
         }
       }
     } catch (e: any) {
@@ -124,10 +127,14 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
     schedule.splice(index, 1)
 
-    await createMessages()
+    let region = getRegion(message.channelId)
+
+    await createMessages(undefined, region || undefined)
   })
 
   client.on('messageDeleteBulk', async (messages) => {
+    const regions = new Set<string>()
+
     for (let i = 0; i < messages.size; i++) {
       let message = messages.at(i)!
 
@@ -146,10 +153,16 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         }
       }
 
+      let region = getRegion(message.channelId)
+
+      if (region) {
+        regions.add(region)
+      }
+
       schedule.splice(index, 1)
     }
 
-    await createMessages()
+    await createMessages(undefined, Array.from(regions))
   })
 
   client.on('messageUpdate', async (_, updatedMessage) => {
@@ -166,10 +179,11 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       schedule[messageIndex].date = timestamp
       schedule[messageIndex].text = getSortedMessage(updatedMessage, timeText)
 
-      // TODO: Only update the channels that are relevant.
-      await createMessages()
+      let region = getRegion(updatedMessage.channelId)
+
+      await createMessages(undefined, region || undefined)
     } else {
-      // If something was updated and now matches, add it
+      // If something was updated and became matching, add it
       if (isValidSellChannel(updatedMessage.channelId)) {
         if (updatedMessage.partial) {
           updatedMessage = await updatedMessage.fetch()
@@ -178,7 +192,8 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         if (updatedMessage.content.includes('<t:')) {
           await addToSchedule(updatedMessage)
 
-          await createMessages()
+          let region = getRegion(updatedMessage.channelId)
+          await createMessages(undefined, region || undefined)
         }
       }
     }
@@ -321,7 +336,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     })
   }
 
-  async function createMessages() {
+  async function createMessages(_callback?: QueueWorkerCallback, updatedRegion?: string | string[]) {
     const queueFunction = async () => {
       if (writtenSchedule.length === schedule.length) {
         const currentMap = schedule.map((item) => {
@@ -346,6 +361,17 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
       for (let i = 0; i < scheduleChannelIds.length; i++) {
         const channelInfo = scheduleChannelIds[i]
+
+        if (updatedRegion) {
+          const regions = Array.isArray(updatedRegion) ? updatedRegion : [updatedRegion]
+          const hasMatchingRegion = regions.some((region) => channelInfo.regions.includes(region))
+
+          if (!hasMatchingRegion) {
+            // Skip regions that were not updated.
+            continue
+          }
+        }
+
         const channel = client.channels.cache.get(channelInfo.id) as TextChannel | undefined
 
         if (!channel) {
@@ -376,13 +402,22 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
           .setStyle(ButtonStyle.Primary)
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(myScheduleButton)
+        const lastRowPadding = '\n\u200B'
 
         for (let j = 0; j < result.length; j++) {
           const schedule = result[j]
 
+          let padding = ''
+
+          const isLastRow = j === result.length - 1
+
+          if (isLastRow) {
+            padding = lastRowPadding
+          }
+
           await channel.send({
-            content: schedule.join('\r\n\r\n'),
-            ...(j === result.length - 1 && { components: [row] }),
+            content: schedule.join('\r\n\r\n') + padding,
+            ...(isLastRow && { components: [row] }),
           })
         }
       }
@@ -424,13 +459,11 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 function getPrunedOutput(history: ScheduleMessage[], addSubtext = false) {
   history.sort((a, b) => a.date - b.date)
 
-  let hasAddedSubText = false
+  let hasReachedTextLimit = false
 
   const result = history.reduce<{ length: number; position: number; output: string[][] }>(
     (cum, message, index) => {
-      const newText = message.text.replaceAll('@everyone', '').replaceAll('@', '').replaceAll('  ', ' ').trim()
-
-      if (hasAddedSubText) {
+      if (hasReachedTextLimit) {
         return cum
       }
 
@@ -445,9 +478,9 @@ function getPrunedOutput(history: ScheduleMessage[], addSubtext = false) {
       }
 
       // Message limit is 2000
-      if (cum.length + newText.length >= 1900) {
+      if (cum.length + message.text.length >= 1900) {
         if (addSubtext) {
-          hasAddedSubText = true
+          hasReachedTextLimit = true
           cum.output[cum.position].push(`⚠️ ${history.length - index} items not displayed ⚠️`)
         }
 
@@ -457,11 +490,10 @@ function getPrunedOutput(history: ScheduleMessage[], addSubtext = false) {
         return cum
       }
 
-      // TODO: Split on newline and only add the first line, but what is a newline in discord?
-      cum.output[cum.position].push(newText)
+      cum.output[cum.position].push(message.text)
 
       return {
-        length: cum.length + newText.length,
+        length: cum.length + message.text.length,
         position: cum.position,
         output: cum.output,
       }
@@ -503,13 +535,21 @@ function extractTimestamp(match: RegExpMatchArray | null) {
 }
 
 function getSortedMessage(message: Message<boolean>, timeText: string) {
+  const content = message.content
+    .replaceAll('@everyone', '')
+    .replaceAll('@', '')
+    .replaceAll('  ', ' ')
+    .replaceAll('\n\n', '\n')
+    .replaceAll('\n', ' - ')
+    .trim()
+
   // Sort the content message to have the time at the beginning
   if (timeText === '0') {
-    // some weird input, do not manipulate text
-    return message.content
+    // In case of weird input; do not manipulate text
+    return content
   }
 
-  const messageWithoutTime = message.content.replace(timeText, '')
+  const messageWithoutTime = content.replace(timeText, '')
   return timeText.trim() + ' ' + messageWithoutTime.trim() + ' ' + message.url
 }
 
