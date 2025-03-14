@@ -4,6 +4,7 @@ import {
   ButtonStyle,
   Client,
   Message,
+  MessageFlags,
   StringSelectMenuBuilder,
   StringSelectMenuInteraction,
   StringSelectMenuOptionBuilder,
@@ -211,7 +212,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     if (isStarting) {
       await interaction.reply({
         content: "I'm still booting, please try again in at least 10 seconds.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
       return
     }
@@ -221,7 +222,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
       if (id.startsWith('my-schedule-')) {
         await interaction.deferReply({
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         })
 
         const regions = id.replace('my-schedule-', '').split('-')
@@ -445,12 +446,12 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       return interaction.reply({
         content: 'Here is your .ics file:',
         files: [icsFile],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
     } else {
       return interaction.reply({
         content: 'Something went wrong generating the calendar data!',
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       })
     }
   }

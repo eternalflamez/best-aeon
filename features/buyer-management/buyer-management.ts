@@ -16,6 +16,7 @@ import {
   Interaction,
   CacheType,
   Events,
+  MessageFlags,
 } from 'discord.js'
 import { Language } from '../../constants/buyerManagementLanguages.ts'
 import AutomaticallyClearUsers from './clear-users.ts'
@@ -246,14 +247,14 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         if (!embed) {
           await interaction.reply({
             content: getTranslation('generic_error', interaction),
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           })
           return
         }
 
         await interaction.reply({
           embeds: embed,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         })
 
         await postCTA(interaction)
@@ -269,7 +270,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
 
         await interaction.reply({
           content: getTranslation('staff_called', interaction),
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         })
 
         if (!lastCtaPings[interaction.channelId] || Date.now() - lastCtaPings[interaction.channelId] > 60000) {
@@ -296,7 +297,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       try {
         await interaction.reply({
           content: getTranslation('generic_error', interaction),
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         })
         return
       } catch {
@@ -450,17 +451,17 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
 
         await buttonInteraction.reply({
           content: `You called dibs!\r\nPlease move the channel to ${channelMention(contactedCategoryChannelId)}`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         })
       } else if (message.content.includes(interaction.user.id)) {
         await buttonInteraction.reply({
           content: '⚠️ You already called dibs! ⚠️',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         })
       } else {
         await buttonInteraction.reply({
           content: 'Oops, too slow!',
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         })
       }
     }
