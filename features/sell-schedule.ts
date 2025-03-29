@@ -1,8 +1,10 @@
 import {
   ActionRowBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   Client,
+  ComponentType,
   Events,
   Message,
   MessageFlags,
@@ -25,7 +27,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
   let writtenSchedule: string[] = []
   let isStarting = true
 
-  client.once('ready', async () => {
+  client.once(Events.ClientReady, async () => {
     try {
       for (let i = 0; i < scheduleChannelIds.length; i++) {
         const channelInfo = scheduleChannelIds[i]
@@ -90,7 +92,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     }
   })
 
-  client.on('messageCreate', async (message) => {
+  client.on(Events.MessageCreate, async (message) => {
     if (message.author.bot || message.system) return
 
     try {
@@ -112,7 +114,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     }
   })
 
-  client.on('messageDelete', async (message) => {
+  client.on(Events.MessageDelete, async (message) => {
     const index = schedule.findIndex((value) => value.id === message.id)
 
     if (index < 0) {
@@ -135,7 +137,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     await createMessages(undefined, region || undefined)
   })
 
-  client.on('messageDeleteBulk', async (messages) => {
+  client.on(Events.MessageBulkDelete, async (messages) => {
     const regions = new Set<string>()
 
     for (let i = 0; i < messages.size; i++) {
@@ -202,7 +204,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     }
   })
 
-  client.on('interactionCreate', async (interaction) => {
+  client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isButton()) {
       if (interaction.isStringSelectMenu()) {
         return downloadIcs(interaction)
@@ -216,19 +218,31 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         content: "I'm still booting, please try again in at least 10 seconds.",
         flags: MessageFlags.Ephemeral,
       })
+
       return
     }
 
     try {
-      const id = interaction.customId
+      let id = interaction.customId
 
-      if (id.startsWith('my-schedule-')) {
-        await interaction.deferReply({
-          flags: MessageFlags.Ephemeral,
-        })
+      if (!id.startsWith('my-schedule-')) {
+        return
+      }
 
-        const regions = id.replace('my-schedule-', '').split('-')
+      let page = 0
+      let shouldLogClick = true
 
+      if (id.includes('&page=')) {
+        return
+      }
+
+      await interaction.deferReply({
+        flags: MessageFlags.Ephemeral,
+      })
+
+      const regions = id.replace('my-schedule-', '').split('-')
+
+      function getContent() {
         const reactedItems = schedule.filter((message) => {
           return (
             message.reactors.some((reaction) => reaction.userId === interaction.user.id) &&
@@ -236,107 +250,139 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
           )
         })
 
-        logRequestSignups(interaction.user.id, interaction.user.username, reactedItems.length)
+        if (shouldLogClick) {
+          logRequestSignups(interaction.user.id, interaction.user.username, reactedItems.length)
+          shouldLogClick = false
+        }
 
         if (!reactedItems.length) {
-          await interaction.editReply({
+          return {
             content: "You didn't sign up to anything!",
-          })
+          }
+        }
+
+        const signedMessages = reactedItems.filter((message) =>
+          message.reactors.some(
+            (reaction) => reaction.userId === interaction.user.id && reaction.reactionId === MCMysticCoinEmoji,
+          ),
+        )
+
+        const otherMessages = reactedItems.filter((message) =>
+          message.reactors.some(
+            (reaction) => reaction.userId === interaction.user.id && reaction.reactionId !== MCMysticCoinEmoji,
+          ),
+        )
+
+        // Discords limit is 2000 but we have to add some padding to the output.
+        const LENGTH_LIMIT = 1900
+        let pagesOutput: string[] = []
+
+        if (signedMessages.length) {
+          const signedOutput = getPrunedOutput(signedMessages, false, LENGTH_LIMIT)
+
+          if (signedOutput[0]) {
+            signedOutput.forEach((page) => {
+              let signedText = `<:MC:1263943208585527417> **Things you signed up for:** <:MC:1263943208585527417>\n${MESSAGE_PADDING}`
+              signedText += page.join('\r\n\r\n')
+              pagesOutput.push(signedText)
+            })
+          }
+        }
+
+        if (otherMessages.length) {
+          const backupOutput = getPrunedOutput(otherMessages, false, LENGTH_LIMIT)
+
+          if (backupOutput[0]) {
+            backupOutput.forEach((page) => {
+              let backupText = `<:mcbu:1355543274269704202> **Things you are backup for:** <:mcbu:1355543274269704202>\n${MESSAGE_PADDING}`
+              backupText += page.join('\r\n\r\n')
+              pagesOutput.push(backupText)
+            })
+          }
+        }
+
+        let displayedPageText
+
+        if (!pagesOutput.length) {
+          displayedPageText = "You didn't sign up to anything!"
         } else {
-          const downloadSelect = new StringSelectMenuBuilder()
-            .setCustomId('my-schedule-download-select')
-            .setPlaceholder('Select items to download calendars for')
-            .setMinValues(1)
-            .setMaxValues(Math.min(10, reactedItems.length))
-            .addOptions(
-              ...reactedItems.map((item) => {
-                const text = getPrunedOutput([item])[0][0]
+          if (page >= pagesOutput.length) {
+            page = 0
+          }
 
-                const timestampPattern = /<t:\d+:[a-zA-Z]>/
-                const urlPattern = /https:\/\/discord\.com\/channels\/\d+\/\d+\/\d+/
+          displayedPageText = pagesOutput[page]
+        }
 
-                let prunedMessage = text.replace(timestampPattern, '').replace(urlPattern, '')
+        const previousPageButton = new ButtonBuilder()
+          .setCustomId(`${id}&page=${page - 1}`)
+          .setLabel('Previous')
+          .setDisabled(page === 0)
+          .setStyle(ButtonStyle.Primary)
 
-                prunedMessage = `[${item.region}] ${prunedMessage.trim()}`.slice(0, 100)
+        const nextPageButton = new ButtonBuilder()
+          .setCustomId(`${id}&page=${page + 1}`)
+          .setLabel('Next')
+          .setDisabled(page + 1 === pagesOutput.length)
+          .setStyle(ButtonStyle.Primary)
 
-                return new StringSelectMenuOptionBuilder().setLabel(prunedMessage).setValue(`${item.id}`)
-              }),
-            )
+        const downloadSelect = new StringSelectMenuBuilder()
+          .setCustomId('my-schedule-download-select')
+          .setPlaceholder('Select items to download calendars for')
+          .setMinValues(1)
+          .setMaxValues(Math.min(10, reactedItems.length))
+          .addOptions(
+            ...reactedItems.map((item) => {
+              const text = getPrunedOutput([item], false)[0][0]
 
-          const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(downloadSelect)
+              const timestampPattern = /<t:\d+:[a-zA-Z]>/
+              const urlPattern = /https:\/\/discord\.com\/channels\/\d+\/\d+\/\d+/
 
-          const signedMessages = reactedItems.filter((message) =>
-            message.reactors.some(
-              (reaction) => reaction.userId === interaction.user.id && reaction.reactionId === MCMysticCoinEmoji,
-            ),
+              let prunedMessage = text.replace(timestampPattern, '').replace(urlPattern, '')
+
+              const signedAsBU = !item.reactors.some(
+                (reaction) => reaction.userId === interaction.user.id && reaction.reactionId === MCMysticCoinEmoji,
+              )
+              const BU = signedAsBU ? '[BU] ' : ''
+
+              prunedMessage = `${BU}[${item.region}] ${prunedMessage.trim()}`.slice(0, 100)
+
+              return new StringSelectMenuOptionBuilder().setLabel(prunedMessage).setValue(`${item.id}`)
+            }),
           )
 
-          const otherMessages = reactedItems.filter((message) =>
-            message.reactors.some(
-              (reaction) => reaction.userId === interaction.user.id && reaction.reactionId !== MCMysticCoinEmoji,
-            ),
-          )
+        const pageButtonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(previousPageButton, nextPageButton)
+        const downloadRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(downloadSelect)
 
-          let output = ''
-          let hiddenSignups = 0
-          let hiddenBackups = 0
-
-          if (signedMessages.length) {
-            const signedOutput = getPrunedOutput(signedMessages, true)
-
-            if (signedOutput[0]) {
-              output += `**Things you signed up for:**\n${MESSAGE_PADDING}`
-              output += signedOutput[0].join('\r\n\r\n')
-              hiddenSignups =
-                signedMessages.length - signedOutput[0].filter((line) => !line.includes('items not displayed')).length
-            }
-          }
-
-          if (otherMessages.length && output.length < 1900) {
-            const backupOutput = getPrunedOutput(otherMessages, true)
-
-            if (backupOutput[0]) {
-              if (output) {
-                output += `\n${MESSAGE_PADDING}`
-              }
-
-              output += `**Things you are backup for:**\n${MESSAGE_PADDING}`
-              output += backupOutput[0].join('\r\n\r\n')
-              hiddenBackups =
-                otherMessages.length - backupOutput[0].filter((line) => !line.includes('items not displayed')).length
-            }
-          } else if (otherMessages.length) {
-            hiddenBackups = otherMessages.length
-          }
-
-          if (hiddenSignups > 0 || hiddenBackups > 0) {
-            let summary = '\n\n📋 Summary of hidden items:'
-
-            if (hiddenSignups > 0) {
-              summary += `\n• ${hiddenSignups} signed up sell(s) not shown`
-            }
-
-            if (hiddenBackups > 0) {
-              summary += `\n• ${hiddenBackups} backup sell(s) not shown`
-            }
-
-            summary += '\nUse the dropdown below to see all items!'
-
-            // Only add summary if we have room
-            if (output.length + summary.length <= 2000) {
-              output += summary
-            }
-          }
-
-          output = output || "You didn't sign up to anything!"
-          output += `${MESSAGE_PADDING}`
-
-          await interaction.editReply({
-            content: output,
-            components: [row],
-          })
+        return {
+          content: displayedPageText + `${MESSAGE_PADDING}`,
+          components: [pageButtonRow, downloadRow],
         }
       }
+
+      const replyContent = getContent()
+      const reply = await interaction.editReply(replyContent)
+
+      const originalUser = interaction.user.id
+
+      const collector = reply.createMessageComponentCollector({
+        filter: (newInteraction: ButtonInteraction) => {
+          return newInteraction.user.id === originalUser && newInteraction.customId.includes('&page=')
+        },
+        componentType: ComponentType.Button,
+      })
+
+      collector.on('collect', async (buttonInteraction: ButtonInteraction) => {
+        let collectId = buttonInteraction.customId
+        page = Number(collectId.split('&page=')[1])
+
+        // Remove the page info from the path
+        collectId = collectId.split('&page=')[0]
+
+        const result = getContent()
+        // await interaction.update(result)
+
+        await buttonInteraction.update(result)
+      })
     } catch (e: any) {
       console.error(`Sell-schedule reply failed: ${e.rawError?.message}` || 'Something went wrong?')
 
@@ -355,7 +401,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     }
   })
 
-  client.on('messageReactionAdd', async (reaction, user) => {
+  client.on(Events.MessageReactionAdd, async (reaction, user) => {
     const matchingHistoryItem = schedule.find((item) => item.id === reaction.message.id)
 
     if (!matchingHistoryItem) {
@@ -368,7 +414,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     })
   })
 
-  client.on('messageReactionRemove', async (reaction, user) => {
+  client.on(Events.MessageReactionRemove, async (reaction, user) => {
     const matchingHistoryItem = schedule.find((item) => item.id === reaction.message.id)
 
     if (!matchingHistoryItem) {
@@ -539,52 +585,35 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
   }
 }
 
-function getPrunedOutput(history: ScheduleMessage[], addSubtext = false) {
+function getPrunedOutput(history: ScheduleMessage[], addDivider = true, lengthLimit = 2000) {
   history.sort((a, b) => a.date - b.date)
 
-  let hasReachedTextLimit = false
+  const result = history.reduce<{ currentPageLength: number; page: number; output: string[][] }>(
+    (cum, message) => {
+      if (cum.currentPageLength + message.text.length >= lengthLimit) {
+        cum.page++
+        cum.currentPageLength = 0
 
-  const result = history.reduce<{ length: number; position: number; output: string[][] }>(
-    (cum, message, index) => {
-      if (hasReachedTextLimit) {
-        return cum
-      }
+        if (addDivider) {
+          cum.page++
+          cum.output.push(['-------------------------'])
+        }
 
-      if (cum.output.length - 1 < cum.position) {
         cum.output.push([])
-
-        if (index !== 0) {
-          const split = '-------------------------'
-          cum.output[cum.position].push(split)
-          cum.length += split.length
-        }
       }
 
-      // Message limit is 2000
-      if (cum.length + message.text.length >= 1900) {
-        if (addSubtext) {
-          hasReachedTextLimit = true
-          cum.output[cum.position].push(`⚠️ ${history.length - index} items not displayed ⚠️`)
-        }
-
-        cum.position++
-        cum.length = 0
-
-        return cum
-      }
-
-      cum.output[cum.position].push(message.text)
+      cum.output[cum.page].push(message.text)
 
       return {
-        length: cum.length + message.text.length,
-        position: cum.position,
+        currentPageLength: cum.currentPageLength + message.text.length,
+        page: cum.page,
         output: cum.output,
       }
     },
     {
-      length: 0,
-      position: 0,
-      output: [],
+      currentPageLength: 0,
+      page: 0,
+      output: [[]],
     },
   )
 
