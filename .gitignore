@@ -131,3 +131,4 @@ dist
 env-presets/
 
 etc/secrets/*
+TODO.txt
