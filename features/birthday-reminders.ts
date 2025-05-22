@@ -55,6 +55,11 @@ async function checkForBirthdays(discordClient: Client): Promise<void> {
 }
 
 export default function (discordClient: Client) {
+  if (process.env.ENVIRONMENT !== 'production') {
+    console.log('Birthday notifications are disabled in non-production environments')
+    return
+  }
+
   console.log('Set up birthday notifications')
 
   cron.schedule('0 7 * * *', () => {
