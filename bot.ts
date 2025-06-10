@@ -47,7 +47,7 @@ export default function (clientId: string) {
   ]
 
   client.on(Events.MessageCreate, async (message) => {
-    if (checkDestruction(client, clientId, message)) {
+    if (checkDestruction(client, clientId, message, 'gemini')) {
       return
     }
 
