@@ -26,7 +26,7 @@ export default class BestMaxHandler implements MessageHandler {
 
       const maxCounter = doc.data()!
 
-      await (message.channel as TextChannel).send(`M${'A'.repeat(maxCounter['value'] % 55)}X!`)
+      await (message.channel as TextChannel).send(`M${'A'.repeat((maxCounter['value'] % 55) + 1)}X!`)
 
       return true
     }
