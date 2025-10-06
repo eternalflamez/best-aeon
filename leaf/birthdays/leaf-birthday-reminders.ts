@@ -102,11 +102,6 @@ async function hasSentBirthdayToday() {
 }
 
 export default function (discordClient: Client) {
-  // if (process.env.ENVIRONMENT !== 'production') {
-  //   console.log('Birthday notifications are disabled in non-production environments')
-  //   return
-  // }
-
   console.log('Set up birthday notifications for LEAF')
 
   checkForBirthdays(discordClient)
@@ -134,6 +129,7 @@ export default function (discordClient: Client) {
 
     if (!command) {
       console.error(`No command matching ${interaction.commandName} was found.`)
+      await interaction.reply('Sorry this bot was not setup correctly for that command.')
       return
     }
 

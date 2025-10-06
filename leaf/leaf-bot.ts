@@ -1,5 +1,5 @@
 import { config } from 'dotenv'
-import { setupSelfDestruct } from '../features/utils/self-destruct.ts'
+import { checkDestruction, setupSelfDestruct } from '../features/utils/self-destruct.ts'
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
 import leafBirthdayReminders from './birthdays/leaf-birthday-reminders.ts'
 
@@ -17,6 +17,12 @@ export default function (clientId: string) {
 
     leafBirthdayReminders(client)
     setupSelfDestruct(client, clientId)
+  })
+
+  client.on(Events.MessageCreate, async (message) => {
+    if (checkDestruction(client, clientId, message, 'LEAF')) {
+      return
+    }
   })
 
   client.login(TOKEN)
