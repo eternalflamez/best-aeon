@@ -1,6 +1,7 @@
 import { config } from 'dotenv'
 import riseTranslations from './constants/rise-translations.ts'
 import startup from './bot.ts'
+import startupLeaf from './leaf/leaf-bot.ts'
 
 import SetupBuyerManagement from './features/buyer-management/buyer-management.ts'
 
@@ -28,3 +29,5 @@ SetupBuyerManagement({
 })
 
 startup(clientId)
+
+startupLeaf(clientId)

@@ -10,11 +10,11 @@ config()
 let db: Firestore | null = null
 
 if (process.env.ENVIRONMENT === 'production') {
-  initializeApp({
+  const app = initializeApp({
     credential: cert(serviceAccount as ServiceAccount),
   })
 
-  db = getFirestore()
+  db = getFirestore(app)
 }
 
 export default db

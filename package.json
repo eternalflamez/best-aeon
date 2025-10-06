@@ -8,12 +8,12 @@
   "type": "module",
   "exports": "./bot.js",
   "dependencies": {
-    "@google/genai": "^1.21.0",
+    "@google/genai": "^1.22.0",
     "discord.js": "^14.22.1",
-    "dotenv": "^17.2.2",
+    "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "firebase-admin": "^13.5.0",
-    "googleapis": "^160.0.0",
+    "googleapis": "^161.0.0",
     "ics": "^3.8.1",
     "node-cron": "^4.2.1",
     "queue": "^7.0.0",
@@ -24,5 +24,9 @@
     "prettier": "3.6.2",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.6"
+  },
+  "scripts": {
+    "start-dev": "npx tsx --inspect startup-dev.ts",
+    "start-prod": "npx tsx --inspect startup-prod.ts"
   }
 }

@@ -20,7 +20,6 @@ async function checkForBirthdays(discordClient: Client): Promise<void> {
   const auth = await authorize()
   const calendar = google.calendar({ version: 'v3', auth })
 
-  // Adjust the date range to your requirements
   const today = new Date()
   const tomorrow = new Date()
   tomorrow.setDate(today.getDate() + 1)
