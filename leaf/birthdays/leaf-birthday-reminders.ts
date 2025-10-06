@@ -1,12 +1,4 @@
-import {
-  ChatInputCommandInteraction,
-  Client,
-  Collection,
-  Events,
-  MessageFlags,
-  TextChannel,
-  userMention,
-} from 'discord.js'
+import { ChatInputCommandInteraction, Client, Collection, Events, TextChannel, userMention } from 'discord.js'
 import { config } from 'dotenv'
 import cron from 'node-cron'
 import leafDb from '../leaf-firestore.ts'
@@ -15,6 +7,7 @@ import adminBirthdayAddCommand from './commands/admin-birthday-add-command'
 import adminBirthdayRemoveCommand from './commands/admin-birthday-remove-command'
 import birthdayAddCommand from './commands/birthday-add-command'
 import birthdayRemoveCommand from './commands/birthday-remove-command'
+import setMessageCommand from './commands/admin-set-message-command'
 
 config()
 
@@ -121,6 +114,7 @@ export default function (discordClient: Client) {
   commands.set(adminBirthdayRemoveCommand.data.name, adminBirthdayRemoveCommand)
   commands.set(birthdayAddCommand.data.name, birthdayAddCommand)
   commands.set(birthdayRemoveCommand.data.name, birthdayRemoveCommand)
+  commands.set(setMessageCommand.data.name, setMessageCommand)
 
   discordClient.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isChatInputCommand()) return
