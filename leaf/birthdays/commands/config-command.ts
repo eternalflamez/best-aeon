@@ -1,4 +1,10 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, PermissionFlagsBits } from 'discord.js'
+import {
+  SlashCommandBuilder,
+  ChatInputCommandInteraction,
+  MessageFlags,
+  PermissionFlagsBits,
+  ChannelType,
+} from 'discord.js'
 import leafDb from '../../leaf-firestore.ts'
 
 const command = {
@@ -6,7 +12,11 @@ const command = {
     .setName('config')
     .setDescription('Sets up the birthday notification channel!')
     .addChannelOption((option) =>
-      option.setName('channel').setDescription('The channel to post birthday notifications into').setRequired(true),
+      option
+        .setName('channel')
+        .setDescription('The channel to post birthday notifications into')
+        .addChannelTypes(ChannelType.GuildText)
+        .setRequired(true),
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   async execute(interaction: ChatInputCommandInteraction) {
