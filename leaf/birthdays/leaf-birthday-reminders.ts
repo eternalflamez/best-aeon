@@ -1,4 +1,12 @@
-import { ChatInputCommandInteraction, Client, Collection, Events, TextChannel, userMention } from 'discord.js'
+import {
+  ChatInputCommandInteraction,
+  Client,
+  Collection,
+  Events,
+  MessageFlags,
+  TextChannel,
+  userMention,
+} from 'discord.js'
 import { config } from 'dotenv'
 import cron from 'node-cron'
 import leafDb from '../leaf-firestore.ts'
@@ -123,7 +131,11 @@ export default function (discordClient: Client) {
 
     if (!command) {
       console.error(`No command matching ${interaction.commandName} was found.`)
-      await interaction.reply('Sorry this bot was not setup correctly for that command.')
+
+      await interaction.reply({
+        content: 'Sorry this bot was not setup correctly for that command.',
+        flags: MessageFlags.Ephemeral,
+      })
       return
     }
 
