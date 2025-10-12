@@ -53,7 +53,13 @@ async function checkForBirthdays(client: Client) {
     return
   }
 
-  const channel = await client.channels.fetch(bdayChannel.id)
+  let channel
+
+  try {
+    channel = await client.channels.fetch(bdayChannel.id)
+  } catch {
+    console.log('No access to the bday channel!')
+  }
 
   if (!channel || !(channel instanceof TextChannel)) {
     return

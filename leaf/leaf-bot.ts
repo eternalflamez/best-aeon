@@ -16,9 +16,13 @@ export default function (clientId: string) {
   client.once(Events.ClientReady, async () => {
     console.log(`LEAF: Logged in as ${client.user?.tag}, ${clientId}`)
 
-    leafBirthdayReminders(client)
-    setupSelfDestruct(client, clientId)
-    setupRoles(client)
+    try {
+      leafBirthdayReminders(client)
+      setupSelfDestruct(client, clientId)
+      setupRoles(client)
+    } catch (e) {
+      console.log('Something went wrong in LEAF', e)
+    }
   })
 
   client.on(Events.MessageCreate, async (message) => {
