@@ -55,7 +55,7 @@ async function addSproutlingRoleAfterDelay(member: GuildMember): Promise<void> {
     await updatedMember.roles.add(sproutlingRole)
     const channel = guild.channels.cache.get(CHANNEL) as TextChannel
     channel.send(
-      `${userMention(updatedMember.user.id)}, you are a Sproutling now! You'll grow into a Salad in 3 days! :partying_face:`,
+      `${userMention(updatedMember.user.id)}, welcome to [LEAF] guild! You are a Sproutling now! You'll grow into a Salad in 3 days! <a:salad_dealwithit:1094446233789140994>`,
     )
   } catch (error) {
     console.error(`Error adding Sproutling role to member ${member.user.tag}:`, error)
@@ -118,7 +118,7 @@ async function updateSproutlingToSalad(member: GuildMember): Promise<void> {
     console.log(`Successfully updated ${member.user.tag} from Sproutling to Salad role`)
     const channel = guild.channels.cache.get(CHANNEL) as TextChannel
     channel.send(
-      `Congratulations, ${userMention(member.user.id)}! You are a fully grown Salad now! :four_leaf_clover: Keep it fresh!`,
+      `Congratulations, ${userMention(member.user.id)}! You are a fully grown Salad now! Keep it fresh! <a:salad_dealwithit:1094446233789140994>`,
     )
   } catch (error) {
     console.error(`Error updating ${member.user.tag} from Sproutling to Salad:`, error)
