@@ -16,7 +16,7 @@ export default function (client: Client) {
   })
 
   // Check every hour
-  cron.schedule('* * * * *', () => {
+  cron.schedule('0 * * * *', () => {
     try {
       checkSproutlingUsersOlderThan72Hours(client)
     } catch (e) {
