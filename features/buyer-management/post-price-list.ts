@@ -1,21 +1,26 @@
 import { Client, EmbedBuilder, TextChannel } from 'discord.js'
 import db from '../../firestore/setupFirestore.ts'
 
-export function setup(client: Client<boolean>) {
+export function setup(client: Client<boolean>, priceEmbedChannelId: string, inclusions: string[]) {
   if (!db) {
     return
   }
 
   db.collection('price-lists').onSnapshot(async (snapshot) => {
-    const embedChannel = (await client.channels.fetch('1426138997415219301')) as TextChannel
+    const embedChannel = (await client.channels.fetch(priceEmbedChannelId)) as TextChannel
+
     try {
       await embedChannel.bulkDelete(10)
     } catch {
       // Do nothing
     }
 
-    for (let i = 0; i < snapshot.docs.length; i++) {
-      const doc = snapshot.docs[i]
+    const filteredList = snapshot.docs.filter((doc) => {
+      return inclusions.includes(doc.get('name'))
+    })
+
+    for (let i = 0; i < filteredList.length; i++) {
+      const doc = filteredList[i]
 
       const document = JSON.parse(doc.get('value')) as PriceDocument
 
@@ -34,14 +39,4 @@ export function setup(client: Client<boolean>) {
       }
     }
   })
-}
-
-interface PriceDocument {
-  title: string
-  description: string
-  fields: {
-    name: string
-    value: string
-    inline: boolean
-  }[]
 }

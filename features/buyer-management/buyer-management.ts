@@ -17,12 +17,14 @@ import {
   CacheType,
   Events,
   MessageFlags,
+  EmbedBuilder,
 } from 'discord.js'
 import { Language } from '../../constants/buyerManagementLanguages.ts'
 import AutomaticallyClearUsers from './clear-users.ts'
 import { logCallDibs } from '../../firestore/log.ts'
 import { setupSelfDestruct, checkDestruction } from '../utils/self-destruct.ts'
 import { setup as setupPriceList } from './post-price-list.ts'
+import db from '../../firestore/setupFirestore.ts'
 
 interface LanguageByChannel {
   [key: string]: string
@@ -70,7 +72,7 @@ export default function setup({
 
     AutomaticallyClearUsers(client, guildId)
     setupSelfDestruct(client, botClientId)
-    setupPriceList(client)
+    setupPriceList(client, priceEmbedChannelId, [embedFractals, embedRaidAchievements, embedRaidBoss, embedStrikes])
   })
 
   client.on(Events.MessageCreate, async (message) => {
@@ -255,7 +257,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         }
 
         await interaction.reply({
-          embeds: embed,
+          embeds: [embed],
           flags: MessageFlags.Ephemeral,
         })
 
@@ -469,17 +471,29 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     }
   }
 
-  async function readPriceEmbed(messageId: string) {
-    const channel = client.channels.cache.get(priceEmbedChannelId)
-
-    if (!channel || !(channel instanceof TextChannel)) {
-      return null
+  async function readPriceEmbed(docId: string) {
+    if (!db) {
+      return
     }
 
-    const messages = await channel.messages.fetch()
+    const doc = db.collection('price-lists').doc(docId)
 
-    const message = messages.get(messageId)
+    if (!doc) {
+      return
+    }
 
-    return message?.embeds
+    const ref = await doc.get()
+    const data = ref.data()
+
+    if (!data) {
+      return
+    }
+
+    const document = JSON.parse(data['value']) as PriceDocument
+
+    return new EmbedBuilder()
+      .setTitle(document.title)
+      .setDescription(document.description)
+      .addFields(...document.fields)
   }
 }
