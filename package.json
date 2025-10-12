@@ -26,7 +26,7 @@
     "tsx": "^4.20.6"
   },
   "scripts": {
-    "start-dev": "npx tsx --inspect startup-dev.ts",
+    "dev": "npx tsx --inspect startup-dev.ts",
     "start-prod": "npx tsx --inspect startup-prod.ts"
   }
 }

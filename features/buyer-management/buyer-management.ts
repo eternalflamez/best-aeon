@@ -22,6 +22,7 @@ import { Language } from '../../constants/buyerManagementLanguages.ts'
 import AutomaticallyClearUsers from './clear-users.ts'
 import { logCallDibs } from '../../firestore/log.ts'
 import { setupSelfDestruct, checkDestruction } from '../utils/self-destruct.ts'
+import { setup as setupPriceList } from './post-price-list.ts'
 
 interface LanguageByChannel {
   [key: string]: string
@@ -69,6 +70,7 @@ export default function setup({
 
     AutomaticallyClearUsers(client, guildId)
     setupSelfDestruct(client, botClientId)
+    setupPriceList(client)
   })
 
   client.on(Events.MessageCreate, async (message) => {
@@ -150,7 +152,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     }
   })
 
-  client.on('guildMemberRemove', async (member) => {
+  client.on(Events.GuildMemberRemove, async (member) => {
     try {
       if (guildId !== member.guild.id) {
         return
@@ -198,7 +200,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
     }
   })
 
-  client.on('interactionCreate', async (interaction) => {
+  client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isButton()) {
       return
     }
