@@ -1,4 +1,5 @@
 interface PriceDocument {
+  messageId: string
   title: string
   description: string
   fields: {

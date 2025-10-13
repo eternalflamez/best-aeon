@@ -72,7 +72,12 @@ export default function setup({
 
     AutomaticallyClearUsers(client, guildId)
     setupSelfDestruct(client, botClientId)
-    setupPriceList(client, priceEmbedChannelId, [embedFractals, embedRaidAchievements, embedRaidBoss, embedStrikes])
+    await setupPriceList(client, priceEmbedChannelId, [
+      embedFractals,
+      embedRaidAchievements,
+      embedRaidBoss,
+      embedStrikes,
+    ])
   })
 
   client.on(Events.MessageCreate, async (message) => {
