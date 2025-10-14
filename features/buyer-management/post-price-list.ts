@@ -49,7 +49,8 @@ async function onSnapshot(
     .setURL(process.env.PRICE_UPDATE_URL!)
 
   try {
-    const message = embedChannel.messages.cache.get(document.messageId)
+    const targetMessageId = snapshot.get('messageId')
+    const message = embedChannel.messages.cache.get(targetMessageId)
 
     if (!message) {
       const newMessage = await embedChannel.send({
