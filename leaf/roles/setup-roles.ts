@@ -6,7 +6,7 @@ const SALAD_ROLE = 'Salad'
 const FRIEND_ROLE = 'Friend'
 const SPROUTLING_DELAY = 5 * 60 * 1000 // 7 minutes
 const SALAD_DELAY = 72 * 60 * 60 * 1000 // 72 hours
-const CHANNEL = '798151793577558040'
+const CHANNEL = '943535715319443526'
 
 export default function (client: Client) {
   client.on(Events.GuildMemberAdd, async (member) => {
