@@ -294,7 +294,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
           if (backupOutput[0]) {
             backupOutput.forEach((page) => {
-              let backupText = `<:mcbu:1355543274269704202> **Things you are backup for:** <:mcbu:1355543274269704202>\n${MESSAGE_PADDING}`
+              let backupText = `<:MCBU:608033566676221952> **Things you are backup for:** <:MCBU:608033566676221952>\n${MESSAGE_PADDING}`
               backupText += page.join('\r\n\r\n')
               pagesOutput.push(backupText)
             })
