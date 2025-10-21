@@ -4,9 +4,9 @@ import { config } from 'dotenv'
 config()
 
 export default function automaticallyClearUsers(client: Client, guildId: string) {
-  cron.schedule('0 2 * * *', () => {
+  cron.schedule('0 2 * * *', async () => {
     try {
-      clearUsers(client, guildId)
+      await clearUsers(client, guildId)
     } catch (e: any) {
       console.error('[Error] Failed to clear users: ')
       console.error(e)
