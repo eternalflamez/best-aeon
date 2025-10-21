@@ -26,7 +26,7 @@ export default function (clientId: string) {
   })
 
   client.on(Events.MessageCreate, async (message) => {
-    if (checkDestruction(client, clientId, message, 'LEAF')) {
+    if (await checkDestruction(client, clientId, message, 'LEAF')) {
       return
     }
   })

@@ -5,14 +5,14 @@ export async function setupSelfDestruct(client: Client, botClientId: string) {
   botStartedChannel.send(`Succesfully booted! ${botClientId}`)
 }
 
-export function checkDestruction(client: Client, botClientId: string, message: Message, name?: string) {
+export async function checkDestruction(client: Client, botClientId: string, message: Message, name?: string) {
   if (
     message.channelId === '1318663460569092186' &&
     message.author.id === client.user?.id &&
     !message.content.includes(botClientId)
   ) {
     console.log(`A new instance has started, self-destructing ${name}`)
-    client.destroy()
+    await client.destroy()
     return true
   }
 

@@ -81,7 +81,7 @@ export default function setup({
   })
 
   client.on(Events.MessageCreate, async (message) => {
-    checkDestruction(client, botClientId, message, `buyer-management ${guildTag}`)
+    return checkDestruction(client, botClientId, message, `buyer-management ${guildTag}`)
   })
 
   client.on(Events.GuildMemberAdd, async (member) => {

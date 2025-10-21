@@ -21,8 +21,8 @@ export async function setup(client: Client<boolean>, priceEmbedChannelId: string
 
     db.collection('price-lists')
       .doc(id)
-      .onSnapshot((snapshot) => {
-        onSnapshot(id, snapshot, embedChannel)
+      .onSnapshot(async (snapshot) => {
+        await onSnapshot(id, snapshot, embedChannel, client)
       })
   })
 }
@@ -31,7 +31,12 @@ async function onSnapshot(
   id: string,
   snapshot: DocumentSnapshot<DocumentData, DocumentData>,
   embedChannel: TextChannel,
+  client: Client<boolean>,
 ) {
+  if (!client.token) {
+    return
+  }
+
   const document = JSON.parse(snapshot.get('value')) as PriceDocument
 
   if (!cachedMessageIds[id]) {
@@ -57,7 +62,7 @@ async function onSnapshot(
         embeds: [embed],
       })
 
-      snapshot.ref.update({
+      await snapshot.ref.update({
         messageId: newMessage.id,
       })
     } else {
