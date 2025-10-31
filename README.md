@@ -1,4 +1,4 @@
-Startup:
+## Startup:
 
 `npm install`  
 `npx tsx startup-dev.ts` || `npx tsx startup-prod.ts`
@@ -37,3 +37,10 @@ CALENDAR_USER_0=
 CALENDAR_USER_1=  
 CALENDAR_USER_2=  
 CALENDAR_USER_3=
+
+## Updating LEAF commands:
+
+```
+cd leaf/birthdays/commands
+node deploy-commands.ts
+```
