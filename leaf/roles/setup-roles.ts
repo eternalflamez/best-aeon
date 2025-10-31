@@ -118,7 +118,7 @@ async function updateSproutlingToSalad(member: GuildMember): Promise<void> {
     console.log(`Successfully updated ${member.user.tag} from Sproutling to Salad role`)
     const channel = guild.channels.cache.get(CHANNEL) as TextChannel
     channel.send(
-      `Congratulations, ${userMention(member.user.id)}! You are a fully grown Salad now! Keep it fresh! <a:salad_dealwithit:1094446233789140994>`,
+      `Congratulations, ${userMention(member.user.id)}! You are a fully grown Salad now! Keep it fresh! <a:salad_happy:1094446068596490360>`,
     )
   } catch (error) {
     console.error(`Error updating ${member.user.tag} from Sproutling to Salad:`, error)
