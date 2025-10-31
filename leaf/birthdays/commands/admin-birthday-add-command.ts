@@ -6,8 +6,17 @@ const command = {
     .setName('admin-birthday-register')
     .setDescription('Add a birthday')
     .addUserOption((option) => option.setName('user').setDescription('The user to add').setRequired(true))
-    .addIntegerOption((option) => option.setName('day').setDescription('The day of the birthday').setRequired(true))
-    .addIntegerOption((option) => option.setName('month').setDescription('The month of the birthday').setRequired(true))
+    .addIntegerOption((option) =>
+      option.setName('day').setDescription('The day of the birthday').setMinValue(1).setMaxValue(31).setRequired(true),
+    )
+    .addIntegerOption((option) =>
+      option
+        .setName('month')
+        .setDescription('The month (1-12) of the birthday')
+        .setMinValue(1)
+        .setMaxValue(12)
+        .setRequired(true),
+    )
     .addIntegerOption((option) => option.setName('year').setDescription('The year of the birthday').setRequired(false))
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   async execute(interaction: ChatInputCommandInteraction) {
@@ -23,15 +32,29 @@ const command = {
         return
       }
 
-      await leafDb
-        ?.collection('birthdays')
-        .doc(user.id)
-        .set({
-          id: user.id,
-          day: interaction.options.getInteger('day'),
-          month: interaction.options.getInteger('month'),
-          year: interaction.options.getInteger('year'),
+      const day = interaction.options.getInteger('day')
+      const month = interaction.options.getInteger('month')
+      const year = interaction.options.getInteger('year')
+
+      const dateString = `${month}/${day}${year ? '/' + year : ''}`
+      const date = new Date(dateString)
+      const allowedDate = !year && day === 29 && month === 2
+
+      if ((date.getDate() !== day || date.getMonth() + 1 !== month) && !allowedDate) {
+        await interaction.reply({
+          content: 'Your entered birthday is not a valid date!',
+          flags: MessageFlags.Ephemeral,
         })
+        return
+      }
+
+      await leafDb?.collection('birthdays').doc(user.id).set({
+        id: user.id,
+        display: user.displayName,
+        day,
+        month,
+        year,
+      })
 
       await interaction.reply({
         content: 'The birthday was added succesfully!',
