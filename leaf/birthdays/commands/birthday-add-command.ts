@@ -46,7 +46,7 @@ const command = {
       })
 
       await interaction.reply({
-        content: 'Your birthday was added succesfully!',
+        content: `Your birthday was added as "${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}${year ? '/' + year : ''}" succesfully!`,
         flags: MessageFlags.Ephemeral,
       })
     } catch (e) {
