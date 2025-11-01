@@ -1,4 +1,10 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, PermissionFlagsBits } from 'discord.js'
+import {
+  SlashCommandBuilder,
+  ChatInputCommandInteraction,
+  MessageFlags,
+  PermissionFlagsBits,
+  GuildMember,
+} from 'discord.js'
 import leafDb from '../../leaf-firestore.ts'
 
 const command = {
@@ -37,13 +43,16 @@ const command = {
         return
       }
 
-      await leafDb?.collection('birthdays').doc(interaction.user.id).set({
-        id: interaction.user.id,
-        display: interaction.user.displayName,
-        day,
-        month,
-        year,
-      })
+      await leafDb
+        ?.collection('birthdays')
+        .doc(interaction.user.id)
+        .set({
+          id: interaction.user.id,
+          display: (interaction.member as GuildMember).displayName,
+          day,
+          month,
+          year,
+        })
 
       await interaction.reply({
         content: `Your birthday was added as "${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}${year ? '/' + year : ''}" succesfully!`,
