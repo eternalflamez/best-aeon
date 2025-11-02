@@ -1,4 +1,10 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, PermissionFlagsBits } from 'discord.js'
+import {
+  SlashCommandBuilder,
+  ChatInputCommandInteraction,
+  MessageFlags,
+  PermissionFlagsBits,
+  InteractionContextType,
+} from 'discord.js'
 import leafDb from '../../leaf-firestore.ts'
 
 const command = {
@@ -6,6 +12,7 @@ const command = {
     .setName('admin-birthday-remove')
     .setDescription('Remove a birthday')
     .addUserOption((option) => option.setName('user').setDescription('The user to remove').setRequired(true))
+    .setContexts([InteractionContextType.Guild])
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   async execute(interaction: ChatInputCommandInteraction) {
     try {

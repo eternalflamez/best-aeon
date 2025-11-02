@@ -1,4 +1,10 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, PermissionFlagsBits } from 'discord.js'
+import {
+  SlashCommandBuilder,
+  ChatInputCommandInteraction,
+  MessageFlags,
+  PermissionFlagsBits,
+  InteractionContextType,
+} from 'discord.js'
 import leafDb from '../../leaf-firestore.ts'
 
 const command = {
@@ -18,6 +24,7 @@ const command = {
         .setRequired(true),
     )
     .addIntegerOption((option) => option.setName('year').setDescription('The year of the birthday').setRequired(false))
+    .setContexts([InteractionContextType.Guild])
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   async execute(interaction: ChatInputCommandInteraction) {
     try {

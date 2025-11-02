@@ -4,6 +4,7 @@ import {
   MessageFlags,
   PermissionFlagsBits,
   userMention,
+  InteractionContextType,
 } from 'discord.js'
 import leafDb from '../../leaf-firestore.ts'
 
@@ -17,6 +18,7 @@ const command = {
         .setDescription('The message to display when it is someones birthday. Can use {MENTION} to ping the user.')
         .setRequired(true),
     )
+    .setContexts([InteractionContextType.Guild])
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   async execute(interaction: ChatInputCommandInteraction) {
     try {

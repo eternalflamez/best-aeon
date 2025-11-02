@@ -4,6 +4,7 @@ import {
   MessageFlags,
   PermissionFlagsBits,
   ChannelType,
+  InteractionContextType,
 } from 'discord.js'
 import leafDb from '../../leaf-firestore.ts'
 
@@ -18,6 +19,7 @@ const command = {
         .addChannelTypes(ChannelType.GuildText)
         .setRequired(true),
     )
+    .setContexts([InteractionContextType.Guild])
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   async execute(interaction: ChatInputCommandInteraction) {
     try {
