@@ -6,7 +6,7 @@ const SALAD_ROLE = 'Salad'
 const FRIEND_ROLE = 'Friend'
 const SPROUTLING_DELAY = 5 * 60 * 1000 // 7 minutes
 const SALAD_DELAY = 72 * 60 * 60 * 1000 // 72 hours
-const CHANNEL = '943535715319443526'
+const CHANNEL = '943535715319443526' // LEAF #welcome
 
 export default function (client: Client) {
   client.on(Events.GuildMemberAdd, async (member) => {
@@ -37,6 +37,7 @@ async function addSproutlingRoleAfterDelay(member: GuildMember): Promise<void> {
     const updatedMember = await guild.members.fetch(member.id)
 
     if (!updatedMember) {
+      console.log(`Member not found for ${member.user.tag}`)
       return
     }
 
@@ -44,6 +45,7 @@ async function addSproutlingRoleAfterDelay(member: GuildMember): Promise<void> {
     const friendRole = guild.roles.cache.find((role) => role.name === FRIEND_ROLE)
 
     if (!sproutlingRole || !friendRole) {
+      console.log(`Sproutling or Friend role not found for ${member.user.tag}`)
       return
     }
 
@@ -101,14 +103,17 @@ async function updateSproutlingToSalad(member: GuildMember): Promise<void> {
     const saladRole = guild.roles.cache.find((role) => role.name === SALAD_ROLE)
 
     if (!sproutlingRole) {
+      console.log(`Sproutling role not found for ${member.user.tag}`)
       return
     }
 
     if (!saladRole) {
+      console.log(`Salad role not found for ${member.user.tag}`)
       return
     }
 
     if (!member.roles.cache.has(sproutlingRole.id)) {
+      console.log(`${member.user.tag} does not have the Sproutling role`)
       return
     }
 
