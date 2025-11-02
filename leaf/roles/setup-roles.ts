@@ -8,17 +8,19 @@ const SPROUTLING_DELAY = 5 * 60 * 1000 // 7 minutes
 const SALAD_DELAY = 72 * 60 * 60 * 1000 // 72 hours
 const CHANNEL = '943535715319443526' // LEAF #welcome
 
-export default function (client: Client) {
+export default async function (client: Client) {
   client.on(Events.GuildMemberAdd, async (member) => {
     addSproutlingRoleAfterDelay(member).catch((error) => {
       console.error(`Error in addSproutlingRoleAfterDelay for member ${member.user.tag}:`, error)
     })
   })
 
+  await checkSproutlingUsersOlderThan72Hours(client)
+
   // Check every hour
-  cron.schedule('0 * * * *', () => {
+  cron.schedule('0 * * * *', async () => {
     try {
-      checkSproutlingUsersOlderThan72Hours(client)
+      await checkSproutlingUsersOlderThan72Hours(client)
     } catch (e) {
       console.error('Error in hourly Sproutling check:', e)
     }
@@ -45,7 +47,7 @@ async function addSproutlingRoleAfterDelay(member: GuildMember): Promise<void> {
     const friendRole = guild.roles.cache.find((role) => role.name === FRIEND_ROLE)
 
     if (!sproutlingRole || !friendRole) {
-      console.log(`Sproutling or Friend role not found for ${member.user.tag}`)
+      console.log('Sproutling or Friend role not found')
       return
     }
 
@@ -69,6 +71,9 @@ async function checkSproutlingUsersOlderThan72Hours(client: Client): Promise<voi
 
   for (const [_, guild] of guilds) {
     try {
+      // Load guild members so that the cache hit works.
+      await guild.members.fetch()
+
       const sproutlingRole = guild.roles.cache.find((role) => role.name === SPROUTLING_ROLE)
 
       if (!sproutlingRole) {

@@ -17,9 +17,9 @@ export default function (clientId: string) {
     console.log(`LEAF: Logged in as ${client.user?.tag}, ${clientId}`)
 
     try {
-      leafBirthdayReminders(client)
-      setupSelfDestruct(client, clientId)
-      setupRoles(client)
+      await leafBirthdayReminders(client)
+      await setupSelfDestruct(client, clientId)
+      await setupRoles(client)
     } catch (e) {
       console.log('Something went wrong in LEAF', e)
     }

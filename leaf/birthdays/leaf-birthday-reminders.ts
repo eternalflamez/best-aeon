@@ -108,14 +108,14 @@ async function hasSentBirthdayToday() {
   return lastSent['day'] === day && lastSent['month'] === month
 }
 
-export default function (discordClient: Client) {
+export default async function (discordClient: Client) {
   console.log('Set up birthday notifications for LEAF')
 
-  checkForBirthdays(discordClient)
+  await checkForBirthdays(discordClient)
 
-  cron.schedule('0 7 * * *', () => {
+  cron.schedule('0 7 * * *', async () => {
     try {
-      checkForBirthdays(discordClient)
+      await checkForBirthdays(discordClient)
     } catch (e: any) {
       console.error('[Error] Failed to notify birthdays: ')
       console.error(e)
