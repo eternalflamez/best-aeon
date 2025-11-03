@@ -10,7 +10,7 @@ const CHANNEL = '943535715319443526' // LEAF #welcome
 
 export default async function (client: Client) {
   client.on(Events.GuildMemberAdd, async (member) => {
-    addSproutlingRoleAfterDelay(member).catch((error) => {
+    await addSproutlingRoleAfterDelay(member).catch((error) => {
       console.error(`Error in addSproutlingRoleAfterDelay for member ${member.user.tag}:`, error)
     })
   })
