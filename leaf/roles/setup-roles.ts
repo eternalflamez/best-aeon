@@ -108,17 +108,14 @@ async function updateSproutlingToSalad(member: GuildMember): Promise<void> {
     const saladRole = guild.roles.cache.find((role) => role.name === SALAD_ROLE)
 
     if (!sproutlingRole) {
-      console.log(`Sproutling role not found for ${member.user.tag}`)
       return
     }
 
     if (!saladRole) {
-      console.log(`Salad role not found for ${member.user.tag}`)
       return
     }
 
     if (!member.roles.cache.has(sproutlingRole.id)) {
-      console.log(`${member.user.tag} does not have the Sproutling role`)
       return
     }
 
