@@ -22,7 +22,11 @@ export async function setup(client: Client<boolean>, priceEmbedChannelId: string
     db.collection('price-lists')
       .doc(id)
       .onSnapshot(async (snapshot) => {
-        await onSnapshot(id, snapshot, embedChannel, client)
+        try {
+          await onSnapshot(id, snapshot, embedChannel, client)
+        } catch (e) {
+          console.error(e)
+        }
       })
   })
 }
@@ -53,24 +57,20 @@ async function onSnapshot(
     .addFields(...document.fields)
     .setURL(process.env.PRICE_UPDATE_URL!)
 
-  try {
-    const targetMessageId = snapshot.get('messageId') as string
-    const message = await embedChannel.messages.fetch(targetMessageId)
+  const targetMessageId = snapshot.get('messageId') as string
+  const message = await embedChannel.messages.fetch(targetMessageId)
 
-    if (!message) {
-      const newMessage = await embedChannel.send({
-        embeds: [embed],
-      })
+  if (!message) {
+    const newMessage = await embedChannel.send({
+      embeds: [embed],
+    })
 
-      await snapshot.ref.update({
-        messageId: newMessage.id,
-      })
-    } else {
-      await message.edit({
-        embeds: [embed],
-      })
-    }
-  } catch (e) {
-    console.error(e)
+    await snapshot.ref.update({
+      messageId: newMessage.id,
+    })
+  } else {
+    await message.edit({
+      embeds: [embed],
+    })
   }
 }
