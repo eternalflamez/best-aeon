@@ -1,5 +1,5 @@
 import { config } from 'dotenv'
-import { Chat, GoogleGenAI, HarmBlockThreshold, HarmCategory, PartUnion } from '@google/genai'
+import { Chat, GenerateContentResponse, GoogleGenAI, HarmBlockThreshold, HarmCategory, PartUnion } from '@google/genai'
 
 config()
 
@@ -45,7 +45,14 @@ export default async function (
     )
   }
 
-  const returnedMessage = await chat.sendMessage({ message: parts })
+  let returnedMessage: GenerateContentResponse
+
+  try {
+    returnedMessage = await chat.sendMessage({ message: parts })
+  } catch {
+    returnedMessage = await chat.sendMessage({ message: parts })
+  }
+
   return returnedMessage.text || ''
 }
 
