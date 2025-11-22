@@ -4,7 +4,7 @@ import cron from 'node-cron'
 const SPROUTLING_ROLE = 'Sproutling'
 const SALAD_ROLE = 'Salad'
 const FRIEND_ROLE = 'Friend'
-const SPROUTLING_DELAY = 5 * 60 * 1000 // 7 minutes
+const SPROUTLING_DELAY = 5 * 60 * 1000 // 5 minutes
 const SALAD_DELAY = 72 * 60 * 60 * 1000 // 72 hours
 const CHANNEL = '943535715319443526' // LEAF #welcome
 
