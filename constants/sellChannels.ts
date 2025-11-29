@@ -3,6 +3,8 @@ const sellChannels = {
   '803274143311069204': { region: 'EU' },
   // scheduled-cms
   '982039087663951892': { region: 'EU' },
+  // scheduled-practise
+  '1444445198758187071': { region: 'EU' },
   // na-scheduled-frogs
   '1196920908842008728': { region: 'NA' },
   // na-scheduled-cms
