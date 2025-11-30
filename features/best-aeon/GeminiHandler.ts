@@ -35,7 +35,10 @@ export default class GeminiHandler implements MessageHandler {
     const images: { data: Uint8Array; mimeType: string }[] = []
 
     for (const attachment of message.attachments.values()) {
-      if (attachment.contentType?.startsWith('image/')) {
+      if (
+        attachment.contentType &&
+        ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif'].includes(attachment.contentType)
+      ) {
         try {
           const response = await fetch(attachment.url)
           const arrayBuffer = await response.arrayBuffer()
