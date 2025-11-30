@@ -50,7 +50,7 @@ export default class GeminiHandler implements MessageHandler {
     }
 
     message.mentions.members?.each(async (member) => {
-      filteredMessage = filteredMessage.replace(userMention(member.id), member.displayName || '')
+      filteredMessage = filteredMessage.replaceAll(userMention(member.id), member.displayName || '')
     })
 
     try {
@@ -62,7 +62,7 @@ export default class GeminiHandler implements MessageHandler {
         images,
       )
 
-      reply = reply.replace('@', '[at]')
+      reply = reply.replaceAll('@', '[at]')
 
       if (reply) {
         logGemini(message.author.id, message.author.username, reply, 'response')

@@ -1,7 +1,7 @@
 import { userMention } from 'discord.js'
 
 export default function (message: string, self: string, authorId: string) {
-  message = message.replace(/<@!?(\d+)>/g, userMention(authorId))
+  message = message.replaceAll(/<@!?(\d+)>/g, userMention(authorId))
 
   const pattern = /\b(I am|I'm|Im)\b\s+(.+)/i
   const match = message.match(pattern)

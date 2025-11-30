@@ -13,7 +13,7 @@ export default class StartSellThreadHandler implements MessageHandler {
       if (messageText.includes('<t:') || isPingInInstantChannel) {
         const limit = 100
         const timestampPattern = /<t:\d+:[a-zA-Z]>/g
-        let name = message.content.split('\n')[0].replace(timestampPattern, '').replace('@everyone', '').trim()
+        let name = message.content.split('\n')[0].replaceAll(timestampPattern, '').replaceAll('@everyone', '').trim()
 
         if (name.length > limit) {
           name = name.slice(0, 97) + '...'
