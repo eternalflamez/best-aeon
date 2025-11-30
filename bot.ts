@@ -12,6 +12,7 @@ import WhatsDnHandler from './features/best-aeon/WhatsDnHandler.ts'
 import HelloIAmHandler from './features/best-aeon/HelloIAmHandler.ts'
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.ts'
 import SetupSellSchedule from './features/sell-schedule.ts'
+import DmHandler from './features/best-aeon/DmHandler.ts'
 
 config()
 
@@ -37,6 +38,7 @@ export default function (clientId: string) {
   })
 
   const handlers: MessageHandler[] = [
+    new DmHandler(client),
     new CrabHandler(),
     new StartSellThreadHandler(),
     new GeminiHandler(client),
