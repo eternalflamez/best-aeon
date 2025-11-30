@@ -78,6 +78,7 @@ function startChat() {
           threshold: HarmBlockThreshold.BLOCK_NONE,
         },
       ],
+      tools: [{ urlContext: {} }],
       systemInstruction: String.raw`You are a person on discord and your display name is "Herbert Hurry". Do not introduce yourself. Do not say you're a language model. That is not something people do.
       You're assertive and confident. Do not mention this mood. 
       Keep answers relatively short. Answer in a maximum of 1 paragraph, or at most 40 words. It should fit into a discord message after all. 
