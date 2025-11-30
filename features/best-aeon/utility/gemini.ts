@@ -45,6 +45,15 @@ export default async function (
     )
   }
 
+  const youtubeLink = message.match(/https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+/i)?.[0]
+
+  if (youtubeLink) {
+    console.log(youtubeLink)
+    parts.push({
+      fileData: { fileUri: youtubeLink },
+    })
+  }
+
   let returnedMessage: GenerateContentResponse
 
   try {
