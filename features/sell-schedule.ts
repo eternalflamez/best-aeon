@@ -337,7 +337,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
               const timestampPattern = /<t:\d+:[a-zA-Z]>/
               const urlPattern = /https:\/\/discord\.com\/channels\/\d+\/\d+\/\d+/
 
-              let prunedMessage = text.replaceAll(timestampPattern, '').replaceAll(urlPattern, '')
+              let prunedMessage = text.replace(timestampPattern, '').replace(urlPattern, '')
 
               const signedAsBU = !item.reactors.some(
                 (reaction) => reaction.userId === interaction.user.id && reaction.reactionId === MCMysticCoinEmoji,
