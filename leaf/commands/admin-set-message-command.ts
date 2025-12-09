@@ -6,7 +6,7 @@ import {
   userMention,
   InteractionContextType,
 } from 'discord.js'
-import leafDb from '../../leaf-firestore.ts'
+import leafDb from '../leaf-firestore.ts'
 
 const command = {
   data: new SlashCommandBuilder()

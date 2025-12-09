@@ -1,21 +1,7 @@
-import {
-  ChatInputCommandInteraction,
-  Client,
-  Collection,
-  Events,
-  MessageFlags,
-  TextChannel,
-  userMention,
-} from 'discord.js'
+import { Client, Events, TextChannel, userMention } from 'discord.js'
 import { config } from 'dotenv'
 import cron from 'node-cron'
 import leafDb from '../leaf-firestore.ts'
-import configCommand from './commands/config-command'
-import adminBirthdayAddCommand from './commands/admin-birthday-add-command'
-import adminBirthdayRemoveCommand from './commands/admin-birthday-remove-command'
-import birthdayAddCommand from './commands/birthday-add-command'
-import birthdayRemoveCommand from './commands/birthday-remove-command'
-import setMessageCommand from './commands/admin-set-message-command'
 
 config()
 
@@ -119,36 +105,6 @@ export default async function (discordClient: Client) {
     } catch (e: any) {
       console.error('[Error] Failed to notify birthdays: ')
       console.error(e)
-    }
-  })
-
-  const commands = new Collection<String, { execute: (interaction: ChatInputCommandInteraction) => Promise<void> }>()
-  commands.set(configCommand.data.name, configCommand)
-  commands.set(adminBirthdayAddCommand.data.name, adminBirthdayAddCommand)
-  commands.set(adminBirthdayRemoveCommand.data.name, adminBirthdayRemoveCommand)
-  commands.set(birthdayAddCommand.data.name, birthdayAddCommand)
-  commands.set(birthdayRemoveCommand.data.name, birthdayRemoveCommand)
-  commands.set(setMessageCommand.data.name, setMessageCommand)
-
-  discordClient.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isChatInputCommand()) return
-
-    const command = commands.get(interaction.commandName)
-
-    if (!command) {
-      console.error(`No command matching ${interaction.commandName} was found.`)
-
-      await interaction.reply({
-        content: 'Sorry this bot was not setup correctly for that command.',
-        flags: MessageFlags.Ephemeral,
-      })
-      return
-    }
-
-    try {
-      await command.execute(interaction)
-    } catch (error) {
-      console.error(error)
     }
   })
 

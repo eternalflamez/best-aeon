@@ -1,8 +1,24 @@
 import { config } from 'dotenv'
 import { checkDestruction, setupSelfDestruct } from '../features/utils/self-destruct.ts'
-import { Client, Events, GatewayIntentBits, Partials, userMention } from 'discord.js'
+import {
+  ChatInputCommandInteraction,
+  Client,
+  Collection,
+  Events,
+  GatewayIntentBits,
+  MessageFlags,
+  Partials,
+  userMention,
+} from 'discord.js'
 import leafBirthdayReminders from './birthdays/leaf-birthday-reminders.ts'
 import setupRoles from './roles/setup-roles.ts'
+import configCommand from './commands/config-command.ts'
+import adminBirthdayAddCommand from './commands/admin-birthday-add-command.ts'
+import adminBirthdayRemoveCommand from './commands/admin-birthday-remove-command.ts'
+import birthdayAddCommand from './commands/birthday-add-command.ts'
+import birthdayRemoveCommand from './commands/birthday-remove-command.ts'
+import setMessageCommand from './commands/admin-set-message-command.ts'
+import secretSantaJoinCommand from './commands/secret-santa-join-command.ts'
 
 config()
 
@@ -39,6 +55,37 @@ export default function (clientId: string) {
       )
     } catch (e: any) {
       console.error(`Couldn't message guild leader about member leaving: ${e.description}`)
+    }
+  })
+
+  const commands = new Collection<String, { execute: (interaction: ChatInputCommandInteraction) => Promise<void> }>()
+  commands.set(configCommand.data.name, configCommand)
+  commands.set(adminBirthdayAddCommand.data.name, adminBirthdayAddCommand)
+  commands.set(adminBirthdayRemoveCommand.data.name, adminBirthdayRemoveCommand)
+  commands.set(birthdayAddCommand.data.name, birthdayAddCommand)
+  commands.set(birthdayRemoveCommand.data.name, birthdayRemoveCommand)
+  commands.set(setMessageCommand.data.name, setMessageCommand)
+  commands.set(secretSantaJoinCommand.data.name, secretSantaJoinCommand)
+
+  client.on(Events.InteractionCreate, async (interaction) => {
+    if (!interaction.isChatInputCommand()) return
+
+    const command = commands.get(interaction.commandName)
+
+    if (!command) {
+      console.error(`No command matching ${interaction.commandName} was found.`)
+
+      await interaction.reply({
+        content: 'Sorry this bot was not setup correctly for that command.',
+        flags: MessageFlags.Ephemeral,
+      })
+      return
+    }
+
+    try {
+      await command.execute(interaction)
+    } catch (error) {
+      console.error(error)
     }
   })
 
