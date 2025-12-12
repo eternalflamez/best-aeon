@@ -58,7 +58,10 @@ export default function (clientId: string) {
     }
   })
 
-  const commands = new Collection<String, { execute: (interaction: ChatInputCommandInteraction) => Promise<void> }>()
+  const commands = new Collection<
+    String,
+    { execute: (interaction: ChatInputCommandInteraction, client: Client) => Promise<void> }
+  >()
   commands.set(configCommand.data.name, configCommand)
   commands.set(adminBirthdayAddCommand.data.name, adminBirthdayAddCommand)
   commands.set(adminBirthdayRemoveCommand.data.name, adminBirthdayRemoveCommand)
@@ -83,7 +86,7 @@ export default function (clientId: string) {
     }
 
     try {
-      await command.execute(interaction)
+      await command.execute(interaction, client)
     } catch (error) {
       console.error(error)
     }

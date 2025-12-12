@@ -1,17 +1,29 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, GuildMember, userMention } from 'discord.js'
+import {
+  SlashCommandBuilder,
+  ChatInputCommandInteraction,
+  MessageFlags,
+  GuildMember,
+  userMention,
+  Client,
+} from 'discord.js'
 import leafDb from '../leaf-firestore.ts'
 
 const command = {
   data: new SlashCommandBuilder().setName('join-secret-santa').setDescription('Join the Secret Santa!'),
-  async execute(interaction: ChatInputCommandInteraction) {
+  async execute(interaction: ChatInputCommandInteraction, client: Client) {
     try {
-      await leafDb
-        ?.collection('santas')
-        .doc(interaction.user.id)
-        .set({
-          id: interaction.user.id,
-          display: (interaction.member as GuildMember).displayName,
-        })
+      let displayName: string = (interaction.member as GuildMember)?.displayName
+
+      if (!displayName) {
+        displayName =
+          client.guilds.cache.get('798151793577558037')?.members.cache.get(interaction.user.id)?.displayName ||
+          interaction.user.displayName
+      }
+
+      await leafDb?.collection('santas').doc(interaction.user.id).set({
+        id: interaction.user.id,
+        display: displayName,
+      })
 
       await interaction.reply({
         content:
@@ -19,6 +31,7 @@ const command = {
         flags: MessageFlags.Ephemeral,
       })
     } catch (e) {
+      console.log(`Interaction error caused by: ${interaction.user.displayName}`)
       console.log(e)
 
       await interaction.reply({
