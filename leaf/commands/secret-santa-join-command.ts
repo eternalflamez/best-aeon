@@ -15,7 +15,7 @@ const command = {
 
       await interaction.reply({
         content:
-          "You succesfully joined the Secret Santa! :leaf_helper: I will DM you with info on who you're paired with when we start!",
+          "You succesfully joined the Secret Santa! <:leaf_helper:1433816388497309696> I will DM you with info on who you're paired with when we start!",
         flags: MessageFlags.Ephemeral,
       })
     } catch (e) {
