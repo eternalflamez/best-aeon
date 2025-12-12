@@ -379,7 +379,6 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         collectId = collectId.split('&page=')[0]
 
         const result = getContent()
-        // await interaction.update(result)
 
         await buttonInteraction.update(result)
       })
