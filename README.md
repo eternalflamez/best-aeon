@@ -41,6 +41,5 @@ CALENDAR_USER_3=
 ## Updating LEAF commands:
 
 ```
-cd leaf/birthdays/commands
-node deploy-commands.ts
+node leaf/commands/deploy-commands.ts
 ```
