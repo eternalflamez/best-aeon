@@ -1,5 +1,6 @@
 import { Client, userMention } from 'discord.js'
 import leafDb from './leaf-firestore'
+import dedent from 'dedent'
 
 export default async function (client: Client) {
   const userDocs = await leafDb?.collection('santas').get()
@@ -50,7 +51,12 @@ export default async function (client: Client) {
     console.log(`Linking ${user.display} to ${receiver.display}`)
 
     // discordUser.send(
-    //   `Hey there! <:leaf_helper:1433816388497309696> \r\n\r\nThe time has almost come to send a Secret Santa gift! \n\rPlease send your :gift: to ${receiver.display}, ${userMention(receiver.id)} between <t:1766620800:f> and <t:1766966400:f>!`,
+    //   dedent`Hey there! <:leaf_helper:1433816388497309696>
+
+    //   Your Secret Santa recipient is :drum: ... ${userMention(receiver.id)}, ${receiver.display} :partying_face:
+    //   Please make sure to send them your :gift: between <t:1766620800:f> and <t:1766966400:f>!
+
+    //   Happy holidays!`,
     // )
   }
 }

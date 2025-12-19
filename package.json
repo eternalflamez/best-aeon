@@ -9,6 +9,7 @@
   "exports": "./bot.js",
   "dependencies": {
     "@google/genai": "^1.25.0",
+    "dedent": "^1.7.1",
     "discord.js": "^14.23.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
