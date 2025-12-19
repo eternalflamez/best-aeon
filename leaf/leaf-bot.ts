@@ -33,6 +33,8 @@ export default function (clientId: string) {
   client.once(Events.ClientReady, async () => {
     console.log(`LEAF: Logged in as ${client.user?.tag}, ${clientId}`)
 
+    // await sendSecretSanta(client)
+
     try {
       await leafBirthdayReminders(client)
       await setupSelfDestruct(client, clientId)
