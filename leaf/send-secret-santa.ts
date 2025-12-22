@@ -39,7 +39,7 @@ export default async function (client: Client) {
 
     const receiver = i === 0 ? users[users.length - 1] : users[i - 1]
 
-    user.userDoc.ref.set(
+    await user.userDoc.ref.set(
       {
         receiver: receiver.id,
       },
@@ -50,14 +50,19 @@ export default async function (client: Client) {
 
     console.log(`Linking ${user.display} to ${receiver.display}`)
 
-    // discordUser.send(
-    //   dedent`Hey there! <:leaf_helper:1433816388497309696>
+    try {
+      await discordUser.send(
+        dedent`Hey there! <:leaf_helper:1433816388497309696>
 
-    //   Your Secret Santa recipient is :drum: ... ${userMention(receiver.id)}, ${receiver.display} :partying_face:
-    //   Please make sure to send them your :gift: between <t:1766620800:f> and <t:1766966400:f>!
+          Your Secret Santa recipient is :drum: ... ${userMention(receiver.id)}, ${receiver.display} :partying_face:
+          Please make sure to send them your :gift: between <t:1766620800:f> and <t:1766966400:f>!
 
-    //   Happy holidays!`,
-    // )
+          Happy holidays!`,
+      )
+    } catch (e) {
+      console.error(user.display)
+      console.error(e)
+    }
   }
 }
 

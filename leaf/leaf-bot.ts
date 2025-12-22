@@ -18,7 +18,6 @@ import adminBirthdayRemoveCommand from './commands/admin-birthday-remove-command
 import birthdayAddCommand from './commands/birthday-add-command.ts'
 import birthdayRemoveCommand from './commands/birthday-remove-command.ts'
 import setMessageCommand from './commands/admin-set-message-command.ts'
-import secretSantaJoinCommand from './commands/secret-santa-join-command.ts'
 import secretSantaGetCommand from './commands/secret-santa-command.ts'
 
 config()
@@ -71,7 +70,6 @@ export default function (clientId: string) {
   commands.set(birthdayAddCommand.data.name, birthdayAddCommand)
   commands.set(birthdayRemoveCommand.data.name, birthdayRemoveCommand)
   commands.set(setMessageCommand.data.name, setMessageCommand)
-  commands.set(secretSantaJoinCommand.data.name, secretSantaJoinCommand)
   commands.set(secretSantaGetCommand.data.name, secretSantaGetCommand)
 
   client.on(Events.InteractionCreate, async (interaction) => {
