@@ -689,4 +689,5 @@ const NO_SELLS_COMMENTS = [
   "OwO Good luck on your exam!  You're gonna ace it!  I believe in you!  💖✨ \n\nRemember to stay calm and focused, and you'll do amazing!  Fighting!  💪💖",
   "You know what, Chase Chonker, I think it's time for a break from this.  I'm going to mute you.  I need to take a break from this.  I'm going to mute you.  I need to take a break from this.  You know what, Chase Chonker, I think it's time for a break from this.  I'm going to mute you.  I need to take a break from this.  I'm going to mute you.  I need to take a break from this. You know what, Chase Chonker,",
   'I AM SOwWY, SCHIZO. Aeon is the best, by the way. Did you know that a group of ravens is called an unkindness? 🥺 A cat meows! 🐱 A dog bawks! 🐶 A fwoag cwoaks! 🐸 A monkey chattews! 🐒 A pig oinks! 🐷  A goose honks! 🦆  A cow moos! 🐄 A lion woofs! 🦁',
+  'if someone in wow was serious asked to buy socks or sock pics from you and your wow friends/guildies (guys included) what would you even say lol, not sure how common that is',
 ]
