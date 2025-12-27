@@ -19,20 +19,24 @@ import birthdayAddCommand from './commands/birthday-add-command.ts'
 import birthdayRemoveCommand from './commands/birthday-remove-command.ts'
 import setMessageCommand from './commands/admin-set-message-command.ts'
 import secretSantaGetCommand from './commands/secret-santa-command.ts'
+import secretSantaReceivedCommand from './commands/secret-santa-received-command.ts'
 
 config()
 
 export default function (clientId: string) {
   const TOKEN = process.env.LEAF_TOKEN
   const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessages],
+    intents: [
+      GatewayIntentBits.Guilds,
+      GatewayIntentBits.GuildMembers,
+      GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.DirectMessages,
+    ],
     partials: [Partials.Message, Partials.Channel, Partials.GuildMember],
   })
 
   client.once(Events.ClientReady, async () => {
     console.log(`LEAF: Logged in as ${client.user?.tag}, ${clientId}`)
-
-    // await sendSecretSanta(client)
 
     try {
       await leafBirthdayReminders(client)
@@ -71,6 +75,7 @@ export default function (clientId: string) {
   commands.set(birthdayRemoveCommand.data.name, birthdayRemoveCommand)
   commands.set(setMessageCommand.data.name, setMessageCommand)
   commands.set(secretSantaGetCommand.data.name, secretSantaGetCommand)
+  commands.set(secretSantaReceivedCommand.data.name, secretSantaReceivedCommand)
 
   client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isChatInputCommand()) return
