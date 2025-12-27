@@ -44,7 +44,7 @@ const command = {
         },
       )
 
-      const targetChannel = client.channels.cache.get('1424725731208069152') as TextChannel
+      const targetChannel = client.channels.cache.get('1454568245431369738') as TextChannel
       const attachment = interaction.options.getAttachment('image')
       let files = undefined
 
