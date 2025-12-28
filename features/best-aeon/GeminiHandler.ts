@@ -18,6 +18,10 @@ export default class GeminiHandler implements MessageHandler {
       return false
     }
 
+    if (message.author.id === '126772834860007424') {
+      return true
+    }
+
     const now = Date.now()
 
     if (now - this.#lastGeminiCallTime < 5000) {
