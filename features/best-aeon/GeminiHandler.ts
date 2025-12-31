@@ -18,9 +18,7 @@ export default class GeminiHandler implements MessageHandler {
       return false
     }
 
-    if (message.author.id === '126772834860007424') {
-      return true
-    }
+    return false
 
     const now = Date.now()
 
