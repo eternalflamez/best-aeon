@@ -18,8 +18,6 @@ export default class GeminiHandler implements MessageHandler {
       return false
     }
 
-    return false
-
     const now = Date.now()
 
     if (now - this.#lastGeminiCallTime < 5000) {
