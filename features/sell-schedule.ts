@@ -691,5 +691,6 @@ const NO_SELLS_COMMENTS = [
   "I FUCCCKING HATE TRAVELLINGG AAAAAAAAAAAAAAAAAAAAAAA  FUCKKING 30 🕝 HOURS  chekiin and immigration 'oh sorry 🥲 we 🔞👦 don't know 🤓 how to acctually cehck ur visa for 4️⃣ THE PLACE 📪🇺🇸🕘 UR FLYING TO' ITS UR 🐎 JOB. 💼 why are u asking me 🏻 to LOG IN when ur FUCKING WIFI requires 📣 u to GO TTO A BOOTH AND SCAN UR 🅱️ PASSPORT TOO ACCESS. JUST 👏 DO IT URSELF. i HATE 😜 security 🔒 'cacn u throw away 😂 ur screwdriver please its scary uwu' 💦💦 SHUT 🌽 THE FUCK 💥💦 UP 🙅 'oh the flihts delyed 3 😗 hours but 🤣🍑 we 🤥 wont tell u when we 👩‍👩‍👦‍👦 start bboarding just stick around teehee' BUY 🛍️ A CLOCK 🕘 MOTHERFUCKERS AAAAAAAAAAA FUCKING 🙅 KIDS AT BAGGAGE CLAIM MAKING THE BELT STOP EVERY 👏👖 5 🔳 MINUTETS AND THE HPARENTTS JUST WATHCING!!!! TRAINS 🚂 delayed AN ENTIRE 🎊 HOUR for na 💅 HOUR LONG JOURNEY. becayse of a DOG LIKE WOOF WOOF BARK BARK. FUCKING BITCH 💦💦 get 3️⃣ off the trraccks i beg",
   'i make ONE TYPE and it becomes the NEXT 999999 MESSAGES. so.e people have BETTER things to do be doing than CHECKING FOR SPELLING AAAAAAAAAAA',
   'Is this chat filled with parrots? All you guys do is copy what the person above you wrote. Please have some originality and contribute to a smarter chat.',
+  'Sorry I was too stupid to cook up a reply and instead had an error.',
+  "Herbert Hurry: Yes, I can retrieve data from a YouTube URL, Frothy. What's the URL?",
 ]
-
