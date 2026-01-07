@@ -39,6 +39,8 @@ export default async function (client: Client, eventData: EventLog[]) {
         embed.description = `User \`${event.user}\` ${action} ${event.coins / 10_000} gold`
       }
 
+      embed.timestamp = event.time
+
       await sendEmbedToChannel(client, {
         embeds: [embed],
       })

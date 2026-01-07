@@ -25,6 +25,7 @@ export default async function (client: Client, eventData: EventLog[]) {
               color: 0xd50000,
               title: '⚠️ A user left!',
               description: `User \`${event.user}\` has left the guild. ${descriptionSuffix}`,
+              timestamp: event.time,
             },
           ],
         })
@@ -35,6 +36,7 @@ export default async function (client: Client, eventData: EventLog[]) {
               color: 0x6200ea,
               title: '⚠️ A user was kicked!',
               description: `User \`${event.user}\` was kicked by ${event.kicked_by}. ${descriptionSuffix}`,
+              timestamp: event.time,
             },
           ],
         })
