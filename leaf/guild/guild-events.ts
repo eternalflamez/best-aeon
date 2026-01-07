@@ -4,6 +4,7 @@ import cron from 'node-cron'
 import leafDb from '../leaf-firestore.ts'
 import checkGuildLeavers from './guild-leave.ts'
 import checkGuildStashInteracts from './guild-stash-interact.ts'
+import checkGuildMessageOfTheDay from './guild-motd.ts'
 
 config()
 
@@ -66,6 +67,7 @@ async function loadEvents(client: Client) {
 
   await checkGuildLeavers(client, eventData)
   await checkGuildStashInteracts(client, eventData)
+  await checkGuildMessageOfTheDay(client, eventData)
 
   await leafDb
     ?.collection('util')
