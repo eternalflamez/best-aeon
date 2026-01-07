@@ -24,10 +24,11 @@ export default async function (client: Client, eventData: EventLog[]) {
 
       if (event.item_id) {
         const item = await GuildWarsData.getItem(event.item_id)
+        const itemUrl = `https://wiki.guildwars2.com/index.php?search=${encodeURIComponent(item.chat_link)}&go=Go&ns0=1`
 
-        embed.url = `https://wiki.guildwars2.com/index.php?search=${encodeURIComponent(item.chat_link)}&go=Go&ns0=1`
+        embed.url = itemUrl
         embed.title = `A user ${action} items!`
-        embed.description = `User \`${event.user}\` ${action} ${event.count} ${item.name}`
+        embed.description = `User \`${event.user}\` ${action} ${event.count} [${item.name}](${itemUrl})`
         embed.thumbnail = item.icon
           ? {
               url: item.icon,
