@@ -71,9 +71,6 @@ async function checkSproutlingUsersOlderThan72Hours(client: Client): Promise<voi
 
   for (const [_, guild] of guilds) {
     try {
-      // Load guild members so that the cache hit works.
-      await guild.members.fetch()
-
       const sproutlingRole = guild.roles.cache.find((role) => role.name === SPROUTLING_ROLE)
 
       if (!sproutlingRole) {

@@ -20,7 +20,7 @@ import birthdayRemoveCommand from './commands/birthday-remove-command.ts'
 import setMessageCommand from './commands/admin-set-message-command.ts'
 import secretSantaGetCommand from './commands/secret-santa-command.ts'
 import secretSantaReceivedCommand from './commands/secret-santa-received-command.ts'
-import processGuildLeave from './guild-leave/guild-leave.ts'
+import processGuildEvents from './guild/guild-events.ts'
 
 config()
 
@@ -40,7 +40,7 @@ export default function (clientId: string) {
     console.log(`LEAF: Logged in as ${client.user?.tag}, ${clientId}`)
 
     try {
-      await processGuildLeave(client)
+      await processGuildEvents(client)
       await leafBirthdayReminders(client)
       await setupSelfDestruct(client, clientId)
       await setupRoles(client)
