@@ -67,9 +67,12 @@ async function loadEvents(client: Client) {
   await checkGuildLeavers(client, eventData)
   await checkGuildStashInteracts(client, eventData)
 
-  await leafDb?.collection('util').doc('last-guild-event-id').update({
-    id: eventData[0].id,
-  })
+  await leafDb
+    ?.collection('util')
+    .doc('last-guild-event-id')
+    .update({
+      id: eventData[eventData.length - 1].id,
+    })
 }
 
 export async function sendEmbedToChannel(client: Client, message: string | MessagePayload | MessageCreateOptions) {
