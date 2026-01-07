@@ -35,8 +35,8 @@ export default async function (client: Client, eventData: EventLog[]) {
           : undefined
       } else {
         embed.url = 'https://wiki.guildwars2.com/wiki/Coin'
-        embed.title = `A user ${action} gold!`
-        embed.description = `User \`${event.user}\` ${action} ${event.coins / 10_000} gold`
+        embed.title = `<:mystic_coin:988818544982630550> A user ${action} gold!`
+        embed.description = `User \`${event.user}\` ${action} ${event.coins / 10_000} gold! <:mystic_coin:988818544982630550>`
       }
 
       embed.timestamp = event.time
