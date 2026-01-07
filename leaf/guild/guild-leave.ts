@@ -7,49 +7,53 @@ config()
 export default async function (client: Client, eventData: EventLog[]) {
   const filteredData = eventData.filter((event) => event.type === 'kick') as KickEventLog[]
 
-  if (filteredData.length) {
-    const owner = await client.guilds.cache.get(process.env.LEAF_DISCORD_GUILD_ID!)?.fetchOwner()
-    const members = client.guilds.cache.get(process.env.LEAF_DISCORD_GUILD_ID!)!.members.cache
+  if (!filteredData.length) {
+    return
+  }
 
-    const userList = filteredData.map((event) => event.user)
+  const owner = await client.guilds.cache.get(process.env.LEAF_DISCORD_GUILD_ID!)?.fetchOwner()
+  const members = client.guilds.cache.get(process.env.LEAF_DISCORD_GUILD_ID!)!.members.cache
 
-    for (let i = 0; i < filteredData.length; i++) {
-      const event = filteredData[i]
-      const member = members.find((m) => m.displayName.includes(event.user))
-      let descriptionSuffix = member ? `Their name matches ${userMention(member.id)}` : ''
+  const userList = filteredData.filter((log) => log.kicked_by === log.user).map((event) => event.user)
 
-      if (event.user === event.kicked_by) {
-        await sendEmbedToChannel(client, {
-          embeds: [
-            {
-              color: 0xd50000,
-              title: '⚠️ A user left!',
-              description: `User \`${event.user}\` has left the guild. ${descriptionSuffix}`,
-              timestamp: event.time,
-            },
-          ],
-        })
-      } else {
-        await sendEmbedToChannel(client, {
-          embeds: [
-            {
-              color: 0x6200ea,
-              title: '⚠️ A user was kicked!',
-              description: `User \`${event.user}\` was kicked by ${event.kicked_by}. ${descriptionSuffix}`,
-              timestamp: event.time,
-            },
-          ],
-        })
+  for (let i = 0; i < filteredData.length; i++) {
+    const event = filteredData[i]
+    const member = members.find((m) => m.displayName.includes(event.user))
+    let descriptionSuffix = member ? `Their name matches ${userMention(member.id)}` : ''
+
+    if (event.user === event.kicked_by) {
+      await sendEmbedToChannel(client, {
+        embeds: [
+          {
+            color: 0xd50000,
+            title: '⚠️ A user left!',
+            description: `User \`${event.user}\` has left the guild. ${descriptionSuffix}`,
+            timestamp: event.time,
+          },
+        ],
+      })
+    } else {
+      await sendEmbedToChannel(client, {
+        embeds: [
+          {
+            color: 0x6200ea,
+            title: '⚠️ A user was kicked!',
+            description: `User \`${event.user}\` was kicked by ${event.kicked_by}. ${descriptionSuffix}`,
+            timestamp: event.time,
+          },
+        ],
+      })
+    }
+
+    if (userList.length > 0) {
+      if (!owner) {
+        console.error('Missing owner')
+        return
       }
-    }
 
-    if (!owner) {
-      console.error('Missing owner')
-      return
+      await owner.send(
+        `${userList.length === 1 ? 'Someone' : 'Some people'} left the ingame guild: ${userList.join(', ')}`,
+      )
     }
-
-    await owner.send(
-      `${userList.length === 0 ? 'Someone' : 'Some people'} left the ingame guild: ${userList.join(', ')}`,
-    )
   }
 }
