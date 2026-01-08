@@ -1,10 +1,11 @@
 import { Client, userMention } from 'discord.js'
 import { config } from 'dotenv'
 import { sendEmbedToChannel } from './guild-events'
+import { COLORS } from '../constants/colors'
 
 config()
 
-export default async function (client: Client, eventData: EventLog[]) {
+export async function checkGuildLeavers(client: Client, eventData: EventLog[]) {
   const filteredData = eventData.filter((event) => event.type === 'kick') as KickEventLog[]
 
   if (!filteredData.length) {
@@ -25,7 +26,7 @@ export default async function (client: Client, eventData: EventLog[]) {
       await sendEmbedToChannel(client, {
         embeds: [
           {
-            color: 0xd50000,
+            color: COLORS.negative,
             title: '⚠️ A user left!',
             description: `User \`${event.user}\` has left the guild. ${descriptionSuffix}`,
             timestamp: event.time,
@@ -36,7 +37,7 @@ export default async function (client: Client, eventData: EventLog[]) {
       await sendEmbedToChannel(client, {
         embeds: [
           {
-            color: 0x6200ea,
+            color: COLORS.negative,
             title: '⚠️ A user was kicked!',
             description: `User \`${event.user}\` was kicked by ${event.kicked_by}. ${descriptionSuffix}`,
             timestamp: event.time,

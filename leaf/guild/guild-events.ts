@@ -2,9 +2,14 @@ import { Client, MessageCreateOptions, MessagePayload, TextChannel } from 'disco
 import { config } from 'dotenv'
 import cron from 'node-cron'
 import leafDb from '../leaf-firestore.ts'
-import checkGuildLeavers from './guild-leave.ts'
-import checkGuildStashInteracts from './guild-stash-interact.ts'
-import checkGuildMessageOfTheDay from './guild-motd.ts'
+import { checkGuildLeavers } from './guild-leave.ts'
+import { checkGuildStashInteracts } from './guild-stash-interact.ts'
+import { checkGuildMessageOfTheDay } from './guild-motd.ts'
+import { checkGuildInviteDeclined } from './guild-invite-declined.ts'
+import { checkGuildInvited } from './guild-invited.ts'
+import { checkGuildJoined } from './guild-joined.ts'
+import { checkGuildMissionStatus } from './guild-mission.ts'
+import { checkGuildRankChange } from './guild-rank-change.ts'
 
 config()
 
@@ -65,7 +70,12 @@ async function loadEvents(client: Client) {
     return 0
   })
 
+  await checkGuildInviteDeclined(client, eventData)
+  await checkGuildInvited(client, eventData)
+  await checkGuildJoined(client, eventData)
   await checkGuildLeavers(client, eventData)
+  await checkGuildRankChange(client, eventData)
+  await checkGuildMissionStatus(client, eventData)
   await checkGuildStashInteracts(client, eventData)
   await checkGuildMessageOfTheDay(client, eventData)
 

@@ -1,11 +1,9 @@
 import { Client } from 'discord.js'
 import { sendEmbedToChannel } from './guild-events'
-
-import dedent from 'dedent'
 import { COLORS } from '../constants/colors'
 
-export async function checkGuildMessageOfTheDay(client: Client, eventData: EventLog[]) {
-  const filteredData = eventData.filter((event) => event.type === 'motd')
+export async function checkGuildRankChange(client: Client, eventData: EventLog[]) {
+  const filteredData = eventData.filter((event) => event.type === 'rank_change')
 
   if (!filteredData.length) {
     return
@@ -17,11 +15,8 @@ export async function checkGuildMessageOfTheDay(client: Client, eventData: Event
     await sendEmbedToChannel(client, {
       embeds: [
         {
-          color: COLORS.positive,
-          title: '<:leaf_helper:1433816388497309696> The message of the day was changed!',
-          description: dedent`\`\`\`
-          ${event.motd}
-          \`\`\``,
+          color: COLORS.neutral,
+          title: `<:leaf_helper:1433816388497309696> ${event.user}'s rank got changed by ${event.changed_by} from ${event.old_rank} to ${event.new_rank}.`,
           timestamp: event.time,
         },
       ],
