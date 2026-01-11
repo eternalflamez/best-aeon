@@ -10,6 +10,7 @@ import { checkGuildInvited } from './guild-invited.ts'
 import { checkGuildJoined } from './guild-joined.ts'
 import { checkGuildMissionStatus } from './guild-mission.ts'
 import { checkGuildRankChange } from './guild-rank-change.ts'
+import { checkUserNameChange } from './guild-name-change.ts'
 
 config()
 
@@ -20,12 +21,22 @@ export default async function (discordClient: Client) {
   await guild.members.fetch()
 
   await loadEvents(discordClient)
+  await checkUserNameChange(discordClient)
 
   cron.schedule('*/5 * * * *', async () => {
     try {
       await loadEvents(discordClient)
     } catch (e: any) {
       console.error('[Error] Failed to load guild data: ')
+      console.error(e)
+    }
+  })
+
+  cron.schedule('0 20 * * *', async () => {
+    try {
+      await checkUserNameChange(discordClient)
+    } catch (e: any) {
+      console.error('[Error] Failed to load guild member data: ')
       console.error(e)
     }
   })
