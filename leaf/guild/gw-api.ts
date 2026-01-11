@@ -1,4 +1,5 @@
 import { config } from 'dotenv'
+import leafDb from '../leaf-firestore'
 
 config()
 
@@ -45,6 +46,18 @@ export class GuildWarsData {
     }
 
     return (await response.json()) as GW2Member[]
+  }
+
+  public static async isApiAllowed(): Promise<boolean> {
+    const allowApiDoc = await leafDb?.collection('util').doc('use-gw2-api').get()
+
+    if (!allowApiDoc || !allowApiDoc.exists) {
+      return false
+    }
+
+    console.log(allowApiDoc?.data()!.online)
+
+    return allowApiDoc?.data()!.online as boolean
   }
 }
 

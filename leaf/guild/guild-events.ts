@@ -11,6 +11,7 @@ import { checkGuildJoined } from './guild-joined.ts'
 import { checkGuildMissionStatus } from './guild-mission.ts'
 import { checkGuildRankChange } from './guild-rank-change.ts'
 import { checkUserNameChange } from './guild-name-change.ts'
+import { GuildWarsData } from './gw-api.ts'
 
 config()
 
@@ -42,14 +43,18 @@ export default async function (discordClient: Client) {
   })
 }
 
-async function loadEvents(client: Client) {
+async function loadEvents(client: Client): Promise<void> {
+  if (!(await GuildWarsData.isApiAllowed())) {
+    return
+  }
+
   const doc = await leafDb?.collection('util').doc('last-guild-event-id').get()
 
   if (!doc || !doc.exists) {
-    return false
+    return
   }
 
-  const lastId = doc.data()!.id
+  const lastId = doc.data()!.id as number
 
   const response = await fetch(`https://api.guildwars2.com/v2/guild/${process.env.LEAF_GUILD_ID}/log?since=${lastId}`, {
     method: 'GET',

@@ -5,6 +5,10 @@ import { GuildWarsData } from './gw-api'
 import leafDb from '../leaf-firestore'
 
 export async function checkUserNameChange(client: Client) {
+  if (!(await GuildWarsData.isApiAllowed())) {
+    return
+  }
+
   const doc = await leafDb?.collection('util').doc('member-list').get()
 
   if (!doc || !doc.exists) {
