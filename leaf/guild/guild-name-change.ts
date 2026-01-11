@@ -25,7 +25,7 @@ export async function checkUserNameChange(client: Client) {
   const removedUsers = oldMembers.filter((m) => !newAccounts.has(m)).map((m) => m)
   const addedUsers = newMembers.filter((m) => !oldAccounts.has(m.name)).map((m) => m.name)
 
-  if (removedUsers.length !== addedUsers.length) {
+  if (removedUsers.length !== addedUsers.length || removedUsers.length === 0 || addedUsers.length === 0) {
     return
   }
 
