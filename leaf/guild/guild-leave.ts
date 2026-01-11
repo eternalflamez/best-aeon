@@ -20,7 +20,9 @@ export async function checkGuildLeavers(client: Client, eventData: EventLog[]) {
   for (let i = 0; i < filteredData.length; i++) {
     const event = filteredData[i]
     const member = members.find((m) => m.displayName.includes(event.user))
-    let descriptionSuffix = member ? `Their name matches ${userMention(member.id)}` : ''
+    let descriptionSuffix = member
+      ? `Their name matches ${userMention(member.id)}`
+      : 'No matching discord user available.'
 
     if (event.user === event.kicked_by) {
       await sendEmbedToChannel(client, {
