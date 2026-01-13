@@ -55,8 +55,6 @@ export class GuildWarsData {
       return false
     }
 
-    console.log(allowApiDoc?.data()!.online)
-
     return allowApiDoc?.data()!.online as boolean
   }
 }
