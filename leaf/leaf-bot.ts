@@ -18,9 +18,10 @@ import adminBirthdayRemoveCommand from './commands/admin-birthday-remove-command
 import birthdayAddCommand from './commands/birthday-add-command.ts'
 import birthdayRemoveCommand from './commands/birthday-remove-command.ts'
 import setMessageCommand from './commands/admin-set-message-command.ts'
-import secretSantaGetCommand from './commands/secret-santa-command.ts'
-import secretSantaReceivedCommand from './commands/secret-santa-received-command.ts'
+import verifyGwLinkCommand from './commands/verify-gw-link-command.ts'
 import processGuildEvents from './guild/guild-events.ts'
+import { showVerifyAccountModal } from './verify-account/show-verify-account-modal.ts'
+import { verifyAccount } from './verify-account/verify-account.ts'
 
 config()
 
@@ -76,10 +77,22 @@ export default function (clientId: string) {
   commands.set(birthdayAddCommand.data.name, birthdayAddCommand)
   commands.set(birthdayRemoveCommand.data.name, birthdayRemoveCommand)
   commands.set(setMessageCommand.data.name, setMessageCommand)
-  commands.set(secretSantaGetCommand.data.name, secretSantaGetCommand)
-  commands.set(secretSantaReceivedCommand.data.name, secretSantaReceivedCommand)
+  commands.set(verifyGwLinkCommand.data.name, verifyGwLinkCommand)
 
   client.on(Events.InteractionCreate, async (interaction) => {
+    try {
+      if (await showVerifyAccountModal(interaction)) {
+        return
+      }
+
+      if (await verifyAccount(interaction)) {
+        return
+      }
+    } catch (error) {
+      console.error('error in leaf bot interaction')
+      console.error(error)
+    }
+
     if (!interaction.isChatInputCommand()) return
 
     const command = commands.get(interaction.commandName)

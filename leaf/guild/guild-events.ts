@@ -95,12 +95,14 @@ async function loadEvents(client: Client): Promise<void> {
   await checkGuildStashInteracts(client, eventData)
   await checkGuildMessageOfTheDay(client, eventData)
 
-  await leafDb
-    ?.collection('util')
-    .doc('last-guild-event-id')
-    .update({
-      id: eventData[eventData.length - 1].id,
-    })
+  if (process.env.ENVIRONMENT === 'production') {
+    await leafDb
+      ?.collection('util')
+      .doc('last-guild-event-id')
+      .update({
+        id: eventData[eventData.length - 1].id,
+      })
+  }
 }
 
 export async function sendEmbedToChannel(client: Client, message: string | MessagePayload | MessageCreateOptions) {

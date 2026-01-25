@@ -48,6 +48,23 @@ export class GuildWarsData {
     return (await response.json()) as GW2Member[]
   }
 
+  public static async getAccount(token: string): Promise<GW2Account | null> {
+    const response = await fetch('https://api.guildwars2.com/v2/account', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      console.log(`Error fetching account - ${response.status}`)
+
+      return null
+    }
+
+    return (await response.json()) as GW2Account
+  }
+
   public static async isApiAllowed(): Promise<boolean> {
     const allowApiDoc = await leafDb?.collection('util').doc('use-gw2-api').get()
 
@@ -71,4 +88,10 @@ interface GW2Member {
   rank: string
   joined: string
   wvw_member: boolean
+}
+
+interface GW2Account {
+  id: string
+  name: string
+  guilds: string[]
 }
