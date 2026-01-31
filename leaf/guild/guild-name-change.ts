@@ -25,6 +25,15 @@ export async function checkUserNameChange(client: Client) {
   const removedUsers = oldMembers.filter((m) => !newAccounts.has(m)).map((m) => m)
   const addedUsers = newMembers.filter((m) => !oldAccounts.has(m.name)).map((m) => m.name)
 
+  if (removedUsers.length !== 0 || addedUsers.length !== 0) {
+    await leafDb
+      ?.collection('util')
+      .doc('member-list')
+      .update({
+        members: JSON.stringify(Array.from(newAccounts)),
+      })
+  }
+
   if (removedUsers.length !== addedUsers.length || removedUsers.length === 0 || addedUsers.length === 0) {
     return
   }
@@ -50,11 +59,4 @@ export async function checkUserNameChange(client: Client) {
       },
     ],
   })
-
-  await leafDb
-    ?.collection('util')
-    .doc('member-list')
-    .update({
-      members: JSON.stringify(Array.from(newAccounts)),
-    })
 }
