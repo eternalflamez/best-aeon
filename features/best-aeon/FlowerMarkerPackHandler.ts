@@ -11,7 +11,7 @@ export default class FlowerMarkerPackHandler implements MessageHandler {
   async handle(message: Message) {
     const content = message.content.toLowerCase()
 
-    if (content.includes('flower markerpack') || content.includes(this.FLOWER_PACK)) {
+    if (content.includes('flower markerpack') || content.includes(this.FLOWER_PACK.toLowerCase())) {
       const now = Date.now()
 
       if (this.lastReplyTime === null || now - this.lastReplyTime > this.REPLY_INTERVAL_MS) {
