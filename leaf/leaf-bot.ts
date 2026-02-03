@@ -19,9 +19,11 @@ import birthdayAddCommand from './commands/birthday-add-command.ts'
 import birthdayRemoveCommand from './commands/birthday-remove-command.ts'
 import setMessageCommand from './commands/admin-set-message-command.ts'
 import verifyGwLinkCommand from './commands/verify-gw-link-command.ts'
-import processGuildEvents from './guild/guild-events.ts'
+import processGuildEvents, { sendEmbedToChannel } from './guild/guild-events.ts'
 import { showVerifyAccountModal } from './verify-account/show-verify-account-modal.ts'
 import { verifyAccount } from './verify-account/verify-account.ts'
+import { COLORS } from './constants/colors.ts'
+import { GuildWarsData } from './guild/gw-api.ts'
 
 config()
 
@@ -62,6 +64,30 @@ export default function (clientId: string) {
       await owner.send(
         `A member has left ${member.guild.name} - \`${member.displayName}\` with global discord name ${member.user.globalName} (${member.user.id}). ${userMention(member.user.id)}`,
       )
+
+      const currentMembers = await GuildWarsData.getMembers()
+
+      const accountPart = member.displayName.match(/(\w+\.\d{4})/)?.[1] ?? null
+      const matchedGw2Name =
+        accountPart != null
+          ? currentMembers.find((m) => m.name.toLowerCase().includes(accountPart.toLowerCase()))?.name
+          : undefined
+
+      const embedDescription =
+        matchedGw2Name != null
+          ? `User \`${member.displayName}\` has left the discord. They are still in the guild: \`${matchedGw2Name}\`.`
+          : `User \`${member.displayName}\` has left the discord. I could not find a matching user in the guild.`
+
+      await sendEmbedToChannel(client, {
+        embeds: [
+          {
+            color: COLORS.negative,
+            title: '⚠️ A user left the discord!',
+            description: embedDescription,
+            timestamp: new Date().toISOString(),
+          },
+        ],
+      })
     } catch (e: any) {
       console.error(`Couldn't message guild leader about member leaving: ${e.description}`)
     }
