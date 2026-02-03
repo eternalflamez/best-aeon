@@ -13,6 +13,7 @@ import HelloIAmHandler from './features/best-aeon/HelloIAmHandler.ts'
 import AddToThread from './onMessageReactionAddHooks/0.addToThread.ts'
 import SetupSellSchedule from './features/sell-schedule.ts'
 import DmHandler from './features/best-aeon/DmHandler.ts'
+import FlowerMarkerPackHandler from './features/best-aeon/FlowerMarkerPackHandler.ts'
 
 config()
 
@@ -45,6 +46,7 @@ export default function (clientId: string) {
     new BestAeonHandler(),
     new BestMaxHandler(),
     new WhatsDnHandler(),
+    new FlowerMarkerPackHandler(),
     new HelloIAmHandler(client),
   ]
 
