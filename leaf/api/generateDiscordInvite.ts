@@ -7,7 +7,8 @@ app.use(express.json())
 const port = process.env.PORT || 4000
 
 const TOKEN = process.env.TOKEN
-const LEAF_GUILD_ID = process.env.LEAF_GUILD_ID
+// const LEAF_GUILD_ID = process.env.LEAF_DISCORD_GUILD_ID
+const LEAF_GUILD_ID = '1248337933413650614'
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds],
