@@ -6,6 +6,7 @@ import startupLeaf from './leaf/leaf-bot.ts'
 import SetupBuyerManagement from './features/buyer-management/buyer-management.ts'
 
 import { v4 as uuidv4 } from 'uuid'
+import { setupApi } from './leaf/api/generateDiscordInvite.ts'
 
 config()
 
