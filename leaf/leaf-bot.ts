@@ -65,6 +65,10 @@ export default function (clientId: string) {
         `A member has left ${member.guild.name} - \`${member.displayName}\` with global discord name ${member.user.globalName} (${member.user.id}). ${userMention(member.user.id)}`,
       )
 
+      if (member.guild.id !== process.env.LEAF_GUILD_ID) {
+        return
+      }
+
       const currentMembers = await GuildWarsData.getMembers()
 
       const accountPart = member.displayName.match(/(\w+\.\d{4})/)?.[1] ?? null
