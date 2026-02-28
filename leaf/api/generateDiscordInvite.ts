@@ -1,10 +1,15 @@
 import express from 'express'
+import { config } from 'dotenv'
+import cors from 'cors'
 import { Client, Events, GatewayIntentBits } from 'discord.js'
 
+config()
+
 const app = express()
+app.use(cors())
 app.use(express.json())
 
-const port = process.env.PORT || 4000
+const port = process.env.PORT || 80
 
 const TOKEN = process.env.LEAF_TOKEN
 // const LEAF_GUILD_ID = process.env.LEAF_DISCORD_GUILD_ID
@@ -32,6 +37,10 @@ function ensureClientReady() {
 }
 
 export function setupApi() {
+  app.get('/', async (req, res) => {
+    res.send("Cannot get '/'")
+  })
+
   app.post('/submit-leaf-form', async (req, res) => {
     try {
       const { age } = req.body ?? {}

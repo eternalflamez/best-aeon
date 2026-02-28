@@ -9,6 +9,7 @@
   "exports": "./bot.js",
   "dependencies": {
     "@google/genai": "^1.43.0",
+    "cors": "^2.8.6",
     "dedent": "^1.7.1",
     "discord.js": "^14.25.1",
     "dotenv": "^17.3.1",
@@ -21,6 +22,7 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/node-cron": "^3.0.11",
     "prettier": "3.8.1",
     "ts-node": "^10.9.2",
