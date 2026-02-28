@@ -38,7 +38,7 @@ function ensureClientReady() {
 
 export function setupApi() {
   app.get('/', async (req, res) => {
-    res.send("Cannot get '/'")
+    res.send('Cannot get /')
   })
 
   app.post('/submit-leaf-form', async (req, res) => {
