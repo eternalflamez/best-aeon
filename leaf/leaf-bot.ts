@@ -67,10 +67,10 @@ export default function (clientId: string) {
       })
       const auditEntry = fetchedLogs.entries.first()
 
-      if (auditEntry?.id === member.id) {
+      if (auditEntry?.targetId === member.id) {
         const owner = await member.guild.fetchOwner()
         await owner.send(
-          `${member.guild.name} - \`${member.displayName}\` got kicked by ${userMention(auditEntry.executorId!)} with global discord name ${member.user.globalName} (${member.user.id}). ${userMention(member.user.id)}`,
+          `${member.guild.name} - \`${member.displayName}\` with global discord name ${member.user.globalName} (${member.user.id}) got kicked by ${userMention(auditEntry.executorId!)}. Tag: ${userMention(member.user.id)}`,
         )
 
         if (member.guild.id !== process.env.LEAF_DISCORD_GUILD_ID) {
