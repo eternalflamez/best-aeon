@@ -29,7 +29,7 @@ export async function checkGuildLeavers(client: Client, eventData: EventLog[]) {
         embeds: [
           {
             color: COLORS.negative,
-            title: '⚠️ A user left!',
+            title: '⚠️ A user left the in-game guild!',
             description: `User \`${event.user}\` has left the guild. ${descriptionSuffix}`,
             timestamp: event.time,
           },
@@ -40,7 +40,7 @@ export async function checkGuildLeavers(client: Client, eventData: EventLog[]) {
         embeds: [
           {
             color: COLORS.negative,
-            title: '⚠️ A user was kicked!',
+            title: '⚠️ A user was kicked from the in-game guild!',
             description: `User \`${event.user}\` was kicked by ${event.kicked_by}. ${descriptionSuffix}`,
             timestamp: event.time,
           },
