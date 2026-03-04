@@ -1,6 +1,7 @@
 import { config } from 'dotenv'
 import { checkDestruction, setupSelfDestruct } from '../features/utils/self-destruct.ts'
 import {
+  AuditLogEvent,
   ChatInputCommandInteraction,
   Client,
   Collection,
@@ -60,39 +61,81 @@ export default function (clientId: string) {
 
   client.on(Events.GuildMemberRemove, async (member) => {
     try {
-      const owner = await member.guild.fetchOwner()
-      await owner.send(
-        `A member has left ${member.guild.name} - \`${member.displayName}\` with global discord name ${member.user.globalName} (${member.user.id}). ${userMention(member.user.id)}`,
-      )
-
-      if (member.guild.id !== process.env.LEAF_GUILD_ID) {
-        return
-      }
-
-      const currentMembers = await GuildWarsData.getMembers()
-
-      const accountPart = member.displayName.match(/(\w+\.\d{4})/)?.[1] ?? null
-      const matchedGw2Name =
-        accountPart != null
-          ? currentMembers.find((m) => m.name.toLowerCase().includes(accountPart.toLowerCase()))?.name
-          : undefined
-
-      const embedDescription =
-        matchedGw2Name != null
-          ? `User \`${member.displayName}\` has left the discord. They are still in the guild: \`${matchedGw2Name}\`.`
-          : `User \`${member.displayName}\` has left the discord. I could not find a matching user in the guild.`
-
-      await sendEmbedToChannel(client, {
-        embeds: [
-          {
-            color: COLORS.negative,
-            title: '⚠️ A user left the discord!',
-            description: embedDescription,
-            timestamp: new Date().toISOString(),
-          },
-        ],
+      const fetchedLogs = await member.guild.fetchAuditLogs({
+        type: AuditLogEvent.MemberKick,
+        limit: 1,
       })
+      const auditEntry = fetchedLogs.entries.first()
+
+      if (auditEntry?.id === member.id) {
+        const owner = await member.guild.fetchOwner()
+        await owner.send(
+          `${member.guild.name} - \`${member.displayName}\` got kicked by ${userMention(auditEntry.executorId!)} with global discord name ${member.user.globalName} (${member.user.id}). ${userMention(member.user.id)}`,
+        )
+
+        if (member.guild.id !== process.env.LEAF_DISCORD_GUILD_ID) {
+          return
+        }
+
+        const currentMembers = await GuildWarsData.getMembers()
+
+        const accountPart = member.displayName.match(/(\w+\.\d{4})/)?.[1] ?? null
+        const matchedGw2Name =
+          accountPart != null
+            ? currentMembers.find((m) => m.name.toLowerCase().includes(accountPart.toLowerCase()))?.name
+            : undefined
+
+        const embedDescription =
+          matchedGw2Name != null
+            ? `User \`${member.displayName}\` got kicked from the discord server by ${userMention(auditEntry.executorId!)}. They are still in the guild: \`${matchedGw2Name}\`.`
+            : `User \`${member.displayName}\` got kicked from the discord server by ${userMention(auditEntry.executorId!)}. I could not find a matching user in the guild.`
+
+        await sendEmbedToChannel(client, {
+          embeds: [
+            {
+              color: COLORS.negative,
+              title: '⚠️ A user got kicked from the discord!',
+              description: embedDescription,
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        })
+      } else {
+        const owner = await member.guild.fetchOwner()
+        await owner.send(
+          `A member has left ${member.guild.name} - \`${member.displayName}\` with global discord name ${member.user.globalName} (${member.user.id}). ${userMention(member.user.id)}`,
+        )
+
+        if (member.guild.id !== process.env.LEAF_DISCORD_GUILD_ID) {
+          return
+        }
+
+        const currentMembers = await GuildWarsData.getMembers()
+
+        const accountPart = member.displayName.match(/(\w+\.\d{4})/)?.[1] ?? null
+        const matchedGw2Name =
+          accountPart != null
+            ? currentMembers.find((m) => m.name.toLowerCase().includes(accountPart.toLowerCase()))?.name
+            : undefined
+
+        const embedDescription =
+          matchedGw2Name != null
+            ? `User \`${member.displayName}\` has left the discord. They are still in the guild: \`${matchedGw2Name}\`.`
+            : `User \`${member.displayName}\` has left the discord. I could not find a matching user in the guild.`
+
+        await sendEmbedToChannel(client, {
+          embeds: [
+            {
+              color: COLORS.negative,
+              title: '⚠️ A user left the discord!',
+              description: embedDescription,
+              timestamp: new Date().toISOString(),
+            },
+          ],
+        })
+      }
     } catch (e: any) {
+      console.log(e)
       console.error(`Couldn't message guild leader about member leaving: ${e.description}`)
     }
   })
