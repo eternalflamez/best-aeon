@@ -692,5 +692,6 @@ const NO_SELLS_COMMENTS = [
   'i make ONE TYPE and it becomes the NEXT 999999 MESSAGES. so.e people have BETTER things to do be doing than CHECKING FOR SPELLING AAAAAAAAAAA',
   'Is this chat filled with parrots? All you guys do is copy what the person above you wrote. Please have some originality and contribute to a smarter chat.',
   'Sorry I was too stupid to cook up a reply and instead had an error.',
+  'RAIDS 4 SALE IS A SKEM - Do NOT buy these "services" stay safe from those shady people and skems brothers and sisters - BLOCK and IGNORE those people\nLanguage (Optional)',
   "Herbert Hurry: Yes, I can retrieve data from a YouTube URL, Frothy. What's the URL?",
 ]
