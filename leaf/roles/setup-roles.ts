@@ -62,7 +62,7 @@ async function addSproutlingRoleAfterDelay(member: GuildMember): Promise<void> {
       `${userMention(updatedMember.user.id)}, welcome to [LEAF] guild! You are a Sproutling now! You'll grow into a Salad in 3 days! <a:salad_dealwithit:1436466486712471603>`,
     )
   } catch (error) {
-    console.error(`Error adding Sproutling role to member ${member.user.tag}:`, error)
+    console.error(`Error adding Sproutling role to member ${member.user.tag}`)
   }
 }
 
