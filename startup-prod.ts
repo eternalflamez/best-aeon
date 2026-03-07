@@ -49,3 +49,5 @@ SetupBuyerManagement({
 startup(clientId)
 
 startupLeaf(clientId)
+
+setupApi()
