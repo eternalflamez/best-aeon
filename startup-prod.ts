@@ -3,6 +3,7 @@ import riseTranslations from './constants/rise-translations.ts'
 import htTranslations from './constants/harvest-templars-translations.ts'
 import startup from './bot.ts'
 import startupLeaf from './leaf/leaf-bot.ts'
+import { setupApi } from './leaf/api/generateDiscordInvite.ts'
 
 import SetupBuyerManagement from './features/buyer-management/buyer-management.ts'
 
