@@ -25,6 +25,7 @@ import { showVerifyAccountModal } from './verify-account/show-verify-account-mod
 import { verifyAccount } from './verify-account/verify-account.ts'
 import { COLORS } from './constants/colors.ts'
 import { GuildWarsData } from './guild/gw-api.ts'
+import { setupApprovalHandler } from './createInvite/approvalHandler.ts'
 
 config()
 
@@ -48,6 +49,7 @@ export default function (clientId: string) {
       await leafBirthdayReminders(client)
       await setupSelfDestruct(client, clientId)
       await setupRoles(client)
+      setupApprovalHandler(client)
     } catch (e) {
       console.log('Something went wrong in LEAF', e)
     }
@@ -153,6 +155,10 @@ export default function (clientId: string) {
   commands.set(verifyGwLinkCommand.data.name, verifyGwLinkCommand)
 
   client.on(Events.InteractionCreate, async (interaction) => {
+    if (interaction.isButton()) {
+      return
+    }
+
     try {
       if (await showVerifyAccountModal(interaction)) {
         return
