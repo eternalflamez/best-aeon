@@ -132,7 +132,7 @@ async function saveInformation(body: NewUserSignup) {
   const month = date.getMonth() + 1
   const year = date.getFullYear()
 
-  let currentDate = `${year}-${month}-${day}`
+  let currentDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 
   const { discordName, nickname, gw2Name, age, joinReason, fashionWars, favoriteActivity, favoriteNpc } = body
   let docName = `${currentDate} ${gw2Name}`
@@ -150,6 +150,7 @@ async function saveInformation(body: NewUserSignup) {
     fashionWars,
     favoriteActivity,
     favoriteNpc,
+    timestamp: new Date().toISOString(),
   })
 
   return docName
