@@ -6,7 +6,6 @@ import {
   Client,
   EmbedBuilder,
   Events,
-  GuildMember,
   MessageFlags,
   TextChannel,
   userMention,
@@ -18,6 +17,10 @@ import dedent from 'dedent'
 import { NewUserSignup } from './interfaces/newUserSignup'
 
 export function setupApprovalHandler(client: Client) {
+  if (process.env.ENVIRONMENT === 'production') {
+    return
+  }
+
   client.on(Events.GuildMemberAdd, async (member) => {
     const previousInvites = [...member.guild.invites.cache.values()]
     const currentInvites = await member.guild.invites.fetch()
