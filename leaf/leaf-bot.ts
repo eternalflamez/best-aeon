@@ -36,6 +36,7 @@ export default function (clientId: string) {
       GatewayIntentBits.Guilds,
       GatewayIntentBits.GuildMembers,
       GatewayIntentBits.GuildMessages,
+      GatewayIntentBits.GuildInvites,
       GatewayIntentBits.DirectMessages,
     ],
     partials: [Partials.Message, Partials.Channel, Partials.GuildMember],
@@ -49,11 +50,12 @@ export default function (clientId: string) {
       await leafBirthdayReminders(client)
       await setupSelfDestruct(client, clientId)
       await setupRoles(client)
-      setupApprovalHandler(client)
     } catch (e) {
       console.log('Something went wrong in LEAF', e)
     }
   })
+
+  setupApprovalHandler(client)
 
   client.on(Events.MessageCreate, async (message) => {
     if (await checkDestruction(client, clientId, message, 'LEAF')) {

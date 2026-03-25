@@ -1,13 +1,11 @@
 import cors from 'cors'
-import dedent from 'dedent'
 import { Client, Events, GatewayIntentBits, TextChannel } from 'discord.js'
 import { config } from 'dotenv'
 import express from 'express'
 import { v4 as uuidv4 } from 'uuid'
 
 import leafDb from '../leaf-firestore'
-import { COLORS } from '../constants/colors'
-import { createApprovalButtons } from '../createInvite/approvalHandler'
+import { NewUserSignup } from '../createInvite/interfaces/newUserSignup'
 
 config()
 
@@ -78,54 +76,7 @@ function ensureClientReady() {
   return clientReadyPromise
 }
 
-async function sendDiscordMessage(newUser: NewUserSignup, userId: string) {
-  let channel
-
-  try {
-    channel = await client.channels.fetch(process.env.LEAF_GUILD_NEW_USER_CHANNEL!)
-  } catch {
-    console.log('No access to the new signups channel!')
-  }
-
-  if (!channel || !(channel instanceof TextChannel)) {
-    return
-  }
-
-  const approvalRow = createApprovalButtons({ userId })
-
-  await channel.send({
-    components: [approvalRow],
-    embeds: [
-      {
-        color: COLORS.neutral,
-        title: `<:leaf_helper:1433816388497309696> ${newUser.nickname} just filled in the form to join!`,
-        description: dedent`\`\`\`ansi
-        THE FORM:
-
-        [2;36mYour name / nickname:[0m
-        ${newUser.nickname}
-        [2;36mDiscord handle:[0m
-        ${newUser.discordName}
-        [2;36mGW2 handle:[0m
-        ${newUser.gw2Name}
-        [2;36mWe are an 18+ guild, therefore we'd like to know your age, please (age will be kept confidential)![0m
-        ${newUser.age}
-        [2;36mAny particular reason you wanna join LEAF?[0m
-        ${newUser.joinReason}
-        [2;36mHow into Fashion Wars 2 are you?[0m
-        ${newUser.fashionWars}
-        [2;36mWhat is your favourite thing to do on GW2?[0m
-        ${newUser.favoriteActivity}
-        [2;36mWho is your favourite GW2 story NPC and why?[0m
-        ${newUser.favoriteNpc}
-        \`\`\``,
-        timestamp: new Date().toISOString(),
-      },
-    ],
-  })
-}
-
-async function saveInformation(body: NewUserSignup) {
+async function saveInformation(body: NewUserSignup, inviteCode: string) {
   const date = new Date()
 
   const day = date.getDate()
@@ -135,13 +86,8 @@ async function saveInformation(body: NewUserSignup) {
   let currentDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 
   const { discordName, nickname, gw2Name, age, joinReason, fashionWars, favoriteActivity, favoriteNpc } = body
-  let docName = `${currentDate} ${gw2Name}`
 
-  if ((await leafDb?.collection('signups').doc(docName).get())?.exists) {
-    docName += `-${uuidv4()}`
-  }
-
-  await leafDb?.collection('signups').doc(docName).set({
+  await leafDb?.collection('signups').doc(`${currentDate}_${gw2Name}_${inviteCode}`).set({
     discordName,
     nickname,
     gw2Name,
@@ -150,10 +96,9 @@ async function saveInformation(body: NewUserSignup) {
     fashionWars,
     favoriteActivity,
     favoriteNpc,
+    inviteCode,
     timestamp: new Date().toISOString(),
   })
-
-  return docName
 }
 
 export function setupApi() {
@@ -177,20 +122,16 @@ export function setupApi() {
         return res.status(500).json({ error: 'No suitable channel found to create an invite for this guild.' })
       }
 
-      try {
-        const docName = await saveInformation(body)
-
-        await sendDiscordMessage(body, docName).catch((error) => {
-          console.log(`Failed to send signup ${JSON.stringify(body)}`, error)
-        })
-      } catch (error) {
-        console.log(`Failed to save signup ${JSON.stringify(body)}`, error)
-      }
-
       const invite = await guild.invites.create(channelId, {
         maxUses: 1,
         unique: true,
       })
+
+      try {
+        await saveInformation(body, invite.code)
+      } catch (error) {
+        console.log(`Failed to save signup ${JSON.stringify(body)}`, error)
+      }
 
       return res.status(200).json({ inviteUrl: invite.url })
     } catch (error) {
@@ -202,15 +143,4 @@ export function setupApi() {
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
   })
-}
-
-interface NewUserSignup {
-  discordName: string
-  nickname: string
-  gw2Name: string
-  age: number
-  joinReason: string
-  fashionWars: string
-  favoriteActivity: string
-  favoriteNpc: string
 }
