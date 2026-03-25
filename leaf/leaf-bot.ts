@@ -71,7 +71,7 @@ export default function (clientId: string) {
       })
       const auditEntry = fetchedLogs.entries.first()
 
-      if (auditEntry?.targetId === member.id) {
+      if (auditEntry?.targetId === member.id && Date.now() - auditEntry.createdTimestamp < 1000) {
         const owner = await member.guild.fetchOwner()
         await owner.send(
           `${member.guild.name} - \`${member.displayName}\` with global discord name ${member.user.globalName} (${member.user.id}) got kicked by ${userMention(auditEntry.executorId!)}. Tag: ${userMention(member.user.id)}`,
