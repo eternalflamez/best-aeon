@@ -80,11 +80,18 @@ export function setupApprovalHandler(client: Client) {
       return
     }
 
-    const newUser = ((await getUserSignup(inviteCode))?.data() ?? null) as NewUserSignup | null
+    const newUserRef = await getUserSignup(inviteCode)
 
-    if (!newUser) {
+    if (!newUserRef) {
+      console.log('Could not find approval in firestore for ', inviteCode)
       return
     }
+
+    await newUserRef.ref.update({
+      joinedTimestamp: Date.now(),
+    })
+
+    const newUser = newUserRef.data() as NewUserSignup
 
     const approvalRow = createApprovalButtons({ userId: inviteCode })
 

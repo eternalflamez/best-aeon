@@ -8,4 +8,14 @@ export interface NewUserSignup {
   favoriteActivity: string
   favoriteNpc: string
   inviteCode: string
+
+  // Added when saving to database
+  timestamp?: string
+
+  // Added when approved/denied
+  approvedBy?: string
+  approved?: boolean
+
+  // Added when user joins discord
+  joinedTimestamp?: string
 }
