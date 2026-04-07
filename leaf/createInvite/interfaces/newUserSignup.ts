@@ -17,5 +17,6 @@ export interface NewUserSignup {
   approved?: boolean
 
   // Added when user joins discord
-  joinedTimestamp?: string
+  discordId?: string
+  joinedTimestamp?: number
 }

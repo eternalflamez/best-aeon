@@ -1,10 +1,4 @@
-import {
-  SlashCommandBuilder,
-  ChatInputCommandInteraction,
-  MessageFlags,
-  PermissionFlagsBits,
-  GuildMember,
-} from 'discord.js'
+import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags, GuildMember } from 'discord.js'
 import leafDb from '../leaf-firestore.ts'
 
 const command = {

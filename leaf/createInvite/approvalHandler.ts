@@ -26,12 +26,35 @@ export function setupApprovalHandler(client: Client) {
     const currentInvites = await member.guild.invites.fetch()
     const deletedInvites = previousInvites.filter((prev) => !currentInvites.has(prev.code))
 
-    if (deletedInvites.length > 0) {
-      const invite = deletedInvites[0]
+    let inviteCode: string | undefined = undefined
 
-      await sendDiscordMessage(invite.code).catch((error) => {
-        console.log(`Failed to send signup for ${invite.code}`, error)
+    if (deletedInvites.length > 0) {
+      inviteCode = deletedInvites[0].code
+    } else {
+      const newUserRef = await leafDb
+        ?.collection('signups')
+        .where('discordName', '==', member.user.globalName)
+        .limit(1)
+        .get()
+      const data = newUserRef?.docs.shift()?.data() as undefined | NewUserSignup
+
+      if (data) {
+        inviteCode = data.inviteCode
+      }
+    }
+
+    if (inviteCode) {
+      await sendDiscordMessage(member.id, inviteCode).catch((error) => {
+        console.log(`Failed to send signup for ${inviteCode}`, error)
       })
+    } else {
+      const channel = await getLeafChannel()
+
+      if (!channel) {
+        return
+      }
+
+      channel.send(`User ${userMention(member.id)} joined, but I couldn't find an application for them.`)
     }
   })
 
@@ -41,15 +64,13 @@ export function setupApprovalHandler(client: Client) {
     }
 
     try {
-      const customId = interaction.customId
-      const target = interaction.customId.split('_').slice(1).join('_')
+      const parsed = parseApprovalButtonId(interaction.customId)
+      if (!parsed) return
 
-      if (customId.startsWith('rejectApplication')) {
-        await rejectApplication(interaction)
-        await updateApprovalInFirestore(interaction.user.displayName, target, false)
-      } else if (customId.startsWith('approveApplication')) {
-        await approveApplication(interaction)
-        await updateApprovalInFirestore(interaction.user.displayName, target, true)
+      if (parsed.action === 'reject') {
+        await rejectApplication(parsed.inviteCode, interaction)
+      } else if (parsed.action === 'approve') {
+        await approveApplication(parsed.inviteCode, interaction)
       }
     } catch (e: any) {
       console.error(e.rawError?.message || 'Something went wrong?')
@@ -67,7 +88,7 @@ export function setupApprovalHandler(client: Client) {
     }
   })
 
-  async function sendDiscordMessage(inviteCode: string) {
+  async function getLeafChannel(): Promise<TextChannel | undefined> {
     let channel
 
     try {
@@ -77,6 +98,17 @@ export function setupApprovalHandler(client: Client) {
     }
 
     if (!channel || !(channel instanceof TextChannel)) {
+      console.error('Approval Handler: No channel to send to')
+      return undefined
+    }
+
+    return channel
+  }
+
+  async function sendDiscordMessage(discordId: string, inviteCode: string) {
+    const channel = await getLeafChannel()
+
+    if (!channel) {
       return
     }
 
@@ -88,12 +120,13 @@ export function setupApprovalHandler(client: Client) {
     }
 
     await newUserRef.ref.update({
+      discordId,
       joinedTimestamp: Date.now(),
     })
 
     const newUser = newUserRef.data() as NewUserSignup
 
-    const approvalRow = createApprovalButtons({ userId: inviteCode })
+    const approvalRow = createApprovalButtons({ inviteCode })
 
     await channel.send({
       components: [approvalRow],
@@ -127,50 +160,83 @@ export function setupApprovalHandler(client: Client) {
     })
   }
 
-  async function rejectApplication(interaction: ButtonInteraction) {
-    const originalEmbed = interaction.message.embeds[0]
+  async function rejectApplication(inviteCode: string, interaction: ButtonInteraction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 
-    const updatedEmbed = EmbedBuilder.from(originalEmbed)
-    updatedEmbed.setColor(COLORS.negative)
+    const signup = await updateApprovalInFirestore(interaction.user.displayName, inviteCode, false)
 
-    if (originalEmbed.description) {
-      updatedEmbed.setDescription(`REJECTED BY ${userMention(interaction.user.id)}: \n${originalEmbed.description}`)
+    await markInteractionMessage(interaction, {
+      action: 'REJECTED',
+      color: COLORS.negative,
+    })
+
+    const discordId = (signup.data() as Partial<NewUserSignup> | undefined)?.discordId
+    if (!discordId) {
+      await interaction.editReply(`There was an issue rejecting this user. Poke Sander, this is the id: ${signup.id}`)
+      return
     }
 
-    await interaction.update({
-      embeds: [updatedEmbed],
-      components: [createApprovalButtons({ disabled: true })],
-    })
+    const targetUser = await getUserById(discordId)
+    if (!targetUser) {
+      await interaction.editReply('I saved your rejection, but the user is no longer available to DM.')
+      return
+    }
+
+    try {
+      await targetUser.send('After careful consideration, we have chosen to reject your application. Byebye!')
+      await interaction.editReply(`Successfully rejected ${targetUser.displayName}.`)
+    } catch (e) {
+      console.error(e)
+      await interaction.editReply(`There was an issue rejecting this user. Poke Sander, this is the id: ${signup.id}`)
+    }
   }
 
-  async function approveApplication(interaction: ButtonInteraction) {
-    const originalEmbed = interaction.message.embeds[0]
+  async function approveApplication(inviteCode: string, interaction: ButtonInteraction) {
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral })
 
-    const updatedEmbed = EmbedBuilder.from(originalEmbed)
-    updatedEmbed.setColor(COLORS.positive)
+    const signup = await updateApprovalInFirestore(interaction.user.displayName, inviteCode, true)
 
-    if (originalEmbed.description) {
-      updatedEmbed.setDescription(`APPROVED BY ${userMention(interaction.user.id)}: \n${originalEmbed.description}`)
+    await markInteractionMessage(interaction, {
+      action: 'APPROVED',
+      color: COLORS.positive,
+    })
+
+    const discordId = (signup.data() as Partial<NewUserSignup> | undefined)?.discordId
+    if (!discordId) {
+      await interaction.editReply(`There was an issue approving this user. Poke Sander, this is the id: ${signup.id}`)
+      return
     }
 
-    await interaction.update({
-      embeds: [updatedEmbed],
-      components: [createApprovalButtons({ disabled: true })],
-    })
+    const targetUser = await getUserById(discordId)
+    if (!targetUser) {
+      await interaction.editReply('I saved your rejection, but the user is no longer available to DM.')
+      return
+    }
+
+    try {
+      await targetUser.send('After careful consideration, we have chosen to approve your application. Welcome!')
+      await interaction.editReply(
+        `Successfully approved ${targetUser.displayName}. I've sent them a message to verify.`,
+      )
+    } catch (e) {
+      console.error(e)
+      await interaction.editReply(`There was an issue approving this user. Poke Sander, this is the id: ${signup.id}`)
+    }
   }
 
   async function updateApprovalInFirestore(interactorId: string, inviteCode: string, approved: boolean) {
     const newUserRef = await getUserSignup(inviteCode)
 
     if (!newUserRef) {
-      console.log('Could not find approval in firestore for ', inviteCode)
-      return
+      throw new Error(`Could not find signup in firestore for inviteCode=${inviteCode}`)
     }
 
     await newUserRef.ref.update({
       approvedBy: interactorId,
       approved,
     })
+
+    return newUserRef
   }
 
   async function getUserSignup(inviteCode: string): Promise<FirebaseFirestore.QueryDocumentSnapshot | undefined> {
@@ -178,17 +244,55 @@ export function setupApprovalHandler(client: Client) {
 
     return newUserRef?.docs.shift()
   }
+
+  async function markInteractionMessage(
+    interaction: ButtonInteraction,
+    options: { action: 'APPROVED' | 'REJECTED'; color: number },
+  ) {
+    const originalEmbed = interaction.message.embeds[0]
+    const updatedEmbed = EmbedBuilder.from(originalEmbed).setColor(options.color)
+
+    if (originalEmbed?.description) {
+      updatedEmbed.setDescription(
+        `${options.action} BY ${userMention(interaction.user.id)}: \n${originalEmbed.description}`,
+      )
+    }
+
+    await interaction.message.edit({
+      embeds: [updatedEmbed],
+      components: [createApprovalButtons({ disabled: true })],
+    })
+  }
+
+  function parseApprovalButtonId(customId: string): { action: 'approve' | 'reject'; inviteCode: string } | undefined {
+    // Custom id format: `<action>Application_<inviteCode>`
+    if (customId.startsWith('rejectApplication_')) {
+      return { action: 'reject', inviteCode: customId.split('_').slice(1).join('_') }
+    }
+    if (customId.startsWith('approveApplication_')) {
+      return { action: 'approve', inviteCode: customId.split('_').slice(1).join('_') }
+    }
+    return undefined
+  }
+
+  async function getUserById(discordId: string) {
+    try {
+      return await client.users.fetch(discordId)
+    } catch {
+      return undefined
+    }
+  }
 }
 
-function createApprovalButtons(options: { userId?: string; disabled?: boolean } = {}) {
+function createApprovalButtons(options: { inviteCode?: string; disabled?: boolean } = {}) {
   const rejectButton = new ButtonBuilder()
-    .setCustomId(`rejectApplication_${options.userId}`)
+    .setCustomId(`rejectApplication_${options.inviteCode}`)
     .setLabel('Reject')
     .setStyle(ButtonStyle.Danger)
     .setDisabled(!!options.disabled)
 
   const approveButton = new ButtonBuilder()
-    .setCustomId(`approveApplication_${options.userId}`)
+    .setCustomId(`approveApplication_${options.inviteCode}`)
     .setLabel('Approve')
     .setStyle(ButtonStyle.Success)
     .setDisabled(!!options.disabled)
