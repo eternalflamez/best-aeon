@@ -157,10 +157,6 @@ export default function (clientId: string) {
   commands.set(verifyGwLinkCommand.data.name, verifyGwLinkCommand)
 
   client.on(Events.InteractionCreate, async (interaction) => {
-    if (interaction.isButton()) {
-      return
-    }
-
     try {
       if (await showVerifyAccountModal(interaction)) {
         return
