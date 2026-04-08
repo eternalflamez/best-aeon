@@ -228,7 +228,7 @@ export function setupApprovalHandler(client: Client) {
     const newUserRef = await getUserSignup(inviteCode)
 
     if (!newUserRef) {
-      throw new Error(`Could not find signup in firestore for inviteCode=${inviteCode}`)
+      throw new Error(`Could not find signup in the database for inviteCode=${inviteCode}`)
     }
 
     await newUserRef.ref.update({

@@ -107,7 +107,7 @@ export default function (clientId: string) {
       } else {
         const owner = await member.guild.fetchOwner()
         await owner.send(
-          `A member has left ${member.guild.name} - \`${member.displayName}\` with global discord name ${member.user.globalName} (${member.user.id}). ${userMention(member.user.id)}`,
+          `A member has left the "${member.guild.name}" discord server - \`${member.displayName}\` with global discord name ${member.user.globalName} (${member.user.id}). ${userMention(member.user.id)}`,
         )
 
         if (member.guild.id !== process.env.LEAF_DISCORD_GUILD_ID) {
@@ -124,14 +124,14 @@ export default function (clientId: string) {
 
         const embedDescription =
           matchedGw2Name != null
-            ? `User \`${member.displayName}\` has left the discord. They are still in the guild: \`${matchedGw2Name}\`.`
-            : `User \`${member.displayName}\` has left the discord. I could not find a matching user in the guild.`
+            ? `User \`${member.displayName}\` has left the discord server. They are still in the in-game guild: \`${matchedGw2Name}\`.`
+            : `User \`${member.displayName}\` has left the discord server. I could not find a matching user in the in-game guild.`
 
         await sendEmbedToChannel(client, {
           embeds: [
             {
               color: COLORS.negative,
-              title: '⚠️ A user left the discord!',
+              title: '⚠️ A user left the discord server!',
               description: embedDescription,
               timestamp: new Date().toISOString(),
             },
