@@ -19,10 +19,7 @@ import adminBirthdayRemoveCommand from './commands/admin-birthday-remove-command
 import birthdayAddCommand from './commands/birthday-add-command.ts'
 import birthdayRemoveCommand from './commands/birthday-remove-command.ts'
 import setMessageCommand from './commands/admin-set-message-command.ts'
-import verifyGwLinkCommand from './commands/verify-gw-link-command.ts'
 import processGuildEvents, { sendEmbedToChannel } from './guild/guild-events.ts'
-import { showVerifyAccountModal } from './verify-account/show-verify-account-modal.ts'
-import { verifyAccount } from './verify-account/verify-account.ts'
 import { COLORS } from './constants/colors.ts'
 import { GuildWarsData } from './guild/gw-api.ts'
 import { setupApprovalHandler } from './createInvite/approvalHandler.ts'
@@ -50,12 +47,11 @@ export default function (clientId: string) {
       await leafBirthdayReminders(client)
       await setupSelfDestruct(client, clientId)
       await setupRoles(client)
+      setupApprovalHandler(client)
     } catch (e) {
       console.log('Something went wrong in LEAF', e)
     }
   })
-
-  setupApprovalHandler(client)
 
   client.on(Events.MessageCreate, async (message) => {
     if (await checkDestruction(client, clientId, message, 'LEAF')) {
@@ -154,22 +150,8 @@ export default function (clientId: string) {
   commands.set(birthdayAddCommand.data.name, birthdayAddCommand)
   commands.set(birthdayRemoveCommand.data.name, birthdayRemoveCommand)
   commands.set(setMessageCommand.data.name, setMessageCommand)
-  commands.set(verifyGwLinkCommand.data.name, verifyGwLinkCommand)
 
   client.on(Events.InteractionCreate, async (interaction) => {
-    try {
-      if (await showVerifyAccountModal(interaction)) {
-        return
-      }
-
-      if (await verifyAccount(interaction)) {
-        return
-      }
-    } catch (error) {
-      console.error('error in leaf bot interaction')
-      console.error(error)
-    }
-
     if (!interaction.isChatInputCommand()) return
 
     const command = commands.get(interaction.commandName)

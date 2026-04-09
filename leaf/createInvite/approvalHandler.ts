@@ -7,6 +7,7 @@ import {
   EmbedBuilder,
   Events,
   MessageFlags,
+  roleMention,
   TextChannel,
   userMention,
 } from 'discord.js'
@@ -15,6 +16,8 @@ import { COLORS } from '../constants/colors'
 import leafDb from '../leaf-firestore'
 import dedent from 'dedent'
 import { NewUserSignup } from './interfaces/newUserSignup'
+import { showVerifyAccountModal } from './register-account/show-register-account-modal'
+import { registerAccount } from './register-account/register-account'
 
 export function setupApprovalHandler(client: Client) {
   if (process.env.ENVIRONMENT === 'production') {
@@ -22,55 +25,65 @@ export function setupApprovalHandler(client: Client) {
   }
 
   client.on(Events.GuildMemberAdd, async (member) => {
-    const previousInvites = [...member.guild.invites.cache.values()]
-    const currentInvites = await member.guild.invites.fetch()
-    const deletedInvites = previousInvites.filter((prev) => !currentInvites.has(prev.code))
+    try {
+      const previousInvites = [...member.guild.invites.cache.values()]
+      const currentInvites = await member.guild.invites.fetch()
+      const deletedInvites = previousInvites.filter((prev) => !currentInvites.has(prev.code))
 
-    let inviteCode: string | undefined = undefined
+      let inviteCode: string | undefined = undefined
 
-    if (deletedInvites.length > 0) {
-      inviteCode = deletedInvites[0].code
-    } else {
-      const newUserRef = await leafDb
-        ?.collection('signups')
-        .where('discordName', '==', member.user.globalName)
-        .limit(1)
-        .get()
-      const data = newUserRef?.docs.shift()?.data() as undefined | NewUserSignup
+      if (deletedInvites.length > 0) {
+        inviteCode = deletedInvites[0].code
+      } else {
+        const newUserRef = await leafDb
+          ?.collection('signups')
+          .where('discordName', '==', member.user.username)
+          .limit(1)
+          .get()
+        const data = newUserRef?.docs.shift()?.data() as undefined | NewUserSignup
 
-      if (data) {
-        inviteCode = data.inviteCode
-      }
-    }
-
-    if (inviteCode) {
-      await sendDiscordMessage(member.id, inviteCode).catch((error) => {
-        console.log(`Failed to send signup for ${inviteCode}`, error)
-      })
-    } else {
-      const channel = await getLeafChannel()
-
-      if (!channel) {
-        return
+        if (data) {
+          inviteCode = data.inviteCode
+        }
       }
 
-      channel.send(`User ${userMention(member.id)} joined, but I couldn't find an application for them.`)
+      if (inviteCode) {
+        await sendDiscordMessage(member.id, inviteCode).catch((error) => {
+          console.log(`Failed to send signup for ${inviteCode}`, error)
+        })
+      } else {
+        const channel = await getLeafCouncillorChannel(client)
+
+        if (!channel) {
+          return
+        }
+
+        await channel.send(`User ${userMention(member.id)} joined, but I couldn't find an application for them.`)
+      }
+
+      await member.send(dedent`Hello! I am the very helpful LEAF Helper! <:leaf_helper:1433816388497309696>
+
+      Your filled form has been sent to my Overlords, and they will get back to you asap!
+      
+      Meanwhile, you have been given the Seedling role - no worries, soon you'll be a proper Salad! :3`)
+    } catch (e) {
+      console.error('Error in GuildMemberAdd of approvalHandler')
+      console.error(e)
     }
   })
 
   client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isButton()) {
-      return
-    }
-
     try {
-      const parsed = parseApprovalButtonId(interaction.customId)
-      if (!parsed) return
+      if (interaction.isButton()) {
+        const parsed = parseApprovalButtonId(interaction.customId)
 
-      if (parsed.action === 'reject') {
-        await rejectApplication(parsed.inviteCode, interaction)
-      } else if (parsed.action === 'approve') {
-        await approveApplication(parsed.inviteCode, interaction)
+        if (parsed) {
+          if (parsed.action === 'reject') {
+            await rejectApplication(parsed.inviteCode, interaction)
+          } else if (parsed.action === 'approve') {
+            await approveApplication(parsed.inviteCode, interaction)
+          }
+        }
       }
     } catch (e: any) {
       console.error(e.rawError?.message || 'Something went wrong?')
@@ -86,27 +99,23 @@ export function setupApprovalHandler(client: Client) {
         console.error('--- ERROR: Was not allowed to reply to interaction ---')
       }
     }
-  })
-
-  async function getLeafChannel(): Promise<TextChannel | undefined> {
-    let channel
 
     try {
-      channel = await client.channels.fetch(process.env.LEAF_GUILD_NEW_USER_CHANNEL!)
-    } catch {
-      console.log('No access to the new signups channel!')
-    }
+      if (await showVerifyAccountModal(interaction)) {
+        return
+      }
 
-    if (!channel || !(channel instanceof TextChannel)) {
-      console.error('Approval Handler: No channel to send to')
-      return undefined
+      if (await registerAccount(interaction)) {
+        return
+      }
+    } catch (error) {
+      console.error('error in leaf bot interaction')
+      console.error(error)
     }
-
-    return channel
-  }
+  })
 
   async function sendDiscordMessage(discordId: string, inviteCode: string) {
-    const channel = await getLeafChannel()
+    const channel = await getLeafCouncillorChannel(client)
 
     if (!channel) {
       return
@@ -128,12 +137,15 @@ export function setupApprovalHandler(client: Client) {
 
     const approvalRow = createApprovalButtons({ inviteCode })
 
+    const role = channel.guild.roles.cache.find((role) => role.name.includes('Councillor Salad'))
+
     await channel.send({
+      content: `Hey, magnificent Overlords${role ? ` / ${roleMention(role.id)}` : ''}! <:leaf_helper:1433816388497309696>`,
       components: [approvalRow],
       embeds: [
         {
           color: COLORS.neutral,
-          title: `<:leaf_helper:1433816388497309696> ${newUser.nickname} just filled in the form to join!`,
+          title: `${newUser.nickname} just filled in the form to join! Check it out at your earliest convenience!`,
           description: dedent`\`\`\`ansi
         THE FORM:
 
@@ -183,7 +195,11 @@ export function setupApprovalHandler(client: Client) {
     }
 
     try {
-      await targetUser.send('After careful consideration, we have chosen to reject your application. Byebye!')
+      await targetUser.send(dedent`Hello! Today, I am the bearer of sad news...
+        
+        My Overlords have unfortunately denied your application - it seems we would not be a good fit.
+        
+        We wish you the best of luck in further roaming amongst the the Tyrian heroes!`)
       await interaction.editReply(`Successfully rejected ${targetUser.displayName}.`)
     } catch (e) {
       console.error(e)
@@ -214,13 +230,35 @@ export function setupApprovalHandler(client: Client) {
     }
 
     try {
-      await targetUser.send('After careful consideration, we have chosen to approve your application. Welcome!')
-      await interaction.editReply(
-        `Successfully approved ${targetUser.displayName}. I've sent them a message to verify.`,
-      )
+      const registerButton = new ButtonBuilder()
+        .setCustomId('register-gw2-user')
+        .setLabel('Register')
+        .setStyle(ButtonStyle.Primary)
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(registerButton)
+
+      await targetUser.send(dedent`Hey there! I have great news - you are about to become a part of LEAF!
+
+        The next step is to complete the API registration process.
+        
+        Why do my Overlords need it? So I can help them manage the guild members as the helpful LEAF Helper I am. <:leaf_helper:1433816388497309696>`)
+      await targetUser.send({
+        content: dedent.withOptions({ alignValues: true })`Here's how it works:
+          1) Go to https://account.arena.net/applications.
+          2) Create a New Key with ONLY the account permissions enabled.
+          3) Give the key a name so you can distinguish that it's being used by me - something like "LEAF guild" (and you have to have it active while you are in the guild).
+          4) Click on the "Register" button below.
+          5) Submit the key you just created to me!
+        Tadaa, you're all set!`,
+        components: [row],
+      })
+
+      await interaction.editReply(`Successfully approved ${targetUser.displayName}. I've sent them a message!`)
     } catch (e) {
       console.error(e)
-      await interaction.editReply(`There was an issue approving this user. Poke Sander, this is the id: ${signup.id}`)
+      await interaction.editReply(
+        `There was an issue approving ${targetUser.displayName}. Poke Sander, this is the id: ${signup.id}`,
+      )
     }
   }
 
@@ -282,6 +320,23 @@ export function setupApprovalHandler(client: Client) {
       return undefined
     }
   }
+}
+
+export async function getLeafCouncillorChannel(client: Client): Promise<TextChannel | undefined> {
+  let channel
+
+  try {
+    channel = await client.channels.fetch(process.env.LEAF_GUILD_NEW_USER_CHANNEL!)
+  } catch {
+    console.log('No access to the new signups channel!')
+  }
+
+  if (!channel || !(channel instanceof TextChannel)) {
+    console.error('Approval Handler: No channel to send to')
+    return undefined
+  }
+
+  return channel
 }
 
 function createApprovalButtons(options: { inviteCode?: string; disabled?: boolean } = {}) {

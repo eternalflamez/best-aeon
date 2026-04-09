@@ -7,11 +7,11 @@ export async function showVerifyAccountModal(interaction: Interaction<CacheType>
 
   let id = interaction.customId
 
-  if (id !== 'verify-gw2-user') {
+  if (id !== 'register-gw2-user') {
     return false
   }
 
-  const modal = new ModalBuilder().setCustomId('verify-gw2-user-modal').setTitle('Verify')
+  const modal = new ModalBuilder().setCustomId('register-gw2-user-modal').setTitle('Register')
 
   const input = new TextInputBuilder()
     .setCustomId('key')
