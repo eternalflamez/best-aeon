@@ -58,7 +58,11 @@ export function setupApprovalHandler(client: Client) {
           return
         }
 
-        await channel.send(`User ${userMention(member.id)} joined, but I couldn't find an application for them.`)
+        const role = channel.guild.roles.cache.find((role) => role.name.includes('Councillor Salad'))
+
+        await channel.send(dedent`Hey, magnifent Overlords${role ? ` / ${roleMention(role.id)}` : ''}!
+          
+          User ${userMention(member.id)} joined, but I couldn't find an application for them.`)
       }
 
       await member.send(dedent`Hello! I am the very helpful LEAF Helper! <:leaf_helper:1433816388497309696>
@@ -73,8 +77,8 @@ export function setupApprovalHandler(client: Client) {
   })
 
   client.on(Events.InteractionCreate, async (interaction) => {
-    try {
-      if (interaction.isButton()) {
+    if (interaction.isButton()) {
+      try {
         const parsed = parseApprovalButtonId(interaction.customId)
 
         if (parsed) {
@@ -84,19 +88,19 @@ export function setupApprovalHandler(client: Client) {
             await approveApplication(parsed.inviteCode, interaction)
           }
         }
-      }
-    } catch (e: any) {
-      console.error(e.rawError?.message || 'Something went wrong?')
-      console.error(e)
+      } catch (e: any) {
+        console.error(e.rawError?.message || 'Something went wrong?')
+        console.error(e)
 
-      try {
-        await interaction.reply({
-          content: 'Something went wrong. Please try again or contact Sander.',
-          flags: MessageFlags.Ephemeral,
-        })
-        return
-      } catch {
-        console.error('--- ERROR: Was not allowed to reply to interaction ---')
+        try {
+          await interaction.reply({
+            content: 'Something went wrong. Please try again or contact Sander.',
+            flags: MessageFlags.Ephemeral,
+          })
+          return
+        } catch {
+          console.error('--- ERROR: Was not allowed to reply to interaction ---')
+        }
       }
     }
 
@@ -124,14 +128,13 @@ export function setupApprovalHandler(client: Client) {
     const newUserRef = await getUserSignup(inviteCode)
 
     if (!newUserRef) {
-      console.log('Could not find approval in firestore for ', inviteCode)
+      console.log('Could not find approval in database for ', inviteCode)
       return
     }
 
     await newUserRef.ref.update({
       discordId,
-      joinedTimestamp: Date.now(),
-    })
+    } as Partial<NewUserSignup>)
 
     const newUser = newUserRef.data() as NewUserSignup
 
@@ -272,7 +275,8 @@ export function setupApprovalHandler(client: Client) {
     await newUserRef.ref.update({
       approvedBy: interactorId,
       approved,
-    })
+      approvedTimestamp: Date.now(),
+    } as Partial<NewUserSignup>)
 
     return newUserRef
   }

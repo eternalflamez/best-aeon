@@ -4,6 +4,9 @@ import { config } from 'dotenv'
 import leafDb from '../../leaf-firestore'
 import dedent from 'dedent'
 import { getLeafCouncillorChannel } from '../approvalHandler'
+import { addSproutlingRole } from '../../roles/setup-roles'
+import { RegisteredUser } from '../interfaces/registeredUser'
+import { NewUserSignup } from '../interfaces/newUserSignup'
 
 config()
 
@@ -35,7 +38,7 @@ export async function registerAccount(interaction: Interaction<CacheType>): Prom
   }
 
   await leafDb
-    ?.collection('registration')
+    ?.collection('registrations')
     .doc(interaction.user.id)
     .set({
       discordId: interaction.user.id,
@@ -44,7 +47,22 @@ export async function registerAccount(interaction: Interaction<CacheType>): Prom
       gwName: accountInfo.name,
       token: apiKey,
       isGuildMember: accountInfo.guilds.includes(process.env.LEAF_GUILD_ID!),
-    })
+      timestamp: Date.now(),
+    } as RegisteredUser)
+
+  try {
+    const signupRef = await leafDb?.collection('signups').where('discordId', '==', interaction.user.id).limit(1).get()
+
+    const doc = signupRef?.docs.shift()
+
+    if (doc) {
+      await doc.ref.update({
+        registered: true,
+      } as Partial<NewUserSignup>)
+    }
+  } catch (e) {
+    console.error('Failed to update signup registered flag', e)
+  }
 
   await reply(
     interaction,
@@ -59,13 +77,19 @@ export async function registerAccount(interaction: Interaction<CacheType>): Prom
 
   const channel = await getLeafCouncillorChannel(interaction.client)
 
-  if (channel) {
-    const role = channel.guild.roles.cache.find((role) => role.name.includes('Councillor Salad'))
-
-    await channel.send(dedent`Hey, magnificent Overlords / ${role ? ` / ${roleMention(role.id)}` : ''}! <:leaf_helper:1433816388497309696>
-      
-      ${userMention(interaction.user.id)} / [${accountInfo.name}] just registered their API key and become a Sproutling! Invite them to the guild in-game at your earliest convenience!`)
+  if (!channel) {
+    return true
   }
+
+  const member = await channel.guild.members.fetch(interaction.user.id)
+
+  await addSproutlingRole(member)
+
+  const role = channel.guild.roles.cache.find((role) => role.name.includes('Councillor Salad'))
+
+  await channel.send(dedent`Hey, magnificent Overlords / ${role ? ` / ${roleMention(role.id)}` : ''}! <:leaf_helper:1433816388497309696>
+      
+    ${userMention(interaction.user.id)} / [${accountInfo.name}] just registered their API key and became a Sproutling! Invite them to the guild in-game at your earliest convenience!`)
 
   return true
 }

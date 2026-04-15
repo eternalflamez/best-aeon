@@ -12,7 +12,7 @@ import {
   userMention,
 } from 'discord.js'
 import leafBirthdayReminders from './birthdays/leaf-birthday-reminders.ts'
-import setupRoles from './roles/setup-roles.ts'
+import { setupRoles } from './roles/setup-roles.ts'
 import configCommand from './commands/config-command.ts'
 import adminBirthdayAddCommand from './commands/admin-birthday-add-command.ts'
 import adminBirthdayRemoveCommand from './commands/admin-birthday-remove-command.ts'

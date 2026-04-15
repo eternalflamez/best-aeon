@@ -15,8 +15,11 @@ export interface NewUserSignup {
   // Added when approved/denied
   approvedBy?: string
   approved?: boolean
+  approvedTimestamp?: number
 
   // Added when user joins discord
   discordId?: string
-  joinedTimestamp?: number
+
+  // Added when the user registers gw2 api key
+  registered?: boolean
 }

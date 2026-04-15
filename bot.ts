@@ -35,7 +35,7 @@ export default function (clientId: string) {
     console.log(`Logged in as ${client.user?.tag}, ${clientId}`)
 
     birthdayReminders(client)
-    setupSelfDestruct(client, clientId)
+    await setupSelfDestruct(client, clientId)
   })
 
   const handlers: MessageHandler[] = [
