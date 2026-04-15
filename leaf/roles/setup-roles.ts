@@ -5,6 +5,7 @@ import dedent from 'dedent'
 import { getLeafCouncillorChannel } from '../createInvite/approvalHandler'
 import { NewUserSignup } from '../createInvite/interfaces/newUserSignup'
 import { RegisteredUser } from '../createInvite/interfaces/registeredUser'
+import { GuildWarsData } from '../guild/gw-api'
 
 const SEEDLING_ROLE = 'Seedling'
 const SPROUTLING_ROLE = 'Sproutling'
@@ -23,12 +24,14 @@ export async function setupRoles(client: Client) {
   })
 
   await checkSproutlingUsersOlderThan72Hours(client)
+  await refreshIsGuildMemberFlags()
   await checkPendingOnboarding(client)
 
   // Check every hour
   cron.schedule('0 * * * *', async () => {
     try {
       await checkSproutlingUsersOlderThan72Hours(client)
+      await refreshIsGuildMemberFlags()
       await checkPendingOnboarding(client)
     } catch (e) {
       console.error('Error in hourly Sproutling check:', e)
@@ -212,6 +215,40 @@ async function remindOrKickRegisteredNotInGuild(
     }
   } catch (e) {
     console.error('Error checking registered-but-not-in-guild users:', e)
+  }
+}
+
+async function refreshIsGuildMemberFlags(): Promise<void> {
+  try {
+    const regs = await leafDb?.collection('registrations').where('isGuildMember', '==', false).get()
+
+    if (!regs) {
+      return
+    }
+
+    for (const doc of regs.docs) {
+      const data = doc.data() as RegisteredUser
+
+      if (data.isGuildMember === true) {
+        continue
+      }
+
+      const accountInfo = await GuildWarsData.getAccount(data.token)
+
+      if (!accountInfo) {
+        continue
+      }
+
+      const isNowGuildMember = accountInfo.guilds.includes(process.env.LEAF_GUILD_ID!)
+
+      if (isNowGuildMember) {
+        await doc.ref.update({
+          isGuildMember: true,
+        } as Partial<RegisteredUser>)
+      }
+    }
+  } catch (e) {
+    console.error('Error refreshing isGuildMember flags:', e)
   }
 }
 
