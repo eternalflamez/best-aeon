@@ -58,7 +58,9 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
     return
   }
 
-  const scheduleOutputsFlat = guildConfigs.flatMap((g) =>
+  /** Guilds the sell schedule feature will use (pruned at ClientReady if the client has no access). */
+  let activeGuildConfigs: GuildSellScheduleConfig[] = [...guildConfigs]
+  let scheduleOutputsFlat = activeGuildConfigs.flatMap((g) =>
     g.scheduleOutputs.map((o) => ({ guildId: g.guildId, id: o.id, regions: o.regions })),
   )
 
@@ -69,6 +71,23 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
 
   client.once(Events.ClientReady, async () => {
     try {
+      const inaccessibleGuildIds = activeGuildConfigs
+        .filter((c) => !client.guilds.cache.has(c.guildId))
+        .map((c) => c.guildId)
+
+      if (inaccessibleGuildIds.length) {
+        activeGuildConfigs = activeGuildConfigs.filter((c) => client.guilds.cache.has(c.guildId))
+        scheduleOutputsFlat = activeGuildConfigs.flatMap((g) =>
+          g.scheduleOutputs.map((o) => ({ guildId: g.guildId, id: o.id, regions: o.regions })),
+        )
+      }
+
+      if (!activeGuildConfigs.length) {
+        console.warn('[SellSchedule] No accessible guilds after startup check; skipping sell schedule load.')
+        isStarting = false
+        return
+      }
+
       for (let i = 0; i < scheduleOutputsFlat.length; i++) {
         const channelInfo = scheduleOutputsFlat[i]
 
@@ -86,7 +105,7 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
         }
       }
 
-      for (const guildCfg of guildConfigs) {
+      for (const guildCfg of activeGuildConfigs) {
         const logger = createSellScheduleGuildLogger(client, guildCfg.guildId)
 
         for (const sellChannelId of Object.keys(guildCfg.sellChannels)) {
@@ -111,7 +130,7 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
         }
       }
 
-      createSellScheduleGuildLogger(client, guildConfigs[0]!.guildId).log('loaded schedule', schedule.length)
+      createSellScheduleGuildLogger(client, activeGuildConfigs[0]!.guildId).log('loaded schedule', schedule.length)
 
       const endListener = () => {
         isStarting = false
