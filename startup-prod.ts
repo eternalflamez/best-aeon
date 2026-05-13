@@ -47,7 +47,7 @@ SetupBuyerManagement({
   translations: htTranslations,
 })
 
-startup(clientId)
+await startup(clientId)
 
 startupLeaf(clientId)
 

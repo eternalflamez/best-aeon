@@ -16,9 +16,12 @@ RESETCHANNEL=
 
 GEMINI_KEY=
 
-SELL_CHANNEL_BOTH=  
-SELL_CHANNEL_EU=  
-SELL_CHANNEL_NA=
+> Sell schedule (per guild) is stored in Firestore collection `sell_schedule_config`.
+> Document ID = guild snowflake. Fields:
+> - `sellChannels` (map: channelId → `{ region: string }`) **or** array of `{ channelId, region }`
+> - `scheduleOutputs`: `{ id: string, regions: string[] }[]` (summary channels, same semantics as the old bot triplet)
+>
+> Migrate from legacy `.env` once: `GUILD_ID=<guild> npx tsx scripts/migrate-sell-schedule-config.ts` (needs `SELL_CHANNEL_BOTH`, `SELL_CHANNEL_EU`, `SELL_CHANNEL_NA` in `.env` for that run only).
 
 > matching guild id with invite link
 

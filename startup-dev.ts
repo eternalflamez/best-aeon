@@ -29,7 +29,7 @@ const clientId = uuidv4()
 //   translations: riseTranslations,
 // })
 
-// startup(clientId)
+// await startup(clientId)
 
 // startupLeaf(clientId)
 

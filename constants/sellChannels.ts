@@ -1,32 +1,27 @@
-const sellChannels = {
-  // scheduled-cms
-  '982039087663951892': { region: 'EU' },
-  // scheduled-practise
-  '1444445198758187071': { region: 'EU' },
-  // na-scheduled-cms
-  '1196923586791874640': { region: 'NA' },
+import type { GuildSellScheduleConfig } from '../types/GuildSellScheduleConfig.ts'
 
-  // BTB
-  // instant-sales
-  // '1249829604974268418': { region: 'EU' },
-  // sells
-  // '1263079097408688155': { region: 'NA' },
-}
+const channelToGuildRegion = new Map<string, { guildId: string; region: string }>()
 
-function isValidSellChannel(channelId: string): channelId is keyof typeof sellChannels {
-  return channelId in sellChannels
-}
-
-function isInstantChannel(channelId: string) {
-  return channelId === '1249829604974268418'
-}
-
-function getRegion(channelid: string) {
-  if (isValidSellChannel(channelid)) {
-    return sellChannels[channelid].region
+export function initSellScheduleGuilds(configs: GuildSellScheduleConfig[]) {
+  channelToGuildRegion.clear()
+  for (const g of configs) {
+    for (const [channelId, meta] of Object.entries(g.sellChannels)) {
+      channelToGuildRegion.set(channelId, { guildId: g.guildId, region: meta.region })
+    }
   }
+}
 
+export function isValidSellChannel(guildId: string | null | undefined, channelId: string): boolean {
+  if (!guildId) return false
+  const hit = channelToGuildRegion.get(channelId)
+  return hit?.guildId === guildId
+}
+
+export function getRegion(guildId: string | null | undefined, channelId: string): string | null {
+  if (!guildId) return null
+  const hit = channelToGuildRegion.get(channelId)
+  if (hit?.guildId === guildId) {
+    return hit.region
+  }
   return null
 }
-
-export { sellChannels, isValidSellChannel, isInstantChannel, getRegion }

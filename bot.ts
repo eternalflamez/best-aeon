@@ -14,10 +14,15 @@ import AddToThread from './onMessageReactionAddHooks/0.addToThread.ts'
 import SetupSellSchedule from './features/sell-schedule.ts'
 import DmHandler from './features/best-aeon/DmHandler.ts'
 import FlowerMarkerPackHandler from './features/best-aeon/FlowerMarkerPackHandler.ts'
+import { initSellScheduleGuilds } from './constants/sellChannels.ts'
+import { loadSellScheduleGuildConfigs } from './firestore/sellScheduleConfig.ts'
 
 config()
 
-export default function (clientId: string) {
+export default async function (clientId: string) {
+  const sellScheduleGuilds = await loadSellScheduleGuildConfigs()
+  initSellScheduleGuilds(sellScheduleGuilds)
+
   const TOKEN = process.env.TOKEN
   const client = new Client({
     intents: [
@@ -78,18 +83,7 @@ export default function (clientId: string) {
 
   client.login(TOKEN)
 
-  SetupSellSchedule(client, [
-    {
-      id: process.env.SELL_CHANNEL_BOTH!,
-      regions: ['NA', 'EU'],
-    },
-    {
-      id: process.env.SELL_CHANNEL_EU!,
-      regions: ['EU'],
-    },
-    {
-      id: process.env.SELL_CHANNEL_NA!,
-      regions: ['NA'],
-    },
-  ])
+  if (sellScheduleGuilds.length > 0) {
+    SetupSellSchedule(client, sellScheduleGuilds)
+  }
 }

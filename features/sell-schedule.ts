@@ -13,15 +13,55 @@ import {
   StringSelectMenuOptionBuilder,
   TextChannel,
 } from 'discord.js'
-import { sellChannels, isValidSellChannel, getRegion } from '../constants/sellChannels.ts'
+import { isValidSellChannel, getRegion } from '../constants/sellChannels.ts'
+import type { GuildSellScheduleConfig } from '../types/GuildSellScheduleConfig.ts'
 import Queue, { QueueWorkerCallback } from 'queue'
 import generateIcs from './sell-schedule/generateIcs.ts'
+import { createSellScheduleGuildLogger } from './sell-schedule/guildSellScheduleLogger.ts'
 import { logRequestSignups } from '../firestore/log.ts'
 
 const MESSAGE_PADDING = '\n\u200B'
 const MCMysticCoinEmoji = '545057156274323486'
 
-export default function (client: Client, scheduleChannelIds: { id: string; regions: string[] }[]) {
+const MY_SCHEDULE_PREFIX = 'my-schedule|'
+const MY_SCHEDULE_DOWNLOAD_PREFIX = 'my-schedule-download-select|'
+
+function parseMyScheduleButtonBase(customId: string): { guildId: string; regions: string[] } | null {
+  const base = customId.includes('&page=') ? customId.split('&page=')[0]! : customId
+  if (!base.startsWith(MY_SCHEDULE_PREFIX)) {
+    return null
+  }
+  const rest = base.slice(MY_SCHEDULE_PREFIX.length)
+  const pipeIdx = rest.indexOf('|')
+  if (pipeIdx < 0) {
+    return null
+  }
+  const guildId = rest.slice(0, pipeIdx)
+  const regionsPart = rest.slice(pipeIdx + 1)
+  if (!regionsPart) {
+    return null
+  }
+  const regions = regionsPart.includes(':') ? regionsPart.split(':') : [regionsPart]
+  return { guildId, regions }
+}
+
+function addRefreshTargets(map: Map<string, Set<string>>, guildId: string, region: string) {
+  if (!map.has(guildId)) {
+    map.set(guildId, new Set())
+  }
+  map.get(guildId)!.add(region)
+}
+
+export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]) {
+  if (!guildConfigs.length) {
+    console.warn('[SellSchedule] No guild configs loaded; sell schedule is disabled.')
+    return
+  }
+
+  const scheduleOutputsFlat = guildConfigs.flatMap((g) =>
+    g.scheduleOutputs.map((o) => ({ guildId: g.guildId, id: o.id, regions: o.regions })),
+  )
+
   const q = new Queue({ autostart: true, concurrency: 1 })
   const schedule: ScheduleMessage[] = []
   let writtenSchedule: string[] = []
@@ -29,8 +69,8 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
   client.once(Events.ClientReady, async () => {
     try {
-      for (let i = 0; i < scheduleChannelIds.length; i++) {
-        const channelInfo = scheduleChannelIds[i]
+      for (let i = 0; i < scheduleOutputsFlat.length; i++) {
+        const channelInfo = scheduleOutputsFlat[i]
 
         const channel = await client.channels.fetch(channelInfo.id)
 
@@ -46,28 +86,32 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         }
       }
 
-      for (const sellChannelId in sellChannels) {
-        try {
-          const sellChannel = await client.channels.fetch(sellChannelId)
+      for (const guildCfg of guildConfigs) {
+        const logger = createSellScheduleGuildLogger(client, guildCfg.guildId)
 
-          if (sellChannel && sellChannel instanceof TextChannel) {
-            let sellMessages = await sellChannel.messages
-              .fetch()
-              .then((messages) => messages.filter((message) => message.content.includes('<t:')))
+        for (const sellChannelId of Object.keys(guildCfg.sellChannels)) {
+          try {
+            const sellChannel = await client.channels.fetch(sellChannelId)
 
-            if (sellMessages) {
-              for (const sellMessage of sellMessages.values()) {
-                await addToSchedule(sellMessage)
+            if (sellChannel && sellChannel instanceof TextChannel) {
+              let sellMessages = await sellChannel.messages
+                .fetch()
+                .then((messages) => messages.filter((message) => message.content.includes('<t:')))
+
+              if (sellMessages) {
+                for (const sellMessage of sellMessages.values()) {
+                  await addToSchedule(sellMessage)
+                }
               }
             }
+          } catch (e: unknown) {
+            logger.error(e)
+            continue
           }
-        } catch (e: any) {
-          console.error(e)
-          continue
         }
       }
 
-      console.log('loaded schedule', schedule.length)
+      createSellScheduleGuildLogger(client, guildConfigs[0]!.guildId).log('loaded schedule', schedule.length)
 
       const endListener = () => {
         isStarting = false
@@ -95,14 +139,19 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
   client.on(Events.MessageCreate, async (message) => {
     if (message.author.bot || message.system) return
 
+    const guildId = message.guildId
+    if (!guildId) return
+
     try {
-      let region = getRegion(message.channelId)
+      const region = getRegion(guildId, message.channelId)
 
       if (region) {
         if (message.content.includes('<t:')) {
           await addToSchedule(message)
 
-          await createMessages(undefined, region)
+          const touched = new Map<string, Set<string>>()
+          addRefreshTargets(touched, guildId, region)
+          await createMessages(undefined, touched)
         }
       }
     } catch (e: any) {
@@ -110,7 +159,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         return
       }
 
-      console.error(e)
+      createSellScheduleGuildLogger(client, guildId).error(e)
     }
   })
 
@@ -121,24 +170,27 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       return
     }
 
+    const row = schedule[index]
+    const guildId = row.guildId
+    const region = row.region
+
     if (message.hasThread) {
       try {
         await message.thread!.delete()
       } catch (e) {
-        console.error('--- ERROR: Failed to delete thread ---')
-        console.error(e)
+        createSellScheduleGuildLogger(client, guildId).error('--- ERROR: Failed to delete thread ---', e)
       }
     }
 
     schedule.splice(index, 1)
 
-    let region = getRegion(message.channelId)
-
-    await createMessages(undefined, region || undefined)
+    const touched = new Map<string, Set<string>>()
+    addRefreshTargets(touched, guildId, region)
+    await createMessages(undefined, touched)
   })
 
   client.on(Events.MessageBulkDelete, async (messages) => {
-    const regions = new Set<string>()
+    const touched = new Map<string, Set<string>>()
 
     for (let i = 0; i < messages.size; i++) {
       let message = messages.at(i)!
@@ -149,25 +201,27 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         continue
       }
 
+      const row = schedule[index]
+
       if (message.hasThread) {
         try {
           await message.thread!.delete()
         } catch (e) {
-          console.error('--- ERROR: Failed to delete thread (from bulk) ---')
-          console.error(e)
+          createSellScheduleGuildLogger(client, row.guildId).error(
+            '--- ERROR: Failed to delete thread (from bulk) ---',
+            e,
+          )
         }
       }
 
-      let region = getRegion(message.channelId)
-
-      if (region) {
-        regions.add(region)
-      }
+      addRefreshTargets(touched, row.guildId, row.region)
 
       schedule.splice(index, 1)
     }
 
-    await createMessages(undefined, Array.from(regions))
+    if (touched.size) {
+      await createMessages(undefined, touched)
+    }
   })
 
   client.on(Events.MessageUpdate, async (_, updatedMessage) => {
@@ -184,12 +238,15 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
       schedule[messageIndex].date = timestamp
       schedule[messageIndex].text = getSortedMessage(updatedMessage, timeText)
 
-      let region = getRegion(updatedMessage.channelId)
-
-      await createMessages(undefined, region || undefined)
+      const gid = schedule[messageIndex].guildId
+      const region = schedule[messageIndex].region
+      const touched = new Map<string, Set<string>>()
+      addRefreshTargets(touched, gid, region)
+      await createMessages(undefined, touched)
     } else {
-      // If something was updated and became matching, add it
-      if (isValidSellChannel(updatedMessage.channelId)) {
+      const gid = updatedMessage.guildId
+
+      if (gid && isValidSellChannel(gid, updatedMessage.channelId)) {
         if (updatedMessage.partial) {
           updatedMessage = await updatedMessage.fetch()
         }
@@ -197,19 +254,27 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         if (updatedMessage.content.includes('<t:')) {
           await addToSchedule(updatedMessage)
 
-          let region = getRegion(updatedMessage.channelId)
-          await createMessages(undefined, region || undefined)
+          const region = getRegion(gid, updatedMessage.channelId)
+
+          if (region) {
+            const touched = new Map<string, Set<string>>()
+            addRefreshTargets(touched, gid, region)
+            await createMessages(undefined, touched)
+          }
         }
       }
     }
   })
 
   client.on(Events.InteractionCreate, async (interaction) => {
-    if (!interaction.isButton()) {
-      if (interaction.isStringSelectMenu()) {
+    if (interaction.isStringSelectMenu()) {
+      if (interaction.customId.startsWith(MY_SCHEDULE_DOWNLOAD_PREFIX)) {
         return downloadIcs(interaction)
       }
+      return
+    }
 
+    if (!interaction.isButton()) {
       return
     }
 
@@ -225,7 +290,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
     try {
       let id = interaction.customId
 
-      if (!id.startsWith('my-schedule-')) {
+      if (!id.startsWith(MY_SCHEDULE_PREFIX)) {
         return
       }
 
@@ -236,15 +301,25 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         return
       }
 
+      const parsed = parseMyScheduleButtonBase(id)
+      if (!parsed) {
+        return
+      }
+
+      const { guildId: btnGuildId, regions } = parsed
+
+      if (interaction.guildId && interaction.guildId !== btnGuildId) {
+        return
+      }
+
       await interaction.deferReply({
         flags: MessageFlags.Ephemeral,
       })
 
-      const regions = id.replace('my-schedule-', '').split('-')
-
       function getContent() {
         const reactedItems = schedule.filter((message) => {
           return (
+            message.guildId === btnGuildId &&
             message.reactors.some((reaction) => reaction.userId === interaction.user.id) &&
             regions.includes(message.region)
           )
@@ -326,7 +401,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
           .setStyle(ButtonStyle.Primary)
 
         const downloadSelect = new StringSelectMenuBuilder()
-          .setCustomId('my-schedule-download-select')
+          .setCustomId(`${MY_SCHEDULE_DOWNLOAD_PREFIX}${btnGuildId}`)
           .setPlaceholder('Select items to download calendars for')
           .setMinValues(1)
           .setMaxValues(Math.min(10, reactedItems.length))
@@ -383,10 +458,13 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         await buttonInteraction.update(result)
       })
     } catch (e: any) {
-      console.error(`Sell-schedule reply failed: ${e.rawError?.message}` || 'Something went wrong?')
+      const ig = interaction.guildId
+      const logErr = (...args: unknown[]) =>
+        ig ? createSellScheduleGuildLogger(client, ig).error(...args) : console.error('[SellSchedule]', ...args)
+      logErr(`Sell-schedule reply failed: ${e.rawError?.message}` || 'Something went wrong?')
 
       if (e.rawError?.message !== 'Unknown interaction') {
-        console.error(e)
+        logErr(e)
       }
 
       try {
@@ -395,7 +473,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         })
         return
       } catch {
-        console.error('--- ERROR: Was not allowed to reply to interaction ---')
+        logErr('--- ERROR: Was not allowed to reply to interaction ---')
       }
     }
   })
@@ -431,6 +509,16 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
   })
 
   async function addToSchedule(message: Message<boolean>) {
+    const guildId = message.guildId
+    if (!guildId) {
+      return
+    }
+
+    const region = getRegion(guildId, message.channelId)
+    if (!region) {
+      return
+    }
+
     const match = getTimestampMatch(message.content)
     const timeText = extractTimeText(match)
     const timestamp = extractTimestamp(match)
@@ -457,15 +545,16 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
 
     schedule.push({
       id: message.id,
+      guildId,
       channelId: message.channelId,
-      region: getRegion(message.channelId)!,
+      region,
       reactors: userIds,
       date: timestamp,
       text: getSortedMessage(message, timeText),
     })
   }
 
-  async function createMessages(_callback?: QueueWorkerCallback, updatedRegion?: string | string[]) {
+  async function createMessages(_callback?: QueueWorkerCallback, refreshFilter?: Map<string, Set<string>>) {
     const queueFunction = async () => {
       if (writtenSchedule.length === schedule.length) {
         const currentMap = schedule.map((item) => {
@@ -488,15 +577,16 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         }
       }
 
-      for (let i = 0; i < scheduleChannelIds.length; i++) {
-        const channelInfo = scheduleChannelIds[i]
+      for (let i = 0; i < scheduleOutputsFlat.length; i++) {
+        const channelInfo = scheduleOutputsFlat[i]
+        const logger = createSellScheduleGuildLogger(client, channelInfo.guildId)
 
-        if (updatedRegion) {
-          const regions = Array.isArray(updatedRegion) ? updatedRegion : [updatedRegion]
-          const hasMatchingRegion = regions.some((region) => channelInfo.regions.includes(region))
-
-          if (!hasMatchingRegion) {
-            // Skip regions that were not updated.
+        if (refreshFilter) {
+          const guildRegions = refreshFilter.get(channelInfo.guildId)
+          if (!guildRegions) {
+            continue
+          }
+          if (!channelInfo.regions.some((region) => guildRegions.has(region))) {
             continue
           }
         }
@@ -504,7 +594,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         const channel = client.channels.cache.get(channelInfo.id) as TextChannel | undefined
 
         if (!channel) {
-          console.error(`--- ERROR: Channel not found to post sell-schedule ${channelInfo.regions.join('-')} ---`)
+          logger.error(`--- ERROR: Channel not found to post sell-schedule ${channelInfo.regions.join('-')} ---`)
           continue
         }
 
@@ -516,7 +606,9 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
           await messageToDelete?.delete().catch(() => {})
         }
 
-        const regionSchedule = schedule.filter((message) => channelInfo.regions.includes(message.region))
+        const regionSchedule = schedule.filter(
+          (message) => message.guildId === channelInfo.guildId && channelInfo.regions.includes(message.region),
+        )
 
         if (regionSchedule.length === 0) {
           await channel.send(NO_SELLS_COMMENTS[Math.round(Math.random() * (NO_SELLS_COMMENTS.length - 1))])
@@ -526,14 +618,14 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
         const result = getPrunedOutput(regionSchedule)
 
         const myScheduleButton = new ButtonBuilder()
-          .setCustomId(`my-schedule-${channelInfo.regions.join('-')}`)
+          .setCustomId(`${MY_SCHEDULE_PREFIX}${channelInfo.guildId}|${channelInfo.regions.join(':')}`)
           .setLabel('My Schedule')
           .setStyle(ButtonStyle.Primary)
 
         const row = new ActionRowBuilder<ButtonBuilder>().addComponents(myScheduleButton)
 
         for (let j = 0; j < result.length; j++) {
-          const schedule = result[j]
+          const scheduleChunk = result[j]
 
           let padding = ''
 
@@ -544,7 +636,7 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
           }
 
           await channel.send({
-            content: schedule.join('\r\n\r\n') + padding,
+            content: scheduleChunk.join('\r\n\r\n') + padding,
             ...(isLastRow && { components: [row] }),
           })
         }
@@ -559,13 +651,18 @@ export default function (client: Client, scheduleChannelIds: { id: string; regio
   }
 
   function downloadIcs(interaction: StringSelectMenuInteraction) {
+    if (!interaction.customId.startsWith(MY_SCHEDULE_DOWNLOAD_PREFIX)) {
+      return
+    }
+
+    const guildId = interaction.customId.slice(MY_SCHEDULE_DOWNLOAD_PREFIX.length)
     const messages = interaction.values
       .map((id) => {
         return schedule.find((scheduleItem) => {
-          return scheduleItem.id === id
+          return scheduleItem.id === id && scheduleItem.guildId === guildId
         })
       })
-      .filter((item) => !!item)
+      .filter((item): item is ScheduleMessage => !!item)
 
     const icsFile = generateIcs(messages)
 

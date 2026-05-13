@@ -1,16 +1,15 @@
 import { userMention, Message, ThreadAutoArchiveDuration } from 'discord.js'
-import { isInstantChannel, isValidSellChannel } from '../../constants/sellChannels.ts'
+import { isValidSellChannel } from '../../constants/sellChannels.ts'
 import { logStartSellThread } from '../../firestore/log.ts'
 import { MessageHandler } from '../../types/MessageHandler.js'
 
 export default class StartSellThreadHandler implements MessageHandler {
   async handle(message: Message<boolean>) {
     const messageText = message.content.toLowerCase()
+    const guildId = message.guildId
 
-    if (isValidSellChannel(message.channelId)) {
-      const isPingInInstantChannel = isInstantChannel(message.channelId) && messageText.includes('@everyone')
-
-      if (messageText.includes('<t:') || isPingInInstantChannel) {
+    if (guildId && isValidSellChannel(guildId, message.channelId)) {
+      if (messageText.includes('<t:')) {
         const limit = 100
         const timestampPattern = /<t:\d+:[a-zA-Z]>/g
         let name = message.content.split('\n')[0].replaceAll(timestampPattern, '').replaceAll('@everyone', '').trim()

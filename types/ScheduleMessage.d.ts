@@ -1,5 +1,6 @@
 type ScheduleMessage = {
   id: string
+  guildId: string
   channelId: string
   reactors: ScheduleReaction[]
   region: string

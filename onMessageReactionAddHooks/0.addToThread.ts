@@ -12,7 +12,8 @@ export default async function (reaction: MessageReaction | PartialMessageReactio
     }
   }
 
-  if (!isValidSellChannel(reaction.message.channelId)) {
+  const guildId = reaction.message.guildId
+  if (!guildId || !isValidSellChannel(guildId, reaction.message.channelId)) {
     return
   }
 
