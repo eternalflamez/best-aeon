@@ -128,9 +128,9 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
             continue
           }
         }
-      }
 
-      createSellScheduleGuildLogger(client, activeGuildConfigs[0]!.guildId).log('loaded schedule', schedule.length)
+        createSellScheduleGuildLogger(client, guildCfg.guildId).log('loaded schedule', schedule.length)
+      }
 
       const endListener = () => {
         isStarting = false

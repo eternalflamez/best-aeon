@@ -2,8 +2,15 @@
  * One-time migration: writes `sell_schedule_config/{guildId}` from `.env`
  * `SELL_CHANNEL_*` and the legacy sell source channel map.
  *
- * Usage: `GUILD_ID=<snowflake> npx tsx scripts/migrate-sell-schedule-config.ts`
+ * Usage: `npx tsx scripts/migrate-sell-schedule-config.ts`
  * Requires `SELL_CHANNEL_BOTH`, `SELL_CHANNEL_EU`, `SELL_CHANNEL_NA` in `.env`.
+ *
+ * Like such:
+ * GUILD_ID=
+ * SELL_CHANNEL_BOTH=
+ * SELL_CHANNEL_EU=
+ * SELL_CHANNEL_NA=
+ *
  */
 import { config } from 'dotenv'
 
@@ -14,9 +21,9 @@ import { SELL_SCHEDULE_CONFIG_COLLECTION } from '../firestore/sellScheduleConfig
 
 /** Same channel ids as the pre-Firestore `constants/sellChannels.ts` map (active entries only). */
 const LEGACY_SELL_CHANNELS: Record<string, { region: string }> = {
-  '982039087663951892': { region: 'EU' },
-  '1444445198758187071': { region: 'EU' },
-  '1196923586791874640': { region: 'NA' },
+  '1503815805689659572': { region: 'EU' },
+  '1503815806075797666': { region: 'EU' },
+  '1503815806075797672': { region: 'NA' },
 }
 
 async function main() {
