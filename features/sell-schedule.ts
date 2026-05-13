@@ -107,6 +107,7 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
 
       for (const guildCfg of activeGuildConfigs) {
         const logger = createSellScheduleGuildLogger(client, guildCfg.guildId)
+        let guildCount = 0
 
         for (const sellChannelId of Object.keys(guildCfg.sellChannels)) {
           try {
@@ -116,6 +117,8 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
               let sellMessages = await sellChannel.messages
                 .fetch()
                 .then((messages) => messages.filter((message) => message.content.includes('<t:')))
+
+              guildCount += sellMessages.size
 
               if (sellMessages) {
                 for (const sellMessage of sellMessages.values()) {
@@ -129,7 +132,7 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
           }
         }
 
-        createSellScheduleGuildLogger(client, guildCfg.guildId).log('loaded schedule', schedule.length)
+        createSellScheduleGuildLogger(client, guildCfg.guildId).log('loaded schedule', guildCount)
       }
 
       const endListener = () => {
