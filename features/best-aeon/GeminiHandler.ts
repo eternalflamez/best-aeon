@@ -1,4 +1,4 @@
-import { Client, Message, TextChannel, userMention } from 'discord.js'
+import { Client, Message, PermissionFlagsBits, TextChannel, userMention } from 'discord.js'
 import replyTo from './utility/gemini.ts'
 import timeoutReactions from '../../constants/timeoutReactions.ts'
 import { logGemini } from '../../firestore/log.ts'
@@ -26,6 +26,14 @@ export default class GeminiHandler implements MessageHandler {
       await this.#sendReply(message, reactions)
 
       logGemini(message.author.id, message.author.username, '', 'cooldown')
+      return true
+    }
+
+    const canSend =
+      !message.inGuild() ||
+      message.guild.members.me?.permissionsIn(message.channelId).has(PermissionFlagsBits.SendMessages)
+
+    if (!canSend) {
       return true
     }
 
@@ -81,9 +89,14 @@ export default class GeminiHandler implements MessageHandler {
         await this.#sendReply(message, reply)
       }
     } catch (e: any) {
-      console.error(e.message)
+      console.error('gemini handler error')
+      console.error(e)
 
-      const reply = 'Sorry I was too stupid to cook up a reply and instead had an error.'
+      let reply = 'Sorry I was too stupid to cook up a reply and instead had an error.'
+
+      if (e.error.message.includes('current quota')) {
+        reply = e.message
+      }
 
       logGemini(message.author.id, message.author.username, reply, 'error')
 
