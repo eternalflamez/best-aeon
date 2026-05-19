@@ -20,8 +20,8 @@ export default async function (
     chat = startChat()
   } else {
     const timeDiff = Date.now() - memory[channelId].timestamp
-    // 30 minutes
-    const MAX_TIME_DIFF = 30 * 60 * 1000
+    // 60 minutes
+    const MAX_TIME_DIFF = 60 * 60 * 1000
 
     if (timeDiff > MAX_TIME_DIFF) {
       chat = startChat()
