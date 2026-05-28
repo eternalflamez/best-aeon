@@ -60,17 +60,17 @@ async function onSnapshot(
   const targetMessageId = snapshot.get('messageId') as string
   const message = targetMessageId ? await embedChannel.messages.fetch(targetMessageId) : null
 
-  if (!message) {
+  if (message) {
+    await message.edit({
+      embeds: [embed],
+    })
+  } else {
     const newMessage = await embedChannel.send({
       embeds: [embed],
     })
 
     await snapshot.ref.update({
       messageId: newMessage.id,
-    })
-  } else {
-    await message.edit({
-      embeds: [embed],
     })
   }
 }
