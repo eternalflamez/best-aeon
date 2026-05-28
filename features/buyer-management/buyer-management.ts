@@ -39,8 +39,8 @@ export default function setup({
   guildTag,
   guildId,
   managerToken,
-  contactedCategoryChannelId,
   buyerManagementChannelId,
+  contactedCategoryChannelId,
   previousBuyersChannelId,
   priceEmbedChannelId,
   embedRaidBoss,
@@ -182,7 +182,7 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
 
       const parentName = userChannel.parent?.name.toLowerCase()
 
-      if (parentName?.includes('scheduled')) {
+      if (parentName?.includes('scheduled') && previousBuyersChannelId) {
         const previousBuyersChannel = channels.get(previousBuyersChannelId) as TextChannel | undefined
 
         if (previousBuyersChannel) {
