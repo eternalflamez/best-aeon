@@ -113,7 +113,7 @@ export default function setup({
         targetChannel = c as CategoryChannel
       }
 
-      const adminRole = member.guild.roles.cache.find((role) => role.name.includes('LFG'))
+      const adminRole = member.guild.roles.cache.find((role) => role.name.includes('[Rise]'))
 
       if (!adminRole) {
         return
