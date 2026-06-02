@@ -814,4 +814,5 @@ const NO_SELLS_COMMENTS = [
   'Sign the fun up!',
   'RAIDS 4 SALE IS A SKEM - Do NOT buy these "services" stay safe from those shady people and skems brothers and sisters - BLOCK and IGNORE those people\nLanguage (Optional)',
   "Herbert Hurry: Yes, I can retrieve data from a YouTube URL, Frothy. What's the URL?",
+  'I was alerted that a certain someone that shall not be named here (korra) was creating drama in the public channel. Not only did this person (or was it karo ...) start some seriuos drama, they also deleted their msg right away, not letting anyone enjoy the content. Where is this gonna lead, a guild with no drama? Not with me! I dont want to do any name calling (it was cora) but we should consider an adqeuate punishment for this insidious case of drama gas lighting!',
 ]
