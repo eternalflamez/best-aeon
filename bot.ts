@@ -81,9 +81,9 @@ export default async function (clientId: string) {
     await AddToThread(reaction, user)
   })
 
-  client.login(TOKEN)
-
   if (sellScheduleGuilds.length > 0) {
     SetupSellSchedule(client, sellScheduleGuilds)
   }
+
+  client.login(TOKEN)
 }

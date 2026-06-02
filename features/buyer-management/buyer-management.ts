@@ -23,6 +23,7 @@ import { Language } from '../../constants/buyerManagementLanguages.ts'
 import AutomaticallyClearUsers from './clear-users.ts'
 import { logCallDibs } from '../../firestore/log.ts'
 import { setupSelfDestruct, checkDestruction } from '../utils/self-destruct.ts'
+import { replyBotOutOfOrder } from '../utils/bot-out-of-order.ts'
 import { setup as setupPriceList } from './post-price-list.ts'
 import db from '../../firestore/setupFirestore.ts'
 
@@ -208,6 +209,11 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
   })
 
   client.on(Events.InteractionCreate, async (interaction) => {
+    if (interaction.inGuild() && interaction.guildId !== guildId) {
+      await replyBotOutOfOrder(interaction)
+      return
+    }
+
     if (!interaction.isButton()) {
       return
     }
