@@ -95,7 +95,7 @@ export default class GeminiHandler implements MessageHandler {
       let reply = 'Sorry I was too stupid to cook up a reply and instead had an error.'
 
       if (e.message.includes('current quota')) {
-        reply = e.message
+        reply = '[QUOTA_EXCEEDED]'
       }
 
       logGemini(message.author.id, message.author.username, reply, 'error')
