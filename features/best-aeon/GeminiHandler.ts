@@ -98,6 +98,10 @@ export default class GeminiHandler implements MessageHandler {
         reply = '[QUOTA_EXCEEDED]'
       }
 
+      if (e.message.includes('high demand')) {
+        reply = '[HIGH_DEMAND]'
+      }
+
       logGemini(message.author.id, message.author.username, reply, 'error')
 
       await this.#sendReply(message, reply)
