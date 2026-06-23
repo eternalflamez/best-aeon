@@ -9,7 +9,7 @@ export default class StartSellThreadHandler implements MessageHandler {
     const guildId = message.guildId
 
     if (guildId && isValidSellChannel(guildId, message.channelId)) {
-      if (messageText.includes('<t:')) {
+      if (messageText.includes('<t:') || messageText.toLowerCase().includes('timestamp')) {
         const limit = 100
         const timestampPattern = /<t:\d+:[a-zA-Z]>/g
         let name = message.content.split('\n')[0].replaceAll(timestampPattern, '').replaceAll('@everyone', '').trim()
