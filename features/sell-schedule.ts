@@ -21,7 +21,7 @@ import { createSellScheduleGuildLogger } from './sell-schedule/guildSellSchedule
 import { logRequestSignups } from '../firestore/log.ts'
 
 const MESSAGE_PADDING = '\n\u200B'
-const MCMysticCoinEmoji = '545057156274323486'
+const MCMysticCoinEmoji = '1504126376607748269'
 
 const MY_SCHEDULE_PREFIX = 'my-schedule|'
 const MY_SCHEDULE_DOWNLOAD_PREFIX = 'my-schedule-download-select|'
@@ -379,7 +379,7 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
 
           if (signedOutput[0]) {
             signedOutput.forEach((page) => {
-              let signedText = `<:MC:1263943208585527417> **Things you signed up for:** <:MC:1263943208585527417>\n${MESSAGE_PADDING}`
+              let signedText = `<:MC:1504126376607748269> **Things you signed up for:** <:MC:1504126376607748269>\n${MESSAGE_PADDING}`
               signedText += page.join('\r\n\r\n')
               pagesOutput.push(signedText)
             })
@@ -391,7 +391,7 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
 
           if (backupOutput[0]) {
             backupOutput.forEach((page) => {
-              let backupText = `<:MCBU:608033566676221952> **Things you are backup for:** <:MCBU:608033566676221952>\n${MESSAGE_PADDING}`
+              let backupText = `<:MCBU:1504126387525783735> **Things you are backup for:** <:MCBU:1504126387525783735>\n${MESSAGE_PADDING}`
               backupText += page.join('\r\n\r\n')
               pagesOutput.push(backupText)
             })
