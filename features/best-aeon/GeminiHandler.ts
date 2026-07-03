@@ -64,14 +64,28 @@ export default class GeminiHandler implements MessageHandler {
       filteredMessage = filteredMessage.replaceAll(userMention(member.id), member.displayName || '')
     })
 
+    let aiMessage = `${message.member?.displayName}[${new Date().toUTCString()}]: ${filteredMessage}`
+
+    if (message.reference) {
+      try {
+        const repliedTo = await message.fetchReference()
+        let repliedContent = repliedTo.content
+
+        repliedTo.mentions.members?.each((member) => {
+          repliedContent = repliedContent.replaceAll(userMention(member.id), member.displayName || '')
+        })
+
+        const repliedDisplayName = repliedTo.member?.displayName ?? repliedTo.author.displayName
+        aiMessage = `[Replying to: ${repliedDisplayName}[${repliedTo.createdAt.toUTCString()}]: ${repliedContent}]\n${aiMessage}`
+      } catch {
+        aiMessage = `[Replying to a message that could not be loaded]\n${aiMessage}`
+      }
+    }
+
     try {
       this.#lastGeminiCallTime = now
 
-      let reply = await replyTo(
-        message.channelId,
-        `${message.member?.displayName}[${new Date().toUTCString()}]: ${filteredMessage}`,
-        images,
-      )
+      let reply = await replyTo(message.channelId, aiMessage, images)
 
       reply = reply.replaceAll('@', '[at]')
 
