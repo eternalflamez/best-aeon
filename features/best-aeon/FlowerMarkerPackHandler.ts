@@ -10,6 +10,7 @@ export default class FlowerMarkerPackHandler implements MessageHandler {
 
     if (content.includes('flower markerpack') || content.includes(this.FLOWER_PACK.toLowerCase())) {
       await message.reply(`${this.FLOWER_PACK}\n\nFlower markerpack`)
+      return true
     }
 
     return false
