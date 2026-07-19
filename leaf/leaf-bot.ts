@@ -1,5 +1,6 @@
 import { config } from 'dotenv'
 import { setupSelfDestruct } from '../features/utils/self-destruct.ts'
+import leafDb from './leaf-firestore.ts'
 import {
   AuditLogEvent,
   ChatInputCommandInteraction,
@@ -45,7 +46,7 @@ export default function (clientId: string) {
     try {
       await processGuildEvents(client)
       await leafBirthdayReminders(client)
-      await setupSelfDestruct(client, clientId, 'LEAF')
+      await setupSelfDestruct(client, clientId, 'LEAF', leafDb)
       await setupRoles(client)
       setupApprovalHandler(client)
     } catch (e) {

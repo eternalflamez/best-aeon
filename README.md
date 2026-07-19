@@ -15,9 +15,9 @@ With the Env Switcher addon, use presets under `env-presets/` (`dev.env` / `prod
 
 ### Core
 
-| Variable      | How to fill                                                                                                                                     |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ENVIRONMENT` | Use `develop` locally. Use `production` only on the server. Controls Firestore init, self-destruct keys, birthday jobs, and some LEAF behavior. |
+| Variable      | How to fill                    |
+| ------------- | ------------------------------ |
+| `ENVIRONMENT` | Use `develop` or `production`. |
 
 ### Discord bot tokens
 
@@ -68,7 +68,10 @@ Optional: `PORT` for the LEAF invite HTTP API (defaults to `80`).
 
 ### Firestore credentials (not env vars)
 
-Firebase Admin SDK JSON keys live under `etc/secrets/` locally, or `/etc/secrets/` on the server. See `firestore/setupFirestore.ts` and `leaf/leaf-firestore.ts`.
+Firebase Admin SDK JSON keys live under `etc/secrets/` locally, or `/etc/secrets/` on the server.
+
+- Buyer/main bot: [firestore/setupFirestore.ts](firestore/setupFirestore.ts) — only when `ENVIRONMENT=production`
+- LEAF: [leaf/leaf-firestore.ts](leaf/leaf-firestore.ts) — when the LEAF service-account file exists (so local LEAF onboarding can still use Firestore)
 
 ### One-time sell schedule migration
 

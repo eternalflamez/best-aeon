@@ -12,15 +12,23 @@ export default class BestMaxHandler implements MessageHandler {
         return false
       }
 
-      const maxCounterRef = db?.collection('utils').doc('max_counter')
+      if (!db) {
+        console.warn('[BestMax] Firestore not initialized; skipping')
+        return false
+      }
 
-      await maxCounterRef?.update({
-        value: FieldValue.increment(1),
-      })
+      const maxCounterRef = db.collection('utils').doc('max_counter')
 
-      const doc = await maxCounterRef?.get()
+      await maxCounterRef.set(
+        {
+          value: FieldValue.increment(1),
+        },
+        { merge: true },
+      )
 
-      if (!doc || !doc.exists) {
+      const doc = await maxCounterRef.get()
+
+      if (!doc.exists) {
         return false
       }
 
