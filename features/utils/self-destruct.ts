@@ -10,22 +10,19 @@ export async function setupSelfDestruct(client: Client, botClientId: string, nam
     return
   }
 
-  const environment = process.env.ENVIRONMENT ?? 'develop'
-  const instanceKey = `${name}:${environment}`
-  const docRef = db.collection(COLLECTION).doc(instanceKey)
+  const docRef = db.collection(COLLECTION).doc(name)
 
   await docRef.set({
     clientId: botClientId,
-    environment,
     timestamp: Timestamp.now(),
   })
 
-  console.log(`Succesfully booted! ${instanceKey} ${botClientId}`)
+  console.log(`Succesfully booted! ${name} ${botClientId}`)
 
   docRef.onSnapshot((snap) => {
     const data = snap.data()
     if (data && data.clientId !== botClientId) {
-      console.log(`A new instance has started, self-destructing ${instanceKey}`)
+      console.log(`A new instance has started, self-destructing ${name}`)
       client.destroy()
     }
   })
