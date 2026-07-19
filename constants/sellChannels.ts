@@ -1,4 +1,4 @@
-import type { GuildSellScheduleConfig } from '../types/GuildSellScheduleConfig.ts'
+import type { GuildSellScheduleConfig } from '../types/GuildSellScheduleConfig'
 
 const channelToGuildRegion = new Map<string, { guildId: string; region: string }>()
 

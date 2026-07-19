@@ -2,8 +2,8 @@ import type {
   GuildSellScheduleConfig,
   SellScheduleConfigFirestoreDoc,
   SellScheduleFirestoreChannelEntry,
-} from '../types/GuildSellScheduleConfig.ts'
-import db from './setupFirestore.ts'
+} from '../types/GuildSellScheduleConfig'
+import db from './setupFirestore'
 
 export const SELL_SCHEDULE_CONFIG_COLLECTION = 'sell_schedule_config'
 

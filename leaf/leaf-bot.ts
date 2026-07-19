@@ -1,6 +1,6 @@
 import { config } from 'dotenv'
-import { setupSelfDestruct } from '../features/utils/self-destruct.ts'
-import leafDb from './leaf-firestore.ts'
+import { setupSelfDestruct } from '../features/utils/self-destruct'
+import leafDb from './leaf-firestore'
 import {
   AuditLogEvent,
   ChatInputCommandInteraction,
@@ -12,18 +12,18 @@ import {
   Partials,
   userMention,
 } from 'discord.js'
-import leafBirthdayReminders from './birthdays/leaf-birthday-reminders.ts'
-import setupRoles from './roles/setup-roles.ts'
-import configCommand from './commands/config-command.ts'
-import adminBirthdayAddCommand from './commands/admin-birthday-add-command.ts'
-import adminBirthdayRemoveCommand from './commands/admin-birthday-remove-command.ts'
-import birthdayAddCommand from './commands/birthday-add-command.ts'
-import birthdayRemoveCommand from './commands/birthday-remove-command.ts'
-import setMessageCommand from './commands/admin-set-message-command.ts'
-import processGuildEvents, { sendEmbedToChannel } from './guild/guild-events.ts'
-import { COLORS } from './constants/colors.ts'
-import { GuildWarsData } from './guild/gw-api.ts'
-import { setupApprovalHandler } from './createInvite/approvalHandler.ts'
+import leafBirthdayReminders from './birthdays/leaf-birthday-reminders'
+import setupRoles from './roles/setup-roles'
+import configCommand from './commands/config-command'
+import adminBirthdayAddCommand from './commands/admin-birthday-add-command'
+import adminBirthdayRemoveCommand from './commands/admin-birthday-remove-command'
+import birthdayAddCommand from './commands/birthday-add-command'
+import birthdayRemoveCommand from './commands/birthday-remove-command'
+import setMessageCommand from './commands/admin-set-message-command'
+import processGuildEvents, { sendEmbedToChannel } from './guild/guild-events'
+import { COLORS } from './constants/colors'
+import { GuildWarsData } from './guild/gw-api'
+import { setupApprovalHandler } from './createInvite/approvalHandler'
 
 config()
 

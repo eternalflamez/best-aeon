@@ -1,8 +1,8 @@
 import { Client, Message, PermissionFlagsBits, TextChannel, userMention } from 'discord.js'
-import replyTo from './utility/gemini.ts'
-import timeoutReactions from '../../constants/timeoutReactions.ts'
-import { logGemini } from '../../firestore/log.ts'
-import { MessageHandler } from '../../types/MessageHandler.ts'
+import replyTo from './utility/gemini'
+import timeoutReactions from '../../constants/timeoutReactions'
+import { logGemini } from '../../firestore/log'
+import { MessageHandler } from '../../types/MessageHandler'
 
 export default class HerbertHandler implements MessageHandler {
   #client: Client

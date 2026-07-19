@@ -19,13 +19,13 @@ import {
   MessageFlags,
   EmbedBuilder,
 } from 'discord.js'
-import { Language } from '../../constants/buyerManagementLanguages.ts'
-import AutomaticallyClearUsers from './clear-users.ts'
-import { logCallDibs } from '../../firestore/log.ts'
-import { setupSelfDestruct } from '../utils/self-destruct.ts'
-import { replyBotOutOfOrder } from '../utils/bot-out-of-order.ts'
-import { setup as setupPriceList } from './post-price-list.ts'
-import db from '../../firestore/setupFirestore.ts'
+import { Language } from '../../constants/buyerManagementLanguages'
+import AutomaticallyClearUsers from './clear-users'
+import { logCallDibs } from '../../firestore/log'
+import { setupSelfDestruct } from '../utils/self-destruct'
+import { replyBotOutOfOrder } from '../utils/bot-out-of-order'
+import { setup as setupPriceList } from './post-price-list'
+import db from '../../firestore/setupFirestore'
 
 interface LanguageByChannel {
   [key: string]: string

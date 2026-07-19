@@ -1,7 +1,7 @@
 import { FieldValue } from 'firebase-admin/firestore'
 import { Message, TextChannel } from 'discord.js'
-import db from '../../firestore/setupFirestore.ts'
-import { MessageHandler } from '../../types/MessageHandler.ts'
+import db from '../../firestore/setupFirestore'
+import { MessageHandler } from '../../types/MessageHandler'
 
 export default class BestMaxHandler implements MessageHandler {
   async handle(message: Message) {

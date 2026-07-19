@@ -1,7 +1,7 @@
 import { Client, Events, TextChannel, userMention } from 'discord.js'
 import { config } from 'dotenv'
 import cron from 'node-cron'
-import leafDb from '../leaf-firestore.ts'
+import leafDb from '../leaf-firestore'
 
 config()
 

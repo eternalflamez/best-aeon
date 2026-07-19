@@ -1,6 +1,6 @@
 import { Client } from 'discord.js'
 import { Firestore, Timestamp } from 'firebase-admin/firestore'
-import db from '../../firestore/setupFirestore.ts'
+import db from '../../firestore/setupFirestore'
 
 const COLLECTION = 'bot_instances'
 

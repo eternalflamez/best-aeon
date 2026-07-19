@@ -1,5 +1,5 @@
 import { Message } from 'discord.js'
-import { MessageHandler } from '../../types/MessageHandler.ts'
+import { MessageHandler } from '../../types/MessageHandler'
 
 export default class CrabHandler implements MessageHandler {
   async handle(message: Message) {

@@ -1,7 +1,7 @@
 import { Client, Message, userMention } from 'discord.js'
-import helloIAm from './utility/helloIAm.ts'
-import { logIAm } from '../../firestore/log.ts'
-import { MessageHandler } from '../../types/MessageHandler.ts'
+import helloIAm from './utility/helloIAm'
+import { logIAm } from '../../firestore/log'
+import { MessageHandler } from '../../types/MessageHandler'
 
 export default class HelloIAmHandler implements MessageHandler {
   #client: Client

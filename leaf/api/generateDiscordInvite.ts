@@ -1,5 +1,5 @@
 import cors from 'cors'
-import { Client, Events, GatewayIntentBits, TextChannel } from 'discord.js'
+import { Client, Events, GatewayIntentBits } from 'discord.js'
 import { config } from 'dotenv'
 import express from 'express'
 

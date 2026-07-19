@@ -1,14 +1,12 @@
-import { config } from 'dotenv'
-import riseTranslations from './constants/rise-translations.ts'
-import startup from './bot.ts'
-import startupLeaf from './leaf/leaf-bot.ts'
-import { setupApi } from './leaf/api/generateDiscordInvite.ts'
+import './env'
+import riseTranslations from './constants/rise-translations'
+import startup from './bot'
+import startupLeaf from './leaf/leaf-bot'
+import { setupApi } from './leaf/api/generateDiscordInvite'
 
-import SetupBuyerManagement from './features/buyer-management/buyer-management.ts'
+import SetupBuyerManagement from './features/buyer-management/buyer-management'
 
 import { v4 as uuidv4 } from 'uuid'
-
-config()
 
 const clientId = uuidv4()
 

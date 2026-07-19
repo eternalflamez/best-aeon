@@ -1,5 +1,5 @@
 import { Message, TextChannel, userMention } from 'discord.js'
-import { MessageHandler } from '../../types/MessageHandler.ts'
+import { MessageHandler } from '../../types/MessageHandler'
 
 export default class WhatsDnHandler implements MessageHandler {
   async handle(message: Message) {

@@ -1,5 +1,5 @@
 import { Client, EmbedBuilder, TextChannel } from 'discord.js'
-import db from '../../firestore/setupFirestore.ts'
+import db from '../../firestore/setupFirestore'
 import { DocumentData, DocumentSnapshot } from 'firebase-admin/firestore'
 import { config } from 'dotenv'
 

@@ -17,12 +17,12 @@ import {
   TextChannel,
   User,
 } from 'discord.js'
-import { isValidSellChannel, getRegion } from '../constants/sellChannels.ts'
-import type { GuildSellScheduleConfig } from '../types/GuildSellScheduleConfig.ts'
+import { isValidSellChannel, getRegion } from '../constants/sellChannels'
+import type { GuildSellScheduleConfig } from '../types/GuildSellScheduleConfig'
 import Queue, { QueueWorkerCallback } from 'queue'
-import generateIcs from './sell-schedule/generateIcs.ts'
-import { createSellScheduleGuildLogger } from './sell-schedule/guildSellScheduleLogger.ts'
-import { logRequestSignups } from '../firestore/log.ts'
+import generateIcs from './sell-schedule/generateIcs'
+import { createSellScheduleGuildLogger } from './sell-schedule/guildSellScheduleLogger'
+import { logRequestSignups } from '../firestore/log'
 
 const MESSAGE_PADDING = '\n\u200B'
 const MCMysticCoinEmoji = process.env.MC_EMOJI_ID || '1504126376607748269'

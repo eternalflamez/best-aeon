@@ -1,5 +1,5 @@
 import { FieldValue, Timestamp } from 'firebase-admin/firestore'
-import db from './setupFirestore.ts'
+import db from './setupFirestore'
 
 export async function logIAm(userId: string, trigger: string) {
   try {

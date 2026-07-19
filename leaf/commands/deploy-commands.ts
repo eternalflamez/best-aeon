@@ -1,12 +1,12 @@
 import { REST, Routes } from 'discord.js'
 import { config } from 'dotenv'
 
-import configCommand from './config-command.ts'
-import adminBirthdayAddCommand from './admin-birthday-add-command.ts'
-import adminBirthdayRemoveCommand from './admin-birthday-remove-command.ts'
-import birthdayAddCommand from './birthday-add-command.ts'
-import birthdayRemoveCommand from './birthday-remove-command.ts'
-import setMessageCommand from './admin-set-message-command.ts'
+import configCommand from './config-command'
+import adminBirthdayAddCommand from './admin-birthday-add-command'
+import adminBirthdayRemoveCommand from './admin-birthday-remove-command'
+import birthdayAddCommand from './birthday-add-command'
+import birthdayRemoveCommand from './birthday-remove-command'
+import setMessageCommand from './admin-set-message-command'
 
 config()
 

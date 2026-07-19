@@ -1,5 +1,5 @@
 import { Message, TextChannel } from 'discord.js'
-import { MessageHandler } from '../../types/MessageHandler.ts'
+import { MessageHandler } from '../../types/MessageHandler'
 
 export default class BestAeonHandler implements MessageHandler {
   async handle(message: Message) {

@@ -1,6 +1,6 @@
 import { MessageReaction, PartialMessageReaction, PartialUser, User } from 'discord.js'
-import { isValidSellChannel } from '../constants/sellChannels.ts'
-import { logSignup } from '../firestore/log.ts'
+import { isValidSellChannel } from '../constants/sellChannels'
+import { logSignup } from '../firestore/log'
 
 export default async function (reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) {
   if (reaction.partial) {

@@ -6,7 +6,7 @@ import {
   Client,
   TextChannel,
 } from 'discord.js'
-import leafDb from '../leaf-firestore.ts'
+import leafDb from '../leaf-firestore'
 
 const command = {
   data: new SlashCommandBuilder()
