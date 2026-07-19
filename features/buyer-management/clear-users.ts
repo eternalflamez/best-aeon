@@ -81,18 +81,22 @@ async function clearUsers(client: Client, guildId: string) {
       }
 
       if (member.roles.cache.size === 1) {
-        const user = await client.users.fetch(userId)
+        const inviteCode = process.env['INVITE_' + guildId]
 
-        console.log(guildId, 'kicked:', channel.name, `https://discord.gg/${process.env['INVITE_' + guildId]}`)
+        console.log(guildId, 'kicked:', channel.name, inviteCode ? `https://discord.gg/${inviteCode}` : '(no invite env set)')
 
-        try {
-          await user.send(String.raw`Greetings, I am a bot. Messages sent to me are not read by real people.
+        if (inviteCode) {
+          const user = await client.users.fetch(userId)
+
+          try {
+            await user.send(String.raw`Greetings, I am a bot. Messages sent to me are not read by real people.
           We noticed you have been inactive on our discord server, so you have been kicked.
           
           Not to worry, if you want to buy anything or browse our prices again, feel free to rejoin:
-          https://discord.gg/${process.env['INVITE_' + guildId]}`)
-        } catch (e: any) {
-          console.error('[Error] Failed to message user due to ', e.message)
+          https://discord.gg/${inviteCode}`)
+          } catch (e: any) {
+            console.error('[Error] Failed to message user due to ', e.message)
+          }
         }
 
         try {
