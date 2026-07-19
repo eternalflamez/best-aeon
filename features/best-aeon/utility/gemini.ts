@@ -57,7 +57,20 @@ export default async function (
 
   try {
     returnedMessage = await chat.sendMessage({ message: parts })
-  } catch {
+  } catch (error: any) {
+    const messageText = String(error?.message ?? '')
+    const transient =
+      messageText.includes('high demand') ||
+      messageText.includes('unavailable') ||
+      messageText.includes('429') ||
+      messageText.includes('503') ||
+      messageText.includes('500')
+
+    if (!transient) {
+      throw error
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 750))
     returnedMessage = await chat.sendMessage({ message: parts })
   }
 
