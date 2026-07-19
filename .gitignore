@@ -131,6 +131,6 @@ dist
 env-presets/
 
 etc/secrets/*
+*-firebase-adminsdk-*.json
 TODO.txt
 
-deploy-commands.ts

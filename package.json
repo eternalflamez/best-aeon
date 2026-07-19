@@ -30,6 +30,7 @@
   },
   "scripts": {
     "dev": "npx tsx --inspect startup-dev.ts",
-    "start-prod": "npx tsx startup-prod.ts"
+    "start-prod": "npx tsx startup-prod.ts",
+    "update-leaf-commands": "npx tsx leaf/commands/deploy-commands.ts"
   }
 }

@@ -86,5 +86,5 @@ Sell schedule config lives in Firestore (`sell_schedule_config`).
 Set `LEAF_TOKEN`, `LEAF_CLIENT_ID` (Discord application id), and `LEAF_DISCORD_GUILD_ID`, then:
 
 ```bash
-npx tsx leaf/commands/deploy-commands.ts
+npm run update-leaf-commands
 ```
