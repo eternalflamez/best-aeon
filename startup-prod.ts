@@ -18,7 +18,7 @@ SetupBuyerManagement({
   guildId: '1507831199513444402',
   managerToken: process.env.MANAGER_TOKEN!,
   buyerManagementChannelId: '1507836080207040522',
-  contactedCategoryChannelId: '1507831199513444402',
+  contactedCategoryChannelId: '1511414123445878845',
   priceEmbedChannelId: '1507836104206712872',
   embedRaidBoss: 'EU Raid Bosses Price List',
   embedRaidAchievements: 'EU Raid Achievements Price List',
