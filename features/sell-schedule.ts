@@ -8,10 +8,14 @@ import {
   Events,
   Message,
   MessageFlags,
+  MessageReaction,
+  PartialMessageReaction,
+  PartialUser,
   StringSelectMenuBuilder,
   StringSelectMenuInteraction,
   StringSelectMenuOptionBuilder,
   TextChannel,
+  User,
 } from 'discord.js'
 import { isValidSellChannel, getRegion } from '../constants/sellChannels.ts'
 import type { GuildSellScheduleConfig } from '../types/GuildSellScheduleConfig.ts'
@@ -21,7 +25,10 @@ import { createSellScheduleGuildLogger } from './sell-schedule/guildSellSchedule
 import { logRequestSignups } from '../firestore/log.ts'
 
 const MESSAGE_PADDING = '\n\u200B'
-const MCMysticCoinEmoji = '1504126376607748269'
+const MCMysticCoinEmoji = process.env.MC_EMOJI_ID || '1504126376607748269'
+const MCBackupEmoji = process.env.MC_BACKUP_EMOJI_ID || '1504126387525783735'
+const mcEmojiMention = `<:MC:${MCMysticCoinEmoji}>`
+const mcBackupEmojiMention = `<:MCBU:${MCBackupEmoji}>`
 
 const MY_SCHEDULE_PREFIX = 'my-schedule|'
 const MY_SCHEDULE_DOWNLOAD_PREFIX = 'my-schedule-download-select|'
@@ -379,7 +386,7 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
 
           if (signedOutput[0]) {
             signedOutput.forEach((page) => {
-              let signedText = `<:MC:1504126376607748269> **Things you signed up for:** <:MC:1504126376607748269>\n${MESSAGE_PADDING}`
+              let signedText = `${mcEmojiMention} **Things you signed up for:** ${mcEmojiMention}\n${MESSAGE_PADDING}`
               signedText += page.join('\r\n\r\n')
               pagesOutput.push(signedText)
             })
@@ -391,7 +398,7 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
 
           if (backupOutput[0]) {
             backupOutput.forEach((page) => {
-              let backupText = `<:MCBU:1504126387525783735> **Things you are backup for:** <:MCBU:1504126387525783735>\n${MESSAGE_PADDING}`
+              let backupText = `${mcBackupEmojiMention} **Things you are backup for:** ${mcBackupEmojiMention}\n${MESSAGE_PADDING}`
               backupText += page.join('\r\n\r\n')
               pagesOutput.push(backupText)
             })
@@ -500,7 +507,7 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
     }
   })
 
-  client.on(Events.MessageReactionAdd, async (reaction, user) => {
+  const onReactionAdd = async (reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) => {
     try {
       if (reaction.partial) {
         reaction = await reaction.fetch()
@@ -519,9 +526,9 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
       userId: user.id,
       reactionId: reaction.emoji.id || reaction.emoji.name!,
     })
-  })
+  }
 
-  client.on(Events.MessageReactionRemove, async (reaction, user) => {
+  const onReactionRemove = async (reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) => {
     try {
       if (reaction.partial) {
         reaction = await reaction.fetch()
@@ -541,10 +548,9 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
     )
 
     if (index > -1) {
-      // only splice array when item is found
-      matchingHistoryItem.reactors.splice(index, 1) // 2nd parameter means remove one item only
+      matchingHistoryItem.reactors.splice(index, 1)
     }
-  })
+  }
 
   async function addToSchedule(message: Message<boolean>) {
     const guildId = message.guildId
@@ -717,6 +723,8 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
       })
     }
   }
+
+  return { onReactionAdd, onReactionRemove }
 }
 
 function getPrunedOutput(history: ScheduleMessage[], addDivider = true, lengthLimit = 2000) {

@@ -73,13 +73,16 @@ export default async function (clientId: string) {
     }
   })
 
+  const sellScheduleReactions = sellScheduleGuilds.length > 0 ? SetupSellSchedule(client, sellScheduleGuilds) : null
+
   client.on(Events.MessageReactionAdd, async (reaction, user) => {
     await AddToThread(reaction, user)
+    await sellScheduleReactions?.onReactionAdd(reaction, user)
   })
 
-  if (sellScheduleGuilds.length > 0) {
-    SetupSellSchedule(client, sellScheduleGuilds)
-  }
+  client.on(Events.MessageReactionRemove, async (reaction, user) => {
+    await sellScheduleReactions?.onReactionRemove(reaction, user)
+  })
 
   client.login(TOKEN)
 }
