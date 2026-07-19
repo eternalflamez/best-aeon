@@ -89,6 +89,10 @@ export function setupApprovalHandler(client: Client) {
       console.error(e.rawError?.message || 'Something went wrong?')
       console.error(e)
 
+      if (!interaction.isRepliable()) {
+        return
+      }
+
       try {
         await interaction.reply({
           content: 'Something went wrong. Please try again or contact Sander.',
