@@ -1,7 +1,7 @@
 import { userMention, Message, ThreadAutoArchiveDuration } from 'discord.js'
-import { isValidSellChannel } from '../../constants/sellChannels.ts'
-import { logStartSellThread } from '../../firestore/log.ts'
-import { MessageHandler } from '../../types/MessageHandler.js'
+import { isValidSellChannel } from '../../constants/sellChannels'
+import { logStartSellThread } from '../../firestore/log'
+import { MessageHandler } from '../../types/MessageHandler'
 
 export default class StartSellThreadHandler implements MessageHandler {
   async handle(message: Message<boolean>) {

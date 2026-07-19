@@ -4,10 +4,10 @@ import timeoutReactions from '../../constants/timeoutReactions.ts'
 import { logGemini } from '../../firestore/log.ts'
 import { MessageHandler } from '../../types/MessageHandler.ts'
 
-export default class GeminiHandler implements MessageHandler {
+export default class HerbertHandler implements MessageHandler {
   #client: Client
   #timeoutReactionsLength = timeoutReactions.length
-  #lastGeminiCallTime = 0
+  #lastCallByUser = new Map<string, number>()
 
   constructor(client: Client) {
     this.#client = client
@@ -19,8 +19,9 @@ export default class GeminiHandler implements MessageHandler {
     }
 
     const now = Date.now()
+    const lastCall = this.#lastCallByUser.get(message.author.id) ?? 0
 
-    if (now - this.#lastGeminiCallTime < 5000) {
+    if (now - lastCall < 5000) {
       const reactions = timeoutReactions[Math.round(Math.random() * (this.#timeoutReactionsLength - 1))]
 
       await this.#sendReply(message, reactions)
@@ -83,7 +84,7 @@ export default class GeminiHandler implements MessageHandler {
     }
 
     try {
-      this.#lastGeminiCallTime = now
+      this.#lastCallByUser.set(message.author.id, now)
 
       let reply = await replyTo(message.channelId, aiMessage, images)
 

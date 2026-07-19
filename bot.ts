@@ -5,7 +5,7 @@ import { setupSelfDestruct } from './features/utils/self-destruct.ts'
 import { MessageHandler } from './types/MessageHandler.ts'
 import CrabHandler from './features/best-aeon/CrabHandler.ts'
 import StartSellThreadHandler from './features/best-aeon/StartSellThreadHandler.ts'
-import GeminiHandler from './features/best-aeon/GeminiHandler.ts'
+import HerbertHandler from './features/best-aeon/HerbertHandler.ts'
 import BestAeonHandler from './features/best-aeon/BestAeonHandler.ts'
 import BestMaxHandler from './features/best-aeon/BestMaxHandler.ts'
 import WhatsDnHandler from './features/best-aeon/WhatsDnHandler.ts'
@@ -47,7 +47,7 @@ export default async function (clientId: string) {
     new DmHandler(client),
     new CrabHandler(),
     new StartSellThreadHandler(),
-    new GeminiHandler(client),
+    new HerbertHandler(client),
     new BestAeonHandler(),
     new BestMaxHandler(),
     new WhatsDnHandler(),
