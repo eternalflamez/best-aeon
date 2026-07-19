@@ -2,7 +2,6 @@ import cors from 'cors'
 import { Client, Events, GatewayIntentBits, TextChannel } from 'discord.js'
 import { config } from 'dotenv'
 import express from 'express'
-import { v4 as uuidv4 } from 'uuid'
 
 import leafDb from '../leaf-firestore'
 import { NewUserSignup } from '../createInvite/interfaces/newUserSignup'

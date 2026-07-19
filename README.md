@@ -73,20 +73,9 @@ Firebase Admin SDK JSON keys live under `etc/secrets/` locally, or `/etc/secrets
 - Buyer/main bot: [firestore/setupFirestore.ts](firestore/setupFirestore.ts) — only when `ENVIRONMENT=production`
 - LEAF: [leaf/leaf-firestore.ts](leaf/leaf-firestore.ts) — when the LEAF service-account file exists (so local LEAF onboarding can still use Firestore)
 
-### One-time sell schedule migration
+### Sell schedule config
 
-Sell schedule config lives in Firestore (`sell_schedule_config`). To migrate from legacy channel env vars once:
-
-```bash
-# temporarily set in .env:
-# GUILD_ID=<discord guild snowflake>
-# SELL_CHANNEL_BOTH=<channel id>
-# SELL_CHANNEL_EU=<channel id>
-# SELL_CHANNEL_NA=<channel id>
-npx tsx scripts/migrate-sell-schedule-config.ts
-```
-
-Document shape after migration:
+Sell schedule config lives in Firestore (`sell_schedule_config`).
 
 - Document ID = guild snowflake
 - `sellChannels`: map `channelId → { region }` **or** array of `{ channelId, region }`
@@ -94,6 +83,8 @@ Document shape after migration:
 
 ## Updating LEAF commands
 
+Set `LEAF_TOKEN`, `LEAF_CLIENT_ID` (Discord application id), and `LEAF_DISCORD_GUILD_ID`, then:
+
 ```bash
-node leaf/commands/deploy-commands.ts
+npx tsx leaf/commands/deploy-commands.ts
 ```

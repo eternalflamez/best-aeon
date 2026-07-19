@@ -16,7 +16,7 @@ export async function logGemini(
   userId: string,
   username: string,
   response: string,
-  triggerType: 'response' | 'cooldown' | 'error' | 'ban',
+  triggerType: 'response' | 'cooldown' | 'error',
 ) {
   try {
     await db?.collection('users').doc(userId).collection('used_gemini').doc().set({
