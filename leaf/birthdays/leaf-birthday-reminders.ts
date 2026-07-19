@@ -72,10 +72,13 @@ async function checkForBirthdays(client: Client) {
 
   const { day, month } = getDateInfo()
 
-  await leafDb?.collection('util').doc('last-sent-birthdays-date').update({
-    day,
-    month,
-  })
+  await leafDb?.collection('util').doc('last-sent-birthdays-date').set(
+    {
+      day,
+      month,
+    },
+    { merge: true },
+  )
 }
 
 async function hasSentBirthdayToday() {

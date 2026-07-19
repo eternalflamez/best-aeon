@@ -23,14 +23,19 @@ const command = {
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
   async execute(interaction: ChatInputCommandInteraction) {
     try {
-      const doc = leafDb?.collection('util').doc('birthday-channel')
+      const channelId = interaction.options.getChannel('channel')?.id
+      if (!channelId) {
+        await interaction.reply({
+          content: 'Could not set new channel!',
+          flags: MessageFlags.Ephemeral,
+        })
+        return
+      }
 
-      doc?.update({
-        id: interaction.options.getChannel('channel')?.id,
-      })
+      await leafDb?.collection('util').doc('birthday-channel').set({ id: channelId }, { merge: true })
 
       await interaction.reply({
-        content: 'Channel updated succesfully!',
+        content: 'Channel updated successfully!',
         flags: MessageFlags.Ephemeral,
       })
     } catch (e) {
