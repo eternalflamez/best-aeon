@@ -501,6 +501,14 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
   })
 
   client.on(Events.MessageReactionAdd, async (reaction, user) => {
+    try {
+      if (reaction.partial) {
+        reaction = await reaction.fetch()
+      }
+    } catch {
+      return
+    }
+
     const matchingHistoryItem = schedule.find((item) => item.id === reaction.message.id)
 
     if (!matchingHistoryItem) {
@@ -514,6 +522,14 @@ export default function (client: Client, guildConfigs: GuildSellScheduleConfig[]
   })
 
   client.on(Events.MessageReactionRemove, async (reaction, user) => {
+    try {
+      if (reaction.partial) {
+        reaction = await reaction.fetch()
+      }
+    } catch {
+      return
+    }
+
     const matchingHistoryItem = schedule.find((item) => item.id === reaction.message.id)
 
     if (!matchingHistoryItem) {
