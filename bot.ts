@@ -1,7 +1,7 @@
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
 import { config } from 'dotenv'
 import birthdayReminders from './features/birthday-reminders.ts'
-import { checkDestruction, setupSelfDestruct } from './features/utils/self-destruct.ts'
+import { setupSelfDestruct } from './features/utils/self-destruct.ts'
 import { MessageHandler } from './types/MessageHandler.ts'
 import CrabHandler from './features/best-aeon/CrabHandler.ts'
 import StartSellThreadHandler from './features/best-aeon/StartSellThreadHandler.ts'
@@ -40,7 +40,7 @@ export default async function (clientId: string) {
     console.log(`Logged in as ${client.user?.tag}, ${clientId}`)
 
     birthdayReminders(client)
-    setupSelfDestruct(client, clientId)
+    setupSelfDestruct(client, clientId, 'best-aeon')
   })
 
   const handlers: MessageHandler[] = [
@@ -56,10 +56,6 @@ export default async function (clientId: string) {
   ]
 
   client.on(Events.MessageCreate, async (message) => {
-    if (await checkDestruction(client, clientId, message, 'gemini')) {
-      return
-    }
-
     if (message.author.bot || message.system) return
 
     try {

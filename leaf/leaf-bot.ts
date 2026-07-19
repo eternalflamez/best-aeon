@@ -1,5 +1,5 @@
 import { config } from 'dotenv'
-import { checkDestruction, setupSelfDestruct } from '../features/utils/self-destruct.ts'
+import { setupSelfDestruct } from '../features/utils/self-destruct.ts'
 import {
   AuditLogEvent,
   ChatInputCommandInteraction,
@@ -45,17 +45,11 @@ export default function (clientId: string) {
     try {
       await processGuildEvents(client)
       await leafBirthdayReminders(client)
-      await setupSelfDestruct(client, clientId)
+      await setupSelfDestruct(client, clientId, 'LEAF')
       await setupRoles(client)
       setupApprovalHandler(client)
     } catch (e) {
       console.log('Something went wrong in LEAF', e)
-    }
-  })
-
-  client.on(Events.MessageCreate, async (message) => {
-    if (await checkDestruction(client, clientId, message, 'LEAF')) {
-      return
     }
   })
 

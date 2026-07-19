@@ -22,7 +22,7 @@ import {
 import { Language } from '../../constants/buyerManagementLanguages.ts'
 import AutomaticallyClearUsers from './clear-users.ts'
 import { logCallDibs } from '../../firestore/log.ts'
-import { setupSelfDestruct, checkDestruction } from '../utils/self-destruct.ts'
+import { setupSelfDestruct } from '../utils/self-destruct.ts'
 import { replyBotOutOfOrder } from '../utils/bot-out-of-order.ts'
 import { setup as setupPriceList } from './post-price-list.ts'
 import db from '../../firestore/setupFirestore.ts'
@@ -72,17 +72,13 @@ export default function setup({
     console.log(`Logged in as ${client.user?.tag}`)
 
     AutomaticallyClearUsers(client, guildId)
-    setupSelfDestruct(client, botClientId)
+    setupSelfDestruct(client, botClientId, `buyer-management ${guildTag}`)
     await setupPriceList(client, priceEmbedChannelId, [
       embedFractals,
       embedRaidAchievements,
       embedRaidBoss,
       embedStrikes,
     ])
-  })
-
-  client.on(Events.MessageCreate, async (message) => {
-    return checkDestruction(client, botClientId, message, `buyer-management ${guildTag}`)
   })
 
   client.on(Events.GuildMemberAdd, async (member) => {

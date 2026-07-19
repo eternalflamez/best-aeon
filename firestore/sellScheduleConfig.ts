@@ -7,6 +7,21 @@ import db from './setupFirestore.ts'
 
 export const SELL_SCHEDULE_CONFIG_COLLECTION = 'sell_schedule_config'
 
+const LOCAL_FALLBACK_CONFIGS: GuildSellScheduleConfig[] = [
+  {
+    guildId: '1248337933413650614',
+    sellChannels: {
+      '1249829604974268418': { region: 'EU' },
+      '1263079097408688155': { region: 'NA' },
+    },
+    scheduleOutputs: [
+      { id: '1263079031645933618', regions: ['NA', 'EU'] },
+      { id: '1270111631573127178', regions: ['EU'] },
+      { id: '1270111650229387306', regions: ['NA'] },
+    ],
+  },
+]
+
 function normalizeSellChannels(
   raw: SellScheduleConfigFirestoreDoc['sellChannels'],
 ): Record<string, { region: string }> {
@@ -28,8 +43,8 @@ function normalizeSellChannels(
 
 export async function loadSellScheduleGuildConfigs(): Promise<GuildSellScheduleConfig[]> {
   if (!db) {
-    console.warn(`[${SELL_SCHEDULE_CONFIG_COLLECTION}] Firestore db not initialized; no sell schedule guilds loaded.`)
-    return []
+    console.warn(`[${SELL_SCHEDULE_CONFIG_COLLECTION}] Firestore db not initialized; using local fallback configs.`)
+    return LOCAL_FALLBACK_CONFIGS
   }
 
   const snap = await db.collection(SELL_SCHEDULE_CONFIG_COLLECTION).get()

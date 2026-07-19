@@ -1,20 +1,32 @@
-import { Client, Message, TextChannel } from 'discord.js'
+import { Client } from 'discord.js'
+import { Timestamp } from 'firebase-admin/firestore'
+import db from '../../firestore/setupFirestore.ts'
 
-export async function setupSelfDestruct(client: Client, botClientId: string) {
-  const botStartedChannel = (await client.channels.fetch('1318663460569092186')) as TextChannel
-  botStartedChannel.send(`Succesfully booted! ${botClientId}`)
-}
+const COLLECTION = 'bot_instances'
 
-export async function checkDestruction(client: Client, botClientId: string, message: Message, name?: string) {
-  if (
-    message.channelId === '1318663460569092186' &&
-    message.author.id === client.user?.id &&
-    !message.content.includes(botClientId)
-  ) {
-    console.log(`A new instance has started, self-destructing ${name}`)
-    await client.destroy()
-    return true
+export async function setupSelfDestruct(client: Client, botClientId: string, name: string) {
+  if (!db) {
+    console.warn(`[self-destruct] Firestore not initialized; skipping for ${name}`)
+    return
   }
 
-  return false
+  const environment = process.env.ENVIRONMENT ?? 'develop'
+  const instanceKey = `${name}:${environment}`
+  const docRef = db.collection(COLLECTION).doc(instanceKey)
+
+  await docRef.set({
+    clientId: botClientId,
+    environment,
+    timestamp: Timestamp.now(),
+  })
+
+  console.log(`Succesfully booted! ${instanceKey} ${botClientId}`)
+
+  docRef.onSnapshot((snap) => {
+    const data = snap.data()
+    if (data && data.clientId !== botClientId) {
+      console.log(`A new instance has started, self-destructing ${instanceKey}`)
+      client.destroy()
+    }
+  })
 }

@@ -95,6 +95,11 @@ async function hasSentBirthdayToday() {
 }
 
 export default async function (discordClient: Client) {
+  if (process.env.ENVIRONMENT !== 'production') {
+    console.log('Birthday notifications are disabled in non-production environments')
+    return
+  }
+
   console.log('Set up birthday notifications for LEAF')
 
   await checkForBirthdays(discordClient)

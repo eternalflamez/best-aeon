@@ -141,6 +141,6 @@ export function setupApi() {
   })
 
   app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`LEAF Discord invite API listening on port ${port}`)
   })
 }
