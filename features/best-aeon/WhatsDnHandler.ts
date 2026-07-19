@@ -6,7 +6,7 @@ export default class WhatsDnHandler implements MessageHandler {
     const messageText = message.content.toLowerCase()
 
     if (/\bdn\b/i.test(messageText)) {
-      await (message.channel as TextChannel).send(`${userMention(message.author.id)} What\s dn?`)
+      await (message.channel as TextChannel).send(`${userMention(message.author.id)} What's dn?`)
       return true
     }
 
