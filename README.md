@@ -42,18 +42,6 @@ Create/manage apps at [Discord Developer Portal](https://discord.com/developers/
 | `PRICE_UPDATE_URL` | Full URL opened by the price-list embed button                                                                                                              |
 | `INVITE_<guildId>` | Discord invite **code** only (the part after `discord.gg/`). Guild id is the snowflake in the variable name. Used when kicking users and linking them back. |
 
-### Google Calendar (birthday reminders)
-
-Used by `features/birthday-reminders.ts` (production only).
-
-| Variable                        | How to fill                                                                 |
-| ------------------------------- | --------------------------------------------------------------------------- |
-| `CALENDAR_ID`                   | OAuth **client ID** from Google Cloud Console (Desktop / installed app)     |
-| `CALENDAR_SECRET`               | OAuth **client secret** for that client                                     |
-| `CALENDAR_REFRESH_TOKEN`        | Refresh token from the OAuth consent flow for the calendar account          |
-| `CALENDAR_EMAIL`                | Calendar id passed to the Calendar API (often the calendar’s email address) |
-| `CALENDAR_USER_1` / `_2` / `_3` | Discord **user snowflakes** that should receive birthday DMs                |
-
 ### LEAF
 
 | Variable                      | How to fill                                                    |

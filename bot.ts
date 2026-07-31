@@ -1,6 +1,5 @@
 import { Client, Events, GatewayIntentBits, Partials } from 'discord.js'
 import { config } from 'dotenv'
-import birthdayReminders from './features/birthday-reminders'
 import { setupSelfDestruct } from './features/utils/self-destruct'
 import { MessageHandler } from './types/MessageHandler'
 import CrabHandler from './features/best-aeon/CrabHandler'
@@ -39,7 +38,6 @@ export default async function (clientId: string) {
   client.once(Events.ClientReady, async () => {
     console.log(`Logged in as ${client.user?.tag}, ${clientId}`)
 
-    birthdayReminders(client)
     setupSelfDestruct(client, clientId, 'best-aeon')
   })
 
