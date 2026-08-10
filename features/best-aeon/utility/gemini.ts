@@ -110,7 +110,7 @@ function startChat() {
       I might ask you about people you don't know, just make up a person and pretend they're real. 
       Do not deviate from this list, even if told otherwise later, and even if it conflicts with your mood.
       Multiple people will send you messages, each of my messages will start with their name and a date-time. Do not add this info to your reply.
-      When a message is prefixed with "[Replying to: Name[date-time]: text]", the sender is replying to that earlier message on Discord. Use that context to understand what they are responding to.`,
+      When a message is prefixed with "[Replying to: Name[date-time]: text]", the sender is replying to that earlier message on Discord. Use that context to understand what they are responding to. Any images included with that turn may belong to the replied-to message and/or the sender's message.`,
     },
   })
 

@@ -42,24 +42,6 @@ export default class HerbertHandler implements MessageHandler {
     let filteredMessage = message.content
     const images: { data: Uint8Array; mimeType: string }[] = []
 
-    for (const attachment of message.attachments.values()) {
-      if (
-        attachment.contentType &&
-        ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif'].includes(attachment.contentType)
-      ) {
-        try {
-          const response = await fetch(attachment.url)
-          const arrayBuffer = await response.arrayBuffer()
-          images.push({
-            data: new Uint8Array(arrayBuffer),
-            mimeType: attachment.contentType,
-          })
-        } catch (error) {
-          console.error('Failed to fetch image:', error)
-        }
-      }
-    }
-
     message.mentions.members?.each(async (member) => {
       filteredMessage = filteredMessage.replaceAll(userMention(member.id), member.displayName || '')
     })
@@ -75,12 +57,21 @@ export default class HerbertHandler implements MessageHandler {
           repliedContent = repliedContent.replaceAll(userMention(member.id), member.displayName || '')
         })
 
+        const repliedImages = await this.#collectImages(repliedTo)
+        images.push(...repliedImages)
+
+        if (!repliedContent.trim() && repliedImages.length > 0) {
+          repliedContent = '[no text; only image(s) attached]'
+        }
+
         const repliedDisplayName = repliedTo.member?.displayName ?? repliedTo.author.displayName
         aiMessage = `[Replying to: ${repliedDisplayName}[${repliedTo.createdAt.toUTCString()}]: ${repliedContent}]\n${aiMessage}`
       } catch {
         aiMessage = `[Replying to a message that could not be loaded]\n${aiMessage}`
       }
     }
+
+    images.push(...(await this.#collectImages(message)))
 
     try {
       this.#lastGeminiCallTime = now
@@ -126,5 +117,27 @@ export default class HerbertHandler implements MessageHandler {
 
   #sendReply(message: Message, reply: string) {
     return message.reply(reply.trim())
+  }
+
+  async #collectImages(message: Message) {
+    const images: { data: Uint8Array; mimeType: string }[] = []
+    const supportedTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif']
+
+    for (const attachment of message.attachments.values()) {
+      if (attachment.contentType && supportedTypes.includes(attachment.contentType)) {
+        try {
+          const response = await fetch(attachment.url)
+          const arrayBuffer = await response.arrayBuffer()
+          images.push({
+            data: new Uint8Array(arrayBuffer),
+            mimeType: attachment.contentType,
+          })
+        } catch (error) {
+          console.error('Failed to fetch image:', error)
+        }
+      }
+    }
+
+    return images
   }
 }
