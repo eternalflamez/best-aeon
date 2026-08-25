@@ -115,8 +115,18 @@ export default class HerbertHandler implements MessageHandler {
     return true
   }
 
-  #sendReply(message: Message, reply: string) {
-    return message.reply(reply.trim())
+  async #sendReply(message: Message, reply: string) {
+    const MAX_LENGTH = 4000
+    const trimmed = reply.trim()
+    const chunks: string[] = []
+
+    for (let i = 0; i < trimmed.length; i += MAX_LENGTH) {
+      chunks.push(trimmed.slice(i, i + MAX_LENGTH))
+    }
+
+    for (const chunk of chunks) {
+      await message.reply(chunk)
+    }
   }
 
   async #collectImages(message: Message) {
