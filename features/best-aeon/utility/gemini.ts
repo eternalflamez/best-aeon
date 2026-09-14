@@ -45,7 +45,10 @@ export default async function (
     )
   }
 
-  const youtubeLink = message.match(/https?:\/\/(www\.)?(youtube\.com|youtu\.be)\/[^\s]+/i)?.[0]
+  const youtubeMatch = message.match(
+    /https?:\/\/(?:(?:www|m)\.)?(?:youtube\.com\/(?:watch\?(?:[^&\s]*&)*v=|shorts\/|live\/|embed\/|v\/)|youtu\.be\/)([\w-]{11})/i,
+  )
+  const youtubeLink = youtubeMatch ? `https://www.youtube.com/watch?v=${youtubeMatch[1]}` : undefined
 
   if (youtubeLink) {
     parts.push({
