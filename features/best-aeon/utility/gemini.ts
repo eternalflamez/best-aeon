@@ -60,6 +60,11 @@ export default async function (
 
   try {
     returnedMessage = await chat.sendMessage({ message: parts })
+
+    if (!returnedMessage.text) {
+      await new Promise((resolve) => setTimeout(resolve, 750))
+      returnedMessage = await chat.sendMessage({ message: parts })
+    }
   } catch (error: any) {
     const messageText = String(error?.message ?? '')
     const transient =
@@ -77,34 +82,7 @@ export default async function (
     returnedMessage = await chat.sendMessage({ message: parts })
   }
 
-  const text = returnedMessage.text || ''
-
-  const responseSummary = {
-    channelId,
-    textLength: text.length,
-    text: text || undefined,
-    imageCount: images.length,
-    youtubeLink,
-    promptFeedback: returnedMessage.promptFeedback,
-    candidates: returnedMessage.candidates?.map((candidate) => ({
-      finishReason: candidate.finishReason,
-      safetyRatings: candidate.safetyRatings,
-      contentParts: candidate.content?.parts?.map((part) =>
-        'text' in part && part.text != null ? { text: part.text } : { keys: Object.keys(part) },
-      ),
-    })),
-    usageMetadata: returnedMessage.usageMetadata,
-    responseId: returnedMessage.responseId,
-    modelVersion: returnedMessage.modelVersion,
-  }
-
-  if (!text) {
-    console.error('Gemini returned empty text', responseSummary)
-  } else {
-    console.log('Gemini response', responseSummary)
-  }
-
-  return text
+  return returnedMessage.text || ''
 }
 
 function startChat() {
