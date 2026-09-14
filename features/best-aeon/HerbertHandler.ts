@@ -95,7 +95,13 @@ export default class HerbertHandler implements MessageHandler {
       }
     } catch (e: any) {
       console.error('gemini handler error')
-      console.error(e)
+
+      // Quota exceeded
+      if (e.code === 429) {
+        console.error(e.message)
+      } else {
+        console.error(e)
+      }
 
       let reply = 'Sorry I was too stupid to cook up a reply and instead had an error.'
 
