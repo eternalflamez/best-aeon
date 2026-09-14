@@ -7,17 +7,17 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
-    "@google/genai": "^2.15.0",
+    "@google/genai": "^2.22.0",
     "cors": "^2.8.6",
     "dedent": "^1.7.2",
     "discord.js": "^14.27.0",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
-    "firebase-admin": "^14.2.0",
+    "firebase-admin": "^14.4.0",
     "ics": "^3.12.0",
     "node-cron": "^4.6.0",
     "queue": "^7.0.0",
-    "uuid": "^14.0.1"
+    "uuid": "^14.0.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
