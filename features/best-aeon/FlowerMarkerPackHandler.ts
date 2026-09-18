@@ -8,7 +8,7 @@ export default class FlowerMarkerPackHandler implements MessageHandler {
   async handle(message: Message) {
     const content = message.content.toLowerCase()
 
-    if (content.includes('flower markerpack') || content.includes(this.FLOWER_PACK.toLowerCase())) {
+    if (content.includes('flower') || content.includes(this.FLOWER_PACK.toLowerCase())) {
       await message.reply(`${this.FLOWER_PACK}\n\nFlower markerpack`)
       return true
     }
