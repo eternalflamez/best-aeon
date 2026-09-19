@@ -4,6 +4,9 @@ import timeoutReactions from '../../constants/timeoutReactions'
 import { logGemini } from '../../firestore/log'
 import { MessageHandler } from '../../types/MessageHandler'
 
+// #lfg
+const IGNORED_CHANNELS = new Set(['1503815805689659563'])
+
 export default class HerbertHandler implements MessageHandler {
   #client: Client
   #timeoutReactionsLength = timeoutReactions.length
@@ -16,6 +19,10 @@ export default class HerbertHandler implements MessageHandler {
   async handle(message: Message) {
     if (!message.mentions.has(this.#client.user!.id)) {
       return false
+    }
+
+    if (IGNORED_CHANNELS.has(message.channelId)) {
+      return true
     }
 
     const now = Date.now()
