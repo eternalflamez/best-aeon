@@ -103,7 +103,7 @@ export default function setup({
         const c = categoryChannels.at(index)
 
         if (!c) {
-          console.error('--- ERROR: Ran out of channels to put new members under! ---')
+          console.error(`--- ERROR: Ran out of channels to put new members under! ${member.displayName} ---`)
           return
         }
 

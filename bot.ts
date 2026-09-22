@@ -15,6 +15,7 @@ import DmHandler from './features/best-aeon/DmHandler'
 import FlowerMarkerPackHandler from './features/best-aeon/FlowerMarkerPackHandler'
 import { initSellScheduleGuilds } from './constants/sellChannels'
 import { loadSellScheduleGuildConfigs } from './firestore/sellScheduleConfig'
+import { setupDiscordConsole } from './features/utils/discord-console'
 
 config()
 
@@ -36,6 +37,7 @@ export default async function (clientId: string) {
   })
 
   client.once(Events.ClientReady, async () => {
+    setupDiscordConsole(client)
     console.log(`Logged in as ${client.user?.tag}, ${clientId}`)
 
     setupSelfDestruct(client, clientId, 'best-aeon')
