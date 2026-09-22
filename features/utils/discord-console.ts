@@ -59,8 +59,17 @@ export function setupDiscordConsole(client: Client) {
     return null
   }
 
+  function canSend() {
+    return Boolean(client.isReady() && client.token)
+  }
+
   async function flush() {
     if (flushing || queue.length === 0) {
+      return
+    }
+
+    if (!canSend()) {
+      queue.length = 0
       return
     }
 
@@ -75,6 +84,11 @@ export function setupDiscordConsole(client: Client) {
       }
 
       while (queue.length > 0) {
+        if (!canSend()) {
+          queue.length = 0
+          break
+        }
+
         const entry = queue.shift()!
         try {
           await target.send({
@@ -90,13 +104,20 @@ export function setupDiscordConsole(client: Client) {
       }
     } finally {
       flushing = false
-      if (queue.length > 0) {
+      if (queue.length > 0 && canSend()) {
         scheduleFlush()
+      } else {
+        queue.length = 0
       }
     }
   }
 
   function scheduleFlush() {
+    if (!canSend()) {
+      queue.length = 0
+      return
+    }
+
     if (flushTimer) {
       clearTimeout(flushTimer)
     }
