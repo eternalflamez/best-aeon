@@ -24,11 +24,11 @@ export async function setupSelfDestruct(
 
   console.log(`Successfully booted! ${name} ${botClientId}`)
 
-  docRef.onSnapshot((snap) => {
+  docRef.onSnapshot(async (snap) => {
     const data = snap.data()
     if (data && data.clientId !== botClientId) {
       console.log(`A new instance has started, self-destructing ${name}`)
-      client.destroy()
+      await client.destroy()
     }
   })
 }
