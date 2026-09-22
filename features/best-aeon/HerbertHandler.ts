@@ -92,7 +92,7 @@ export default class HerbertHandler implements MessageHandler {
 
         await this.#sendReply(message, reply)
       } else {
-        console.error('No message generated for gemini')
+        console.log('No message generated for gemini')
 
         reply = 'Sorry I was too stupid to cook up a reply and instead generated nothing.'
 
@@ -101,13 +101,13 @@ export default class HerbertHandler implements MessageHandler {
         await this.#sendReply(message, reply)
       }
     } catch (e: any) {
-      console.error('gemini handler error')
+      console.log('gemini handler error')
 
       // Quota exceeded
       if (e.code === 429) {
-        console.error(e.message)
+        console.log(e.message)
       } else {
-        console.error(e)
+        console.log(e)
       }
 
       let reply = 'Sorry I was too stupid to cook up a reply and instead had an error.'
@@ -156,7 +156,7 @@ export default class HerbertHandler implements MessageHandler {
             mimeType: attachment.contentType,
           })
         } catch (error) {
-          console.error('Failed to fetch image:', error)
+          console.log('Failed to fetch image:', error)
         }
       }
     }

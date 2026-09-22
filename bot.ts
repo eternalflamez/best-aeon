@@ -37,10 +37,11 @@ export default async function (clientId: string) {
   })
 
   client.once(Events.ClientReady, async () => {
-    setupDiscordConsole(client)
     console.log(`Logged in as ${client.user?.tag}, ${clientId}`)
 
     setupSelfDestruct(client, clientId, 'best-aeon')
+
+    setupDiscordConsole(client)
   })
 
   const handlers: MessageHandler[] = [
