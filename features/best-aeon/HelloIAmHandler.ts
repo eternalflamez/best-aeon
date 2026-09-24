@@ -20,7 +20,7 @@ export default class HelloIAmHandler implements MessageHandler {
     const iAm = helloIAm(message.content, userMention(this.#client.user!.id), message.author.id)
 
     if (iAm && Math.random() < 0.1) {
-      logIAm(message.author.id, iAm.clip)
+      await logIAm(message.author.id, iAm.clip)
 
       await message.reply(iAm.output)
       return true

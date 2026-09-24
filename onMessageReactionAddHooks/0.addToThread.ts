@@ -47,7 +47,7 @@ export default async function (reaction: MessageReaction | PartialMessageReactio
       reaction.message.id,
       user.id,
       user.username,
-      reaction.emoji.name || 'unknown',
+      reaction.emoji.name || reaction.emoji.id || 'unknown',
       reaction.message.createdTimestamp,
     )
 
