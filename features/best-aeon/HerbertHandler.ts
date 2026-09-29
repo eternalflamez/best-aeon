@@ -104,7 +104,7 @@ export default class HerbertHandler implements MessageHandler {
       console.log('gemini handler error')
 
       // Quota exceeded
-      if (e.code === 429) {
+      if (e.code === 429 || (e.code === 503 && e.message.includes('high demand'))) {
         console.log(e.message)
       } else {
         console.log(e)
