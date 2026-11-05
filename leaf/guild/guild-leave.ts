@@ -15,12 +15,12 @@ export async function checkGuildLeavers(client: Client, eventData: EventLog[]) {
   const owner = await client.guilds.cache.get(process.env.LEAF_DISCORD_GUILD_ID!)?.fetchOwner()
   const members = client.guilds.cache.get(process.env.LEAF_DISCORD_GUILD_ID!)!.members.cache
 
-  const userList = filteredData.filter((log) => log.kicked_by === log.user).map((event) => event.user)
+  const leavers = filteredData.filter((log) => log.kicked_by === log.user).map((event) => event.user)
+  const kicked = filteredData.filter((log) => log.kicked_by !== log.user)
 
-  for (let i = 0; i < filteredData.length; i++) {
-    const event = filteredData[i]
+  for (const event of filteredData) {
     const member = members.find((m) => m.displayName.includes(event.user))
-    let descriptionSuffix = member
+    const descriptionSuffix = member
       ? `Their name matches ${userMention(member.id)}`
       : 'No matching discord user available.'
 
@@ -47,16 +47,23 @@ export async function checkGuildLeavers(client: Client, eventData: EventLog[]) {
         ],
       })
     }
+  }
 
-    if (userList.length > 0) {
-      if (!owner) {
-        console.error('Missing owner')
-        return
-      }
+  if (!owner) {
+    console.error('Missing owner')
+    return
+  }
 
-      await owner.send(
-        `${userList.length === 1 ? 'Someone' : 'Some people'} left the ingame guild: ${userList.join(', ')}`,
-      )
-    }
+  if (leavers.length > 0) {
+    await owner.send(
+      `${leavers.length === 1 ? 'Someone' : 'Some people'} left the ingame guild: ${leavers.join(', ')}`,
+    )
+  }
+
+  if (kicked.length > 0) {
+    const kickedSummary = kicked.map((event) => `\`${event.user}\` (by ${event.kicked_by})`).join(', ')
+    await owner.send(
+      `${kicked.length === 1 ? 'Someone was' : 'Some people were'} kicked from the ingame guild: ${kickedSummary}`,
+    )
   }
 }
