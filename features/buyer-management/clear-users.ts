@@ -29,7 +29,8 @@ async function clearUsers(client: Client, guildId: string) {
     return false
   }) as Collection<string, TextChannel>
 
-  let twoWeeksAgo = new Date(new Date().getTime() - 14 * 24 * 60 * 60 * 1000)
+  const days = 28
+  let fourWeeksAgo = new Date(new Date().getTime() - days * 24 * 60 * 60 * 1000)
 
   for (let i = 0; i < riseChannels.size; i++) {
     const channel = riseChannels.at(i)!
@@ -63,7 +64,7 @@ async function clearUsers(client: Client, guildId: string) {
       }
     }
 
-    const shouldYeet = twoWeeksAgo > lastCreatedAt
+    const shouldYeet = fourWeeksAgo > lastCreatedAt
 
     const userId = channel.topic?.split(' ').shift()
 
