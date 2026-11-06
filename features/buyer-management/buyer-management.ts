@@ -199,6 +199,11 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
         })
       }
     } catch (e: any) {
+      if (e.message.includes('Unknown Channel')) {
+        // This ahppens when the clear-users process kicks the user.
+        return
+      }
+
       console.error('[Error] During cleanup after user leave;')
       console.error(e.message)
     }
