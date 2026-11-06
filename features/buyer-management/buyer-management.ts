@@ -460,18 +460,23 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
       if (!message.content.includes('Contacted by')) {
         logCallDibs(interaction.user.id, interaction.user.username, message.createdTimestamp)
 
-        message.edit(`~~${message.content}~~\r\nContacted by ${userMention(interaction.user.id)}`)
+        await message.edit({
+          content: `~~${message.content}~~\r\nContacted by ${userMention(interaction.user.id)}`,
+          components: [],
+        })
 
         await buttonInteraction.reply({
           content: `You called dibs!\r\nPlease move the channel to ${channelMention(contactedCategoryChannelId)}`,
           flags: MessageFlags.Ephemeral,
         })
       } else if (message.content.includes(interaction.user.id)) {
+        await message.edit({ components: [] })
         await buttonInteraction.reply({
           content: '⚠️ You already called dibs! ⚠️',
           flags: MessageFlags.Ephemeral,
         })
       } else {
+        await message.edit({ components: [] })
         await buttonInteraction.reply({
           content: 'Oops, too slow!',
           flags: MessageFlags.Ephemeral,
