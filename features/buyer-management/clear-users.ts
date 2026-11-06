@@ -21,7 +21,8 @@ async function clearUsers(client: Client, guildId: string) {
     if (
       channel instanceof TextChannel &&
       channel.guildId === guildId &&
-      channel.parent?.name?.startsWith('Customers')
+      channel.parent?.name?.startsWith('Customers') &&
+      channel.name.startsWith('🚩goodbye')
     ) {
       return true
     }
@@ -29,8 +30,8 @@ async function clearUsers(client: Client, guildId: string) {
     return false
   }) as Collection<string, TextChannel>
 
-  const days = 28
-  let fourWeeksAgo = new Date(new Date().getTime() - days * 24 * 60 * 60 * 1000)
+  const days = 2
+  let channelExpiredDate = new Date(new Date().getTime() - days * 24 * 60 * 60 * 1000)
 
   for (let i = 0; i < riseChannels.size; i++) {
     const channel = riseChannels.at(i)!
@@ -64,7 +65,7 @@ async function clearUsers(client: Client, guildId: string) {
       }
     }
 
-    const shouldYeet = fourWeeksAgo > lastCreatedAt
+    const shouldYeet = channelExpiredDate > lastCreatedAt
 
     const userId = channel.topic?.split(' ').shift()
 
