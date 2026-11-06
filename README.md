@@ -37,10 +37,9 @@ Create/manage apps at [Discord Developer Portal](https://discord.com/developers/
 
 ### Buyer management
 
-| Variable           | How to fill                                                                                                                                                 |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `PRICE_UPDATE_URL` | Full URL opened by the price-list embed button                                                                                                              |
-| `INVITE_<guildId>` | Discord invite **code** only (the part after `discord.gg/`). Guild id is the snowflake in the variable name. Used when kicking users and linking them back. |
+| Variable           | How to fill                                    |
+| ------------------ | ---------------------------------------------- |
+| `PRICE_UPDATE_URL` | Full URL opened by the price-list embed button |
 
 ### LEAF
 

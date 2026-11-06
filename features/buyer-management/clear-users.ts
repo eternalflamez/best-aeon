@@ -1,7 +1,5 @@
 import { Client, Collection, TextChannel } from 'discord.js'
 import cron from 'node-cron'
-import { config } from 'dotenv'
-config()
 
 export default function automaticallyClearUsers(client: Client, guildId: string) {
   clearUsers(client, guildId)
@@ -65,67 +63,15 @@ async function clearUsers(client: Client, guildId: string) {
       }
     }
 
-    const shouldYeet = channelExpiredDate > lastCreatedAt
+    if (channelExpiredDate <= lastCreatedAt) {
+      continue
+    }
 
-    const userId = channel.topic?.split(' ').shift()
-
-    if (userId) {
-      let member
-
-      try {
-        member = await channel.guild.members.fetch(userId)
-      } catch {
-        console.log(guildId, 'deleted memberless channel:', channel.name)
-        channel.delete()
-        continue
-      }
-
-      if (!shouldYeet) {
-        continue
-      }
-
-      if (member.roles.cache.size === 1) {
-        const inviteCode = process.env['INVITE_' + guildId]
-
-        console.log(
-          guildId,
-          'kicked:',
-          channel.name,
-          inviteCode ? `https://discord.gg/${inviteCode}` : '(no invite env set)',
-        )
-
-        if (inviteCode) {
-          const user = await client.users.fetch(userId)
-
-          try {
-            await user.send(String.raw`Greetings, I am a bot. Messages sent to me are not read by real people.
-          We noticed you have been inactive on our discord server, so you have been kicked.
-          
-          Not to worry, if you want to buy anything or browse our prices again, feel free to rejoin:
-          https://discord.gg/${inviteCode}`)
-          } catch (e: any) {
-            console.error('[Error] Failed to message user due to ', e.message)
-          }
-        }
-
-        try {
-          await member.kick()
-        } catch (e: any) {
-          console.error('[Error] Failed to kick user due to ', e.message)
-        }
-
-        await new Promise<void>((resolve) => {
-          setTimeout(() => {
-            resolve()
-          }, 200)
-        })
-      }
-
-      try {
-        await channel.delete()
-      } catch (e: any) {
-        console.error('[Error] Failed to delete user channel due to ', e.message)
-      }
+    try {
+      console.log(guildId, 'deleted channel:', channel.name)
+      await channel.delete()
+    } catch (e: any) {
+      console.error('[Error] Failed to delete user channel due to ', e.message)
     }
   }
 }

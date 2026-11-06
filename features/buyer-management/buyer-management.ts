@@ -166,11 +166,11 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
 
       const userChannel = channels.find((channel) => {
         if (!(channel instanceof TextChannel)) {
-          return
+          return false
         }
 
         return channel.topic?.includes(`${member.id} `) && channel.name.startsWith('welcome')
-      })
+      }) as TextChannel
 
       if (!userChannel) {
         console.log(`${member.user.displayName} left but could not find a channel for them.`)
@@ -198,12 +198,9 @@ I am a bot, here to assist you in finding and purchasing Guild Wars 2 services. 
           position: userChannel.parent!.children.cache.size - 1,
         })
       }
-    } catch (e: any) {
-      if (e.message.includes('Unknown Channel')) {
-        // This happens when the clear-users process kicks the user.
-        return
-      }
 
+      await userChannel.send('The customer has left')
+    } catch (e: any) {
       console.error('[Error] During cleanup after user leave;')
       console.error(e.message)
     }
