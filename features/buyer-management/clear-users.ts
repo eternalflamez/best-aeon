@@ -4,7 +4,9 @@ import { config } from 'dotenv'
 config()
 
 export default function automaticallyClearUsers(client: Client, guildId: string) {
-  cron.schedule('0 2 * * *', async () => {
+  clearUsers(client, guildId)
+
+  cron.schedule('0 17 * * *', async () => {
     try {
       await clearUsers(client, guildId)
     } catch (e: any) {
@@ -19,7 +21,7 @@ async function clearUsers(client: Client, guildId: string) {
     if (
       channel instanceof TextChannel &&
       channel.guildId === guildId &&
-      channel.parent?.name?.startsWith('gamers-only')
+      channel.parent?.name?.startsWith('Customers')
     ) {
       return true
     }
@@ -83,7 +85,12 @@ async function clearUsers(client: Client, guildId: string) {
       if (member.roles.cache.size === 1) {
         const inviteCode = process.env['INVITE_' + guildId]
 
-        console.log(guildId, 'kicked:', channel.name, inviteCode ? `https://discord.gg/${inviteCode}` : '(no invite env set)')
+        console.log(
+          guildId,
+          'kicked:',
+          channel.name,
+          inviteCode ? `https://discord.gg/${inviteCode}` : '(no invite env set)',
+        )
 
         if (inviteCode) {
           const user = await client.users.fetch(userId)
